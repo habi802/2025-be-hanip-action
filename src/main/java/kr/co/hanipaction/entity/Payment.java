@@ -1,6 +1,8 @@
 package kr.co.hanipaction.entity;
 
 import jakarta.persistence.*;
+import kr.co.hanipaction.configuration.enumcode.model.PaymentType;
+import kr.co.hanipaction.entity.localDateTime.UpdatedAt;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -11,21 +13,22 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class Payment {
-    @EmbeddedId
-    private PaymentIds paymentIds;
+public class Payment extends UpdatedAt {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long payId;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="order_id")
-    @MapsId("orderId")
     private Orders orderId;
 
     @Column(nullable = false,length = 20)
     private String tid;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="amount")
-    private Orders amount;
+    @Column(nullable = false)
+    private int amount;
 
+    @Column(nullable = false, length = 2, columnDefinition = "varchar(2) default '01'")
+    private PaymentType payment;
 
 }

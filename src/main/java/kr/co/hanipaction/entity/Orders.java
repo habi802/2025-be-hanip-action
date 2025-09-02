@@ -44,7 +44,7 @@ public class Orders {
     @Column(nullable = false, length = 2)
     private StatusType status;
 
-    @Column(nullable = false, columnDefinition = "TINYINT(1)")
-    private int isDeleted;
+    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT '0'")
+    private Integer isDeleted;
 
 }

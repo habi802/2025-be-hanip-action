@@ -39,8 +39,8 @@ public class Menu extends UpdatedAt {
     @Column
     private String imagePath;
 
-    @Column
-    private int isSoldOut;
+    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT '0'")
+    private Integer isSoldOut;
 
     @Column(nullable = false, length = 2, columnDefinition = "varchar(2) default '01'")
     private MenuType menuType;

@@ -11,7 +11,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Embeddable
 @EqualsAndHashCode
-public class PaymentIds implements Serializable {
-    private long payId;
-    private long orderId;
+public class ReviewImageIds implements Serializable {
+    private long id;
+    private long reviewId;
 }

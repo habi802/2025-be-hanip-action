@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderMenus extends UpdatedAt {
+    // 복합키 수정할지, OnetoOne 자동 유니크 걸림
     @EmbeddedId
     private OrderMenusIds orderMenusIds;
 
