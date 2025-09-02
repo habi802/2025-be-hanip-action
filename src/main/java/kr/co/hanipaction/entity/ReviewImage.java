@@ -18,11 +18,10 @@ public class ReviewImage extends UpdatedAt {
     @ManyToOne
     @JoinColumn(name="review_id")
     @MapsId("reviewId")
-    @Comment("리뷰 아이디")
     private Review review;
 
     @Column(length = 200)
-    @Comment("리뷰 이미지")
+    @Comment("이미지 경로")
     private String imagePath;
 
 
