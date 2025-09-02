@@ -2,6 +2,8 @@ package kr.co.hanipaction.entity;
 
 
 import jakarta.persistence.*;
+import kr.co.hanipaction.entity.ids.StoreId;
+import kr.co.hanipaction.entity.ids.UserId;
 import kr.co.hanipaction.entity.localDateTime.UpdatedAt;
 import lombok.*;
 

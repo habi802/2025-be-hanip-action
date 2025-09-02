@@ -3,6 +3,8 @@ package kr.co.hanipaction.entity;
 import jakarta.persistence.*;
 import kr.co.hanipaction.configuration.enumcode.model.PaymentType;
 import kr.co.hanipaction.configuration.enumcode.model.StatusType;
+import kr.co.hanipaction.entity.ids.StoreId;
+import kr.co.hanipaction.entity.ids.UserId;
 import lombok.EqualsAndHashCode;
 
 @Entity
