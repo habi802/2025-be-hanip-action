@@ -1,4 +1,4 @@
-package kr.co.hanipaction.entity.ids;
+package kr.co.hanipaction.entity.actor;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
