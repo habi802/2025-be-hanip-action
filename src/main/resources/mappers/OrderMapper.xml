@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.hanipaction.application.order.OrderMapper">
+    <insert id="save" useGeneratedKeys="true" keyProperty="id" >
+        INSERT INTO orders
+        SET user_id = #{userId}
+        , store_id = #{storeId}
+        , address = #{address}
+        , amount = #{amount}
+
+    </insert>
+
+    <!--   요구사항명세서 : 주문조회  -->
+<!--    결제수단 추가예정-->
+    <select id="findByOrderIdAndUserId">
+        SELECT o.id, o.user_id, s.`name`AS storeName, o.store_id AS storeId
+        , o.amount, o.`status`, o.created, s.image_path, o.is_deleted
+        FROM orders o
+        JOIN stores s ON o.store_id = s.id
+        JOIN users u ON o.user_id = u.id
+        WHERE o.user_id = #{userId}
+        AND is_deleted = 0
+        ORDER BY o.created DESC
+    </select>
+
+<!--  주문상세조회-->
+    <select id="findById">
+        SELECT o.id,o.user_id,s.`name`AS storeName,o.store_id AS storeId ,m.`name` AS menuName ,om.quantity,m.price,o.amount,o.`status`
+        FROM orders o
+        JOIN order_menus om
+        ON o.id = om.order_id
+        LEFT JOIN stores s
+        ON o.store_id = s.id
+        JOIN menus m
+        ON om.menu_id = m.id
+        WHERE o.id = #{id} ;
+    </select>
+
+<!--일단 위에랑 동일 -->
+
+
+<!--   주문상태변경-->
+    <update id="updateStatus">
+        UPDATE orders
+        SET `status` = #{status}
+        WHERE	id = #{orderId};
+    </update>
+<!-- 주문 삭제 -->
+    <update id="hideByOrderId">
+        UPDATE orders
+        SET is_deleted = 1
+        WHERE	id = #{orderId}
+    </update>
+
+    <select id="findOrderByStoreId">
+        SELECT o.id, o.user_id, s.name AS storeName,
+        u.name AS userName, o.amount, o.status, s.id AS storeId,
+        o.address, o.postcode, o.address_detail, o.created, o.updated, u.phone,
+        o.is_deleted
+        FROM orders o
+        JOIN users u ON o.user_id = u.id
+        JOIN stores s ON s.id = o.store_id
+        WHERE o.store_id = #{storeId}
+        ORDER BY o.updated DESC
+    </select>
+
+    <select id="findByStoreIdAndDate">
+        SELECT o.id, o.user_id, s.name AS storeName,
+        u.name AS userName, o.amount, o.status, s.id AS storeId,
+        o.address, o.postcode, o.address_detail, o.created, o.updated, u.phone,
+        o.is_deleted
+        FROM orders o
+        JOIN users u ON o.user_id = u.id
+        JOIN stores s ON s.id = o.store_id
+        WHERE o.store_id = #{storeId}
+        <if test="startDate != null and endDate != null">
+            AND o.created BETWEEN #{startDate} AND #{endDate}
+        </if>
+        ORDER BY o.updated DESC
+    </select>
+
+
+
+</mapper>

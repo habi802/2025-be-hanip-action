@@ -1,0 +1,50 @@
+package kr.co.hanipaction.entity;
+
+import jakarta.persistence.*;
+import kr.co.hanipaction.entity.enums.MenuType;
+import kr.co.hanipaction.entity.localDateTime.UpdatedAt;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
+public class Menu extends UpdatedAt {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Embedded
+    private StoreId storeId;
+
+    @Embedded
+    private UserId userId;
+
+    @Column (nullable = false, length = 50)
+    private String name;
+
+    @Column(columnDefinition = "TEXT")
+    private String comment;
+
+    @Column(nullable = false)
+    private int price;
+
+    @Column
+    private String imagePath;
+
+    @Column
+    private int isSoldOut;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private MenuType menuType;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "menuId", cascade=CascadeType.ALL,orphanRemoval = true)
+    private List<MenuOption> menuOptionList = new ArrayList<>(1);
+}

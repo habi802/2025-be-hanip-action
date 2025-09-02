@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace = "kr.co.hanipaction.application.review.ReviewMapper">
+    <!-- 등록 -->
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO reviews
+        SET id = #{id},
+            order_id = #{orderId},
+            rating = #{rating},
+            comment = #{comment},
+            image_path = #{imagePath}
+    </insert>
+
+    <!-- 리뷰 수정-->
+    <update id="modify" useGeneratedKeys="true" keyProperty="id">
+        UPDATE reviews
+        SET rating = #{rating}
+        ,   comment = #{comment}
+        ,    image_path = #{imagePath}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 가게 리뷰 조회 -->
+    <select id="findAllByStoreIdOrderByIdDesc">
+        SELECT r.id, u.name AS user_name, r.rating, m.store_id, m.name AS menu_name, COUNT(m.id) AS menu_count, r.image_path, r.comment, r.owner_comment, r.created
+        FROM reviews r
+        JOIN orders o
+        ON o.id = r.order_id
+        JOIN users u
+        ON u.id = o.user_id
+        JOIN order_menus om
+        ON om.order_id = o.id
+        JOIN menus m
+        ON m.id = om.menu_id
+        WHERE o.store_id = #{storeId}
+        GROUP BY r.id
+        ORDER BY r.id DESC
+    </select>
+
+    <!-- 유저(자신)이 쓴 리뷰 조회 -->
+    <select id="findAllByUserIdOrderByIdDesc">
+        SELECT r.id, u.name AS user_name, r.rating, m.store_id, m.name AS menu_name, COUNT(m.id) AS menu_count, r.image_path, r.comment, r.owner_comment, r.created
+        FROM reviews r
+        JOIN orders o
+        ON o.id = r.order_id
+        JOIN users u
+        ON u.id = o.user_id
+        JOIN order_menus om
+        ON om.order_id = o.id
+        JOIN menus m
+        ON m.id = om.menu_id
+        WHERE o.user_id = #{userId}
+        GROUP BY r.id
+        ORDER BY r.id DESC
+    </select>
+
+<!--     리뷰 상세 조회 -->
+    <select id="findByorderId">
+        SELECT id, order_id AS orderId, rating, comment, created, image_path
+        FROM reviews
+        WHERE order_id = #{orderId}
+    </select>
+
+    <!-- 사장 답글 등록 전 본인 가게인지 검증 -->
+    <select id="findByReviewIdAndStoreId">
+        SELECT r.id
+        FROM reviews r
+        JOIN orders o
+        ON o.id = r.order_id
+        WHERE r.id = #{reviewId}
+        AND o.store_id = #{storeId}
+    </select>
+
+    <!-- 사장 답글 등록 -->
+    <update id="updateOwnerComment">
+        UPDATE reviews
+        SET owner_comment = #{ownerComment}
+        WHERE id = #{reviewId}
+    </update>
+
+    <!-- 리뷰 삭제 -->
+    <delete id="delete">
+        DELETE FROM reviews
+        WHERE id = #{reviewId}
+        AND user_id = #{userId}
+    </delete>
+</mapper>

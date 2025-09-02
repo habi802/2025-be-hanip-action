@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace = "kr.co.hanipaction.application.favorite.FavoriteMapper">
+
+    <insert id="save">
+        INSERT INTO favorites
+        SET user_id = #{userId},
+        store_id = #{storeId}
+    </insert>
+
+    <select id="findAllByUserId">
+        SELECT f.store_id, s.name, s.image_path,
+            COUNT(DISTINCT CONCAT(f.user_id, '_', f.store_id)) AS favorites,
+            IFNULL(AVG(r.rating), 0) AS rating,
+            COUNT(r.id) AS reviews
+        FROM favorites f
+        JOIN stores s
+        ON f.store_id = s.id
+        LEFT JOIN orders o
+        ON o.store_id = s.id
+        LEFT JOIN reviews r
+        ON r.order_id = o.id
+        WHERE f.user_id = #{userId}
+        GROUP BY f.store_id
+        ORDER BY f.store_id
+    </select>
+
+    <select id="findByStoreIdAndUserId">
+        SELECT user_id
+        FROM favorites
+        WHERE store_id = #{storeId}
+        AND user_id = #{userId}
+    </select>
+
+    <delete id="deleteByUserIdAndStoreId">
+        DELETE FROM favorites
+        WHERE user_id = #{userId}
+        AND store_id = #{storeId}
+    </delete>
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.hanipaction.application.order.OrderMenusMapper">
+
+    <insert id="SaveQuantity">
+        INSERT INTO order_menus (order_id, menu_id, quantity)
+        VALUES
+        <foreach collection="menuId" item="menu" separator=",">
+            (#{orderId}, #{menu.menuId}, #{menu.quantity})
+        </foreach>
+    </insert>
+
+    <select id="findAllByOrderId">
+        SELECT om.order_id, om.menu_id, om.quantity, m.name, m.price
+        FROM order_menus om
+        JOIN orders o ON o.id = om.order_id
+        JOIN menus m ON m.id = om.menu_id
+        WHERE om.order_id = #{orderId}
+    </select>
+
+    <select id="findAllByOrderIdFromUser">
+        SELECT om.order_id, om.menu_id, om.quantity, m.name, m.price
+        FROM order_menus om
+        JOIN orders o ON o.id = om.order_id
+        JOIN menus m ON m.id = om.menu_id
+        WHERE om.order_id = #{orderId}
+    </select>
+
+</mapper>
