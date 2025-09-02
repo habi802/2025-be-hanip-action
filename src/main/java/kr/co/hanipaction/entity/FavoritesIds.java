@@ -17,10 +17,8 @@ import java.io.Serializable;
 @EqualsAndHashCode
 public class FavoritesIds implements Serializable {
     @Embedded
-    @Comment("가게 아이디")
     private StoreId storeId;
 
     @Embedded
-    @Comment("유저 아이디")
     private UserId userId;
 }

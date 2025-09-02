@@ -20,11 +20,9 @@ public class Contact extends UpdatedAt {
     private long id;
 
     @Embedded
-    @Comment("유저 아이디")
     private UserId userId;
 
     @Embedded
-    @Comment("가게 아이디")
     private StoreId storeId;
 
     @Column

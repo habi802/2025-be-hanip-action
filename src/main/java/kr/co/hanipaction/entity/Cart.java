@@ -21,14 +21,12 @@ public class Cart extends UpdatedAt {
     private Long id;
 
     @Embedded
-    @Comment("유저 아이디")
     private UserId userId;
 
     @Embedded
     private MenuId menuId;
 
     @Embedded
-    @Comment("가게 아이디")
     private StoreId storeId;
 
     @Column(nullable = false)
