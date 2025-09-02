@@ -36,12 +36,10 @@ public class Orders {
     @Column(columnDefinition = "TEXT")
     private String riderRequest;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 2)
     private PaymentType paymentType;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 2)
     private StatusType statusType;
 
     @Column(nullable = false, columnDefinition = "TINYINT(1)")
