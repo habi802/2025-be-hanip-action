@@ -1,7 +1,7 @@
 package kr.co.hanipaction.entity;
 
 import jakarta.persistence.*;
-import kr.co.hanipaction.entity.enums.MenuType;
+import kr.co.hanipaction.configuration.enumcode.model.MenuType;
 import kr.co.hanipaction.entity.localDateTime.UpdatedAt;
 import lombok.*;
 
@@ -40,11 +40,19 @@ public class Menu extends UpdatedAt {
     @Column
     private int isSoldOut;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 2)
     private MenuType menuType;
 
     @Builder.Default
     @OneToMany(mappedBy = "menuId", cascade=CascadeType.ALL,orphanRemoval = true)
     private List<MenuOption> menuOptionList = new ArrayList<>(1);
+
+    //기본값 설정
+//    @PrePersist
+//    public void setDefaultValues() {
+//        if (menuType == null) {
+//            menuType = MenuType.SINGLE;  // 기본값 설정
+//        }
+//    }
+
 }

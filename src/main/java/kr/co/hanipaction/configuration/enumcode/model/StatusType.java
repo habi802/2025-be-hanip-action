@@ -1,4 +1,4 @@
-package kr.co.hanipaction.entity.enums;
+package kr.co.hanipaction.configuration.enumcode.model;
 
 public enum StatusType {
     ORDERED,
