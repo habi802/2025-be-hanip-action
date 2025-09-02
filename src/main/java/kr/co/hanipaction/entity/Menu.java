@@ -19,7 +19,7 @@ import java.util.List;
 public class Menu extends UpdatedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Embedded
     private StoreId storeId;
@@ -42,7 +42,7 @@ public class Menu extends UpdatedAt {
     @Column
     private int isSoldOut;
 
-    @Column(nullable = false, length = 2)
+    @Column(nullable = false, length = 2, columnDefinition = "varchar(2) default '01'")
     private MenuType menuType;
 
     @Builder.Default

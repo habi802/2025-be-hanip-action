@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum PaymentType implements EnumMapperType {
+public enum OrdersType implements EnumMapperType {
     CARD("01","카드"),
     BANK("02","뱅크"),
     ON_SITE("03","오프라인결제"),
@@ -18,7 +18,7 @@ public enum PaymentType implements EnumMapperType {
     private final String value;
 
     @Converter(autoApply = true)
-    public static class CodeConverter extends AbstractEnumCodeConverter<PaymentType> {
-        public CodeConverter() { super(PaymentType.class, false); }
+    public static class CodeConverter extends AbstractEnumCodeConverter<OrdersType> {
+        public CodeConverter() { super(OrdersType.class, false); }
     }
 }

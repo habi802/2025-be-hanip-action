@@ -1,7 +1,7 @@
 package kr.co.hanipaction.entity;
 
 import jakarta.persistence.*;
-import kr.co.hanipaction.configuration.enumcode.model.PaymentType;
+import kr.co.hanipaction.configuration.enumcode.model.OrdersType;
 import kr.co.hanipaction.configuration.enumcode.model.StatusType;
 import kr.co.hanipaction.entity.actor.StoreId;
 import kr.co.hanipaction.entity.actor.UserId;
@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 public class Orders {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     @Embedded
     private UserId userId;
@@ -39,10 +39,10 @@ public class Orders {
     private String riderRequest;
 
     @Column(nullable = false, length = 2)
-    private PaymentType paymentType;
+    private OrdersType payment;
 
     @Column(nullable = false, length = 2)
-    private StatusType statusType;
+    private StatusType status;
 
     @Column(nullable = false, columnDefinition = "TINYINT(1)")
     private int isDeleted;
