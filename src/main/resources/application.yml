@@ -26,10 +26,36 @@ spring:
   jpa:
     database: mysql
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         jdbc:
           batch_size: 50
         format_sql: true
         order_updates: true
+
+constants:
+  file:
+    directory: D:/hanip/images
+  jwt:
+    issuer: green502@green.com
+    bearer-format: JWT
+
+    claim-key: signedUser
+    secret-key: DaeguGreenArtAcademyClass502MsaClassFightingkkkkkk
+
+    access-token-cookie-name: access-token
+    access-token-cookie-path: /
+    access-token-cookie-validity-seconds: 900
+    access-token-validity-milliseconds: 900_000
+
+    refresh-token-cookie-name: refresh-token
+    refresh-token-cookie-path: /api/user/reissue
+    refresh-token-cookie-validity-seconds: 1_296_000
+    refresh-token-validity-milliseconds: 1_296_000_000
+
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: mappers/**/*.xml

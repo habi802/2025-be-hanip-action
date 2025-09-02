@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace = "kr.co.hanipaction.application.menu.MenuMapper">
+
+    <insert id="menuPost" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO menus
+        SET user_id = #{userId}
+        ,   store_id = #{storeId}
+        ,   name = #{name}
+        ,   comment =#{comment}
+        ,   price = #{price}
+        ,   image_path = #{imagePath}
+    </insert>
+
+
+
+    <select id="menuGetList">
+        SELECT id AS menuId, store_id, name, comment, price, image_path
+        FROM menus
+        WHERE store_id = #{storeId}
+        ORDER BY id DESC
+    </select>
+
+    <select id="menuGetOne">
+        SELECT id AS menuId, store_id, name, comment, price, image_path
+        FROM menus
+        WHERE id = #{menuId}
+    </select>
+
+    <update id="menuModify">
+        UPDATE menus
+        SET name = #{name}
+        ,   user_id = #{userId}
+        ,   comment =#{comment}
+        ,   price = #{price}
+        <if test="imagePath != null">
+        ,   image_path = #{imagePath}
+        </if>
+        WHERE id = #{id}
+    </update>
+    <delete id="menuDelete">
+        DELETE FROM menus
+        WHERE id = #{menuId}
+        AND user_id = #{userId}
+    </delete>
+
+    <select id="findByUserId">
+        SELECT id AS menuId, store_id, name, comment, price, image_path
+        FROM menus
+        WHERE user_id = #{userId}
+        ORDER BY id DESC
+    </select>
+
+
+
+
+</mapper>
