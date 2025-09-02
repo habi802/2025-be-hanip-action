@@ -29,6 +29,4 @@ public class Review extends UpdatedAt {
 
     @Column(columnDefinition = "TEXT")
     private String ownerComment;
-
-
 }

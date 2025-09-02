@@ -2,10 +2,12 @@ package kr.co.hanipaction.entity;
 
 
 import jakarta.persistence.*;
+import kr.co.hanipaction.entity.actor.MenuId;
 import kr.co.hanipaction.entity.actor.StoreId;
 import kr.co.hanipaction.entity.actor.UserId;
 import kr.co.hanipaction.entity.localDateTime.UpdatedAt;
 import lombok.*;
+import org.hibernate.annotations.Comment;
 
 @Builder
 @NoArgsConstructor
@@ -15,19 +17,22 @@ import lombok.*;
 public class Cart extends UpdatedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Comment("카트 아이디")
     private Long id;
 
     @Embedded
+    @Comment("유저 아이디")
     private UserId userId;
 
-    @ManyToOne
-    @JoinColumn(nullable = false, name = "menu_id")
-    private Menu menuId;
+    @Embedded
+    private MenuId menuId;
 
     @Embedded
+    @Comment("가게 아이디")
     private StoreId storeId;
 
     @Column(nullable = false)
+    @Comment("수량")
     private int quantity;
 
 

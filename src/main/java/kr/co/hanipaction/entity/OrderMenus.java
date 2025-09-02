@@ -2,6 +2,8 @@ package kr.co.hanipaction.entity;
 
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.Order;
+import kr.co.hanipaction.entity.actor.MenuId;
+import kr.co.hanipaction.entity.actor.MenuOptionId;
 import kr.co.hanipaction.entity.localDateTime.CreatedAt;
 import kr.co.hanipaction.entity.localDateTime.UpdatedAt;
 import lombok.AllArgsConstructor;
@@ -15,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderMenus extends UpdatedAt {
-    // 복합키 수정할지, OnetoOne 자동 유니크 걸림
+    // 메뉴 아이디 중복 적용이라 검토해야함
     @EmbeddedId
     private OrderMenusIds orderMenusIds;
 
@@ -24,14 +26,6 @@ public class OrderMenus extends UpdatedAt {
     @MapsId("orderId")
     private Orders orderId;
 
-    // 포링키 안 걸림, 이유 찾아봐야함
-    @ManyToOne
-    @JoinColumn(name="menu_id")
-    @MapsId("menuId")
-    private Menu menuId;
-
-    @ManyToOne
-    @JoinColumn(name="option_id")
-    private MenuOption menuOption;
-
+    @Embedded
+    private MenuOptionId menuOptionId;
 }
