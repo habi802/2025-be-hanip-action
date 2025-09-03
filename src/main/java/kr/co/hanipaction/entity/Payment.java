@@ -21,7 +21,8 @@ public class Payment extends UpdatedAt {
     private long payId;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="order_id")
+    @JoinColumn(name="order_id", foreignKey = @ForeignKey(name = "fk_order_id"))
+    @Comment("오더 아이디")
     private Orders orderId;
 
     @Column(nullable = false,length = 20)

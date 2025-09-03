@@ -1,8 +1,8 @@
 package kr.co.hanipaction.application.order;
 
 import kr.co.hanipaction.application.cart.CartMapper;
-import kr.co.hanipaction.application.menu.MenuMapper;
-import kr.co.hanipaction.application.menu.model.MenuGetRes;
+//import kr.co.hanipaction.application.menu.MenuMapper;
+//import kr.co.hanipaction.application.menu.model.MenuGetRes;
 import kr.co.hanipaction.application.order.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import java.util.List;
 public class OrderService {
     private final OrderMapper orderMapper;
     private final OrderMenusMapper orderMenusMapper;
-    private final MenuMapper menuMapper;
+//    private final MenuMapper menuMapper;
     private final CartMapper cartMapper;
 
     // ----------요구사항명세서 : order-주문등록-------------
@@ -32,9 +32,9 @@ public class OrderService {
         // 구매 총금액 (menu 전달 받고 구현예정)
         int amount = 0;
         for (OrderMenuVo item : req.getOrders()) {
-            MenuGetRes menu = menuMapper.menuGetOne(item.getMenuId());
+//            MenuGetRes menu = menuMapper.menuGetOne(item.getMenuId());
 
-            amount += menu.getPrice() * item.getQuantity();  //수량 x 메뉴가격 예정
+//            amount += menu.getPrice() * item.getQuantity();  //수량 x 메뉴가격 예정
         }
         log.info("amount={}", amount);
 

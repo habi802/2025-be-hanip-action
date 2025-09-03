@@ -19,8 +19,9 @@ public class Review extends UpdatedAt {
     @Comment("리뷰 아이디")
     private long id;
 
-    @ManyToOne
-    @JoinColumn(name="order_id")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_id")
+    @Comment("오더 아이디")
     private Orders orderId;
 
     @Column(nullable = false, precision = 2, scale = 1)
