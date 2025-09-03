@@ -16,10 +16,10 @@ public class Orders {
     @Comment("오더 아이디")
     private long id;
 
-    @Embedded
+    @Column(nullable = false)
     private UserId userId;
 
-    @Embedded
+    @Column(nullable = false)
     private StoreId storeId;
 
     @Column(nullable = false, length = 12)
