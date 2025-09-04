@@ -35,4 +35,16 @@ public class Review extends UpdatedAt {
     @Column(columnDefinition = "TEXT")
     @Comment("오너 코멘트")
     private String ownerComment;
+
+    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT '0'")
+    @Comment("리뷰 숨김 처리, (0: 비활성화, 1: 활성화)")
+    private Integer isHide;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.isHide == null) {
+            this.isHide = 0;
+        }
+    }
+
 }

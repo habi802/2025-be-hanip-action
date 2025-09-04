@@ -57,5 +57,11 @@ public class Orders {
     @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT '0'")
     @Comment("삭제 여부")
     private Integer isDeleted;
+    @PrePersist
+    public void prePersist() {
+        if (this.isDeleted == null) {
+            this.isDeleted = 0;
+        }
+    }
 
 }
