@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kr.co.hanipaction.configuration.model.SignedUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,12 +29,13 @@ public class UserHeaderAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        String signedUserJson = request.getHeader("signedUser");
-        log.info("signedUserJson: {}", signedUserJson);
+        String signedUserId  = request.getHeader("signedUser");
+        log.info("signedUserJson: {}", signedUserId );
 
-        if (signedUserJson != null) {
-            UserPrincipal userPrincipal = objectMapper.readValue(signedUserJson, UserPrincipal.class);
-            Authentication auth = new UsernamePasswordAuthenticationToken(userPrincipal, null, null);
+        if (signedUserId  != null) {
+            //UserPrincipal userPrincipal = objectMapper.readValue(signedUserJson, UserPrincipal.class);
+            SignedUser signedUser = new SignedUser(Long.valueOf(signedUserId));
+            Authentication auth = new UsernamePasswordAuthenticationToken(signedUser, null, null);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
 

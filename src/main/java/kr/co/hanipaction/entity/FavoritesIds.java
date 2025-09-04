@@ -16,9 +16,8 @@ import java.io.Serializable;
 @Embeddable
 @EqualsAndHashCode
 public class FavoritesIds implements Serializable {
-    @Embedded
-    private StoreId storeId;
 
-    @Embedded
-    private UserId userId;
+    private long storeId;
+
+    private long userId;
 }

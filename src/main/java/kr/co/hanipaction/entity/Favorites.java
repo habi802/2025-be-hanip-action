@@ -1,9 +1,6 @@
 package kr.co.hanipaction.entity;
 
-import jakarta.persistence.Embedded;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import kr.co.hanipaction.entity.actor.StoreId;
 import kr.co.hanipaction.entity.actor.UserId;
 import kr.co.hanipaction.entity.localDateTime.CreatedAt;
@@ -18,8 +15,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Favorites extends CreatedAt {
-    @EmbeddedId
-    private FavoritesIds favoritesIds;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    private long userId;
+    private long storeId;
 
 
 }
