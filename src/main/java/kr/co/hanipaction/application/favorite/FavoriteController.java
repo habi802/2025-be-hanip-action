@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @Slf4j
@@ -24,16 +25,24 @@ import java.util.List;
 public class FavoriteController {
     private final FavoriteService favoriteService;
 
+
+
     @PostMapping
     public ResultResponse<Integer> save(@RequestBody FavoritePostReq req, @AuthenticationPrincipal SignedUser signedUser) {
 //        Integer userId = (Integer) HttpUtils.getSessionValue(httpReq, UserConstants.LOGGED_IN_USER_ID);
-        if (signedUser.signedUserId == 0) {
+//        long userId = signedUser.getSignedUserId();
+
+        long userId = signedUser.signedUserId;
+        log.info("signed userId: {}", userId);
+//        log.info("signed user : {}",signedUser);
+        if (userId == 0) {
             return ResultResponse.success(null);
         }
-
-        req.setUserId(signedUser.signedUserId);
-        int result = favoriteService.save(req);
+        int result = favoriteService.save(userId,req);
         return ResultResponse.success(result);
+
+
+
     }
 
     @GetMapping

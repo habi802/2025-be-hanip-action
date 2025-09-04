@@ -42,7 +42,7 @@ constants:
     bearer-format: JWT
 
     claim-key: signedUser
-    secret-key: DaeguGreenArtAcademyClass502MsaClassFightingkkkkkk
+    secret-key: EvenTheDarkestNightWillEndAndTheSunWillRiseAgain2025!
 
     access-token-cookie-name: access-token
     access-token-cookie-path: /
