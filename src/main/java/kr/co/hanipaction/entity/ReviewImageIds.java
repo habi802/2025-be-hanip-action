@@ -15,6 +15,6 @@ import java.io.Serializable;
 public class ReviewImageIds implements Serializable {
     @Comment("이미지 아이디")
     private long id;
-    @Comment("리뷰 아이디")
-    private long reviewId;
+    @Comment("리뷰 이미지")
+    private String pic;
 }

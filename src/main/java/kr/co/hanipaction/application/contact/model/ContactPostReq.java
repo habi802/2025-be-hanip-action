@@ -14,5 +14,4 @@ public class ContactPostReq {
     @NotNull(message = "user_comment는 필수값")
     private String userComment;
     private String managerComment;
-    private String imagePath;
 }

@@ -17,12 +17,9 @@ public class ReviewImage extends UpdatedAt {
 
     @ManyToOne
     @JoinColumn(name="review_id")
-    @MapsId("reviewId")
+    @MapsId("id")
     private Review review;
 
-    @Column(length = 200)
-    @Comment("이미지 경로")
-    private String imagePath;
 
 
 }

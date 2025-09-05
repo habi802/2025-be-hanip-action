@@ -3,8 +3,9 @@ package kr.co.hanipaction.application.contact;
 
 import jakarta.validation.Valid;
 import jakarta.ws.rs.client.ResponseProcessingException;
-import kr.co.hanipaction.application.contact.model.*;
 import kr.co.hanipaction.configuration.model.ResultResponse;
+import kr.co.hanipaction.application.contact.model.*;
+
 import kr.co.hanipaction.configuration.model.SignedUser;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -31,6 +32,18 @@ public class ContactController {
         long userId=signedUser.signedUserId;
 
         ContactPostRes result = contactService.save(userId,req,pics);
+
+        if(result ==null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    String.format("문의글 작성에 실패하였습니다."));
+
+        }
+        if(pics.size() > 5) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST
+                    , String.format("사진은 %d장까지 선택 가능합니다.", 5));
+        }
+
+
         return new ResultResponse<>("문의글 등록 완료",result);
 
     }
@@ -65,7 +78,11 @@ public class ContactController {
         return  new ResultResponse<>("문의글 전체 조회 완료",response);
 
     }
+    // 유저의 문의글 1개를 조회한다
+    @GetMapping("/{userId}")
+    public ResultResponse<?> getContactsByUserId (@AuthenticationPrincipal SignedUser signedUser, @Valid @ModelAttribute ContactGetReq req, @PathVariable("user_id") long userId){
 
-
+        return null;
+    }
 
 }

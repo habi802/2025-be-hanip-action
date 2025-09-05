@@ -5,11 +5,17 @@ import kr.co.hanipaction.configuration.enumcode.model.OrdersType;
 import kr.co.hanipaction.configuration.enumcode.model.StatusType;
 import kr.co.hanipaction.entity.actor.StoreId;
 import kr.co.hanipaction.entity.actor.UserId;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
 @Entity
 @EqualsAndHashCode
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Orders {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,7 +23,7 @@ public class Orders {
     private long id;
 
     @Column(nullable = false)
-    private UserId userId;
+    private long userId;
 
     @Column(nullable = false)
     private StoreId storeId;
@@ -46,7 +52,7 @@ public class Orders {
     @Comment("요청 사항 (라이더)")
     private String riderRequest;
 
-    @Column(nullable = false, length = 2)
+    @Column(length = 2)
     @Comment("결제 방식")
     private OrdersType payment;
 

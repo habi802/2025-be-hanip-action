@@ -7,5 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface ContactRerository extends JpaRepository<Contact, Long> {
     Contact save(long userId);
+//    Contact findContactId(long contactId);
 
 }

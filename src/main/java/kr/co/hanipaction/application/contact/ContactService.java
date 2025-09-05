@@ -7,8 +7,10 @@ import kr.co.hanipaction.entity.Contact;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,19 +46,6 @@ public class ContactService {
     }
 
     public List<ContactGetRes> getContactList(ContactGetReq req){
-//        List<ContactGetRes> list = contactMapper.findAllContact(dto);
-//
-//        Set<Long> userIdList = list.stream().map(item-> item.getUserId()).collect(Collectors.toSet());
-//
-//        List<Long> contactList = new ArrayList<>(List.of().size());
-//
-//        for(ContactGetRes item: list){
-//            contactList.add(item.getId()); // 문의 pk 수집
-//            // starIdx 0, 10
-//            ContactGetRes contactGetRes = ContactGetRes
-//                    .builder().userId(item.getUserId()).title(item.getTitle()).createAt(item.getCreateAt()).id(item.getId()).build();
-//            ContactGetReq req =new ContactGetReq();
-//        }
         long startIdx = (req.getPage() - 1) * req.getRowPerPage(); // 시작 인덱스 계산
         long size = req.getRowPerPage();
 
@@ -66,4 +55,13 @@ public class ContactService {
         return   contactMapper.findAllContact(dto);
 
     }
+//    public ContactGetRes getContactListByUserId(long contactId){
+//        Contact contact = Contact.builder()
+//                .id(contactId)
+//                .build();
+//
+//       return contactRerository.findContactId(contact.getId());
+//
+//
+//    }
 }
