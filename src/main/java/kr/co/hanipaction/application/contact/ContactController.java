@@ -2,14 +2,17 @@ package kr.co.hanipaction.application.contact;
 
 
 import jakarta.validation.Valid;
+import jakarta.ws.rs.client.ResponseProcessingException;
 import kr.co.hanipaction.application.contact.model.*;
 import kr.co.hanipaction.configuration.model.ResultResponse;
 import kr.co.hanipaction.configuration.model.SignedUser;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +40,17 @@ public class ContactController {
     public ResultResponse<?> getContacts(@AuthenticationPrincipal SignedUser signedUser, @Valid @ModelAttribute ContactGetReq req){
         long userId = signedUser.signedUserId;
 
+        if(req.getPage()<0){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    String.format("페이지 조회에 실패하였습니다."));
+
+        }
+
+        if(req.getRowPerPage()<10 ||req.getRowPerPage()>=11){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    String.format("페이지 조회에 실패하였습니다."));
+
+        }
 
 
         List<ContactGetRes> contacts = contactService.getContactList(req);
