@@ -4,8 +4,13 @@ import kr.co.hanipaction.application.cart.CartMapper;
 //import kr.co.hanipaction.application.menu.MenuMapper;
 //import kr.co.hanipaction.application.menu.model.MenuGetRes;
 import kr.co.hanipaction.application.order.model.*;
+import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
+import kr.co.hanipaction.entity.Orders;
+import kr.co.hanipaction.entity.OrdersItem;
+import kr.co.hanipaction.entity.OrdersItemOption;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,47 +26,77 @@ public class OrderService {
     private final OrderMenusMapper orderMenusMapper;
 //    private final MenuMapper menuMapper;
     private final CartMapper cartMapper;
+    private final OrderRepository orderRepository;
 
     // ----------요구사항명세서 : order-주문등록-------------
-    @Transactional
-    public int saveOrder(OrderPostReq req, long logginedMemberId) {
-        //상품 정보 DB로 부터 가져오기.
-        //List<MenuGetListRes> menuList = menuMapper.menuGetList(req.getMenuIds());
+    //상품 정보 DB로 부터 가져오기.
+    //List<MenuGetListRes> menuList = menuMapper.menuGetList(req.getMenuIds());
 
 
-        // 구매 총금액 (menu 전달 받고 구현예정)
-        int amount = 0;
-        for (OrderMenuVo item : req.getOrders()) {
+    // 구매 총금액 (menu 전달 받고 구현예정)
+//        int amount = 0;
+//        for (OrderMenuVo item : req.getOrders()) {
 //            MenuGetRes menu = menuMapper.menuGetOne(item.getMenuId());
 
 //            amount += menu.getPrice() * item.getQuantity();  //수량 x 메뉴가격 예정
-        }
-        log.info("amount={}", amount);
+//        }
+//        log.info("amount={}", amount);
 
 
-        OrderPostDto orderPostDto = new OrderPostDto();
-        orderPostDto.setUserId(logginedMemberId);
-        orderPostDto.setStoreId(req.getStoreId());
-        orderPostDto.setAddress(req.getAddress());
-        orderPostDto.setAmount(amount);
-        log.info("orderPostDto={}", orderPostDto);
-        orderMapper.save(orderPostDto); // 이 시점에 orderPostDto.getId() 사용 가능 (주문 먼저 저장 → ID 채워짐 (Auto Increment)
+//        OrderPostDto orderPostDto = new OrderPostDto();
+//        orderPostDto.setUserId(logginedMemberId);
+//        orderPostDto.setStoreId(req.getStoreId());
+//        orderPostDto.setAddress(req.getAddress());
+//        orderPostDto.setAmount(amount);
+//        log.info("orderPostDto={}", orderPostDto);
+//        orderMapper.save(orderPostDto);  이 시점에 orderPostDto.getId() 사용 가능 (주문 먼저 저장 → ID 채워짐 (Auto Increment)
 
 
-        // OrderMenuPostDto 생성 , orders에 등록후 해당 id를 Dto에 담아 orderMenus로 전달
-        OrderMenuPostDto orderMenuPostDto = new OrderMenuPostDto();
-        orderMenuPostDto.setOrderId(orderPostDto.getId());
-        orderMenuPostDto.setMenuId(req.getOrders());
+    // OrderMenuPostDto 생성 , orders에 등록후 해당 id를 Dto에 담아 orderMenus로 전달
+//        OrderMenuPostDto orderMenuPostDto = new OrderMenuPostDto();
+//        orderMenuPostDto.setOrderId(orderPostDto.getId());
+//        orderMenuPostDto.setMenuId(req.getOrders());
 
-        log.info("orderMenuPostDto={}", orderMenuPostDto);
+//        log.info("orderMenuPostDto={}", orderMenuPostDto);
 
-        // 주문 메뉴 저장
-        orderMenusMapper.SaveQuantity(orderMenuPostDto);
+    // 주문 메뉴 저장
+//        orderMenusMapper.SaveQuantity(orderMenuPostDto);
 
-        // 주문 메뉴 저장 후 장바구니 삭제
-        cartMapper.deleteByAllUserId(logginedMemberId);
+    // 주문 메뉴 저장 후 장바구니 삭제
+//        cartMapper.deleteByAllUserId(logginedMemberId);
+    @Transactional
+    public Orders saveOrder(OrderPostDto dto, long loginedMemberId) {
 
-        return 1;
+        Orders orders = Orders.builder()
+                .userId(loginedMemberId)
+                .storeId(dto.getStoreId())
+                .postcode(dto.getPostcode())
+                .address(dto.getAddress())
+                .payment(dto.getPayment())
+                .status(dto.getStatus())
+                .build();
+
+        List<OrdersItem> orderItems = dto.getItems().stream().map(itemReq -> {
+            OrdersItem item = OrdersItem.builder()
+                    .menuId(itemReq.getMenuId())
+                    .quantity(itemReq.getQuantity())
+                    .orders(orders)
+                    .build();
+
+            List<OrdersItemOption> optionsNum = itemReq.getOptions().stream().map(optId ->
+                    OrdersItemOption.builder()
+                            .optionId(optId)
+                            .ordersItem(item)
+                            .build()
+            ).toList();
+
+            item.setOptions(optionsNum);
+            return item;
+        }).toList();
+
+        orders.setItems(orderItems);
+
+        return orderRepository.save(orders);
     }
 
 

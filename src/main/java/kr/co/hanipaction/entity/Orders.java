@@ -1,21 +1,24 @@
 package kr.co.hanipaction.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import kr.co.hanipaction.configuration.enumcode.model.OrdersType;
 import kr.co.hanipaction.configuration.enumcode.model.StatusType;
 import kr.co.hanipaction.entity.actor.StoreId;
 import kr.co.hanipaction.entity.actor.UserId;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Comment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @EqualsAndHashCode
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
+@Getter
 public class Orders {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +29,7 @@ public class Orders {
     private long userId;
 
     @Column(nullable = false)
-    private StoreId storeId;
+    private long storeId;
 
     @Column(nullable = false, length = 12)
     @Comment("우편 번호")
@@ -69,5 +72,8 @@ public class Orders {
             this.isDeleted = 0;
         }
     }
+    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<OrdersItem> items = new ArrayList<>();
 
 }

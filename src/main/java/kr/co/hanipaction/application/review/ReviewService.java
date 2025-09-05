@@ -30,6 +30,11 @@ public class ReviewService {
     @Transactional
     public ReviewPostRes save(List<MultipartFile> pics, ReviewPostReq req, long signedUserId) {
 
+        if(pics.size() > 5) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST
+                    , String.format("사진은 %d장까지 선택 가능합니다.", 5));
+        }
+
         Orders orders = orderRepository.findById(req.getOrderId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "주문을 찾을 수 없습니다."));
 
@@ -38,6 +43,8 @@ public class ReviewService {
                 .rating(req.getRating())
                 .comment(req.getComment())
                 .build();
+
+
 
         reviewRepository.save(review);
 
