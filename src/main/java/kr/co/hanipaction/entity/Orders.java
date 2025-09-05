@@ -1,15 +1,24 @@
 package kr.co.hanipaction.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import kr.co.hanipaction.configuration.enumcode.model.OrdersType;
 import kr.co.hanipaction.configuration.enumcode.model.StatusType;
 import kr.co.hanipaction.entity.actor.StoreId;
 import kr.co.hanipaction.entity.actor.UserId;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import org.hibernate.annotations.Comment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @EqualsAndHashCode
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
 public class Orders {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,10 +26,10 @@ public class Orders {
     private long id;
 
     @Column(nullable = false)
-    private UserId userId;
+    private long userId;
 
     @Column(nullable = false)
-    private StoreId storeId;
+    private long storeId;
 
     @Column(nullable = false, length = 12)
     @Comment("우편 번호")
@@ -46,7 +55,7 @@ public class Orders {
     @Comment("요청 사항 (라이더)")
     private String riderRequest;
 
-    @Column(nullable = false, length = 2)
+    @Column(length = 2)
     @Comment("결제 방식")
     private OrdersType payment;
 
@@ -57,5 +66,14 @@ public class Orders {
     @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT '0'")
     @Comment("삭제 여부")
     private Integer isDeleted;
+    @PrePersist
+    public void prePersist() {
+        if (this.isDeleted == null) {
+            this.isDeleted = 0;
+        }
+    }
+    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<OrdersItem> items = new ArrayList<>();
 
 }

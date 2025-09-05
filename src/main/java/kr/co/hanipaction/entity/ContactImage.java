@@ -1,9 +1,10 @@
 package kr.co.hanipaction.entity;
 
 import jakarta.persistence.*;
-import kr.co.hanipaction.entity.localDateTime.UpdatedAt;
+import kr.co.hanipaction.entity.localDateTime.CreatedAt;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+
 
 @Entity
 @EqualsAndHashCode
@@ -11,15 +12,14 @@ import org.hibernate.annotations.Comment;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReviewImage extends UpdatedAt {
+public class ContactImage extends CreatedAt {
+
     @EmbeddedId
-    private ReviewImageIds reviewImageIds;
+    private ContactImageIds contactImageIds;
 
     @ManyToOne
-    @JoinColumn(name="review_id")
+    @JoinColumn(name="contact_id")
     @MapsId("id")
-    private Review review;
-
-
+    private Contact contact;
 
 }
