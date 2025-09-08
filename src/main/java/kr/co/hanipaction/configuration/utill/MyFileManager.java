@@ -55,7 +55,7 @@ public class MyFileManager {
             try {
                 myFileUtils.transferTo(pic, savePath);
             } catch (IOException e) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "피드 이미지 저장에 실패하였습니다.");
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "리뷰 저장에 실패하였습니다.");
             }
         }
 
@@ -66,9 +66,14 @@ public class MyFileManager {
         return String.format("%s/%s/%d",  constFile.uploadDirectory, constFile.ContactPic, contactId);
     }
 
-    //피드 폴더 삭제
-    public void removeContactDirectory(long contactId) {
-        String directory =  makeContactDirectoryPath(contactId);
-        myFileUtils.deleteFolder(directory, true);
+    private String makeReviewDirectoryPath(long reviewId) {
+        return String.format("Review/%d", reviewId);
+    }
+
+    //리뷰 폴더 삭제
+    public void removeReviewDirectory(long reviewId) {
+        String directory =  makeReviewDirectoryPath(reviewId);
+        String fullPath = "D:/hanip/images/" + directory;
+        myFileUtils.deleteFolder(fullPath, true);
     }
 }

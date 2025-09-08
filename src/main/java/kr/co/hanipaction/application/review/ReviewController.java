@@ -44,24 +44,18 @@ public class ReviewController {
     }
 
     @PutMapping
-    public ResponseEntity<ResultResponse<Integer>> modify(@RequestPart(required = false) MultipartFile img, @RequestPart ReviewPutReq req, @AuthenticationPrincipal UserPrincipal userPrincipal) {
-//        Integer loggedInUserId = (Integer) HttpUtils.getSessionValue(httpReq, UserConstants.LOGGED_IN_USER_ID);
-//        if (userPrincipal.getSignedUserId() == 0) {
-//            return ResponseEntity
-//                    .status(HttpStatus.UNAUTHORIZED)
-//                    .body(ResultResponse.fail(401, "로그인 후 이용해주세요."));
-//        }
-        if (img == null) {
-            req.setImagePath(req.getImagePath());
+    public ResultResponse<?> modify(@RequestPart(name = "pic") List<MultipartFile> pics, @Valid @RequestPart ReviewPutReq req, @AuthenticationPrincipal SignedUser signedUser) {
+
+        long userId = signedUser.signedUserId;
+        int result = reviewService.modify(pics,req,userId);
+
+        if(result == 0){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    String.format("리뷰 수정에 실패하였습니다."));
+
         }
 
-        int result = reviewService.modify(img, req, userPrincipal.getSignedUserId());
-//        return result == 0
-//                ? ResponseEntity
-//                .status(HttpStatus.BAD_REQUEST)
-//                .body(ResultResponse.fail(400, "수정 실패"))
-//                : ResponseEntity.ok(ResultResponse.success(result));
-        return null;
+        return new ResultResponse<>("리뷰 등록 완료",result);
     }
 
     @GetMapping("/store/{storeId}")

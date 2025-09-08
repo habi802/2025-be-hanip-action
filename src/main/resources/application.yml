@@ -53,6 +53,8 @@ constants:
     refresh-token-cookie-path: /api/user/reissue
     refresh-token-cookie-validity-seconds: 1_296_000
     refresh-token-validity-milliseconds: 1_296_000_000
+  open-feign:
+    actor: HANIP-ACTOR
 
 
 mybatis:

@@ -13,6 +13,7 @@ import java.util.List;
 @EqualsAndHashCode
 @Getter
 @Builder
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Review extends UpdatedAt {

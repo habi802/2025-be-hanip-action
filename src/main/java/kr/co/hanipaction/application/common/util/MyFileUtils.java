@@ -64,6 +64,7 @@ public class MyFileUtils {
     //폴더 삭제, e.g. "user/1"
     public void deleteFolder(String path, boolean deleteRootFolder) {
         File folder = new File(path);
+        System.out.println("삭제 시도 경로: " + path);
         if(folder.exists() && folder.isDirectory()) { //폴더가 존재하면서 디렉토리인가?
             File[] includedFiles = folder.listFiles();
 

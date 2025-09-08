@@ -91,23 +91,35 @@ public class ReviewService {
         return reviewMapper.delete(dto);
     }
 //      리뷰 수정용
-    public int modify(MultipartFile img, ReviewPutReq req, long loggedInUserId) {
-        req.setUserId(loggedInUserId);
-        String saveFileName = myFileUtils.makeRandomFileName(img);
-        req.setImagePath(saveFileName);
-        int result = reviewMapper.modify(req);
+@Transactional
+public int modify(List<MultipartFile> pics, ReviewPutReq req, long signedUserId) {
+    if (pics.size() > 5) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                String.format("사진은 %d장까지 선택 가능합니다.", 5));
+    }
 
-        String directoryPath = String.format("/review-profile/%d",req.getId());
-        myFileUtils.makeFolders(directoryPath);
+    Orders orders = orderRepository.findById(req.getOrderId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "주문 번호를 찾지 못했습니다"));
 
-        String savePathFileName = directoryPath + "/" + saveFileName;
-        try {
-            myFileUtils.transferTo(img,savePathFileName);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
+    Review review = reviewRepository.findByOrderId(orders)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "작성한 리뷰를 찾지 못했습니다"));
 
-        return 1;
+
+    review.setRating(req.getRating());
+    review.setComment(req.getComment());
+
+    deleteOldReviewImages(review);
+
+
+    myFileManager.removeReviewDirectory(review.getId());
+
+    List<String> fileNames = myFileManager.saveReviewPics(review.getId(), pics);
+
+    review.addReviewPics(fileNames);
+
+    return 1;
+}
+    public void deleteOldReviewImages(Review review) {
+        review.getReviewPicList().clear();
     }
 }

@@ -4,19 +4,27 @@ import kr.co.hanipaction.application.cart.CartMapper;
 //import kr.co.hanipaction.application.menu.MenuMapper;
 //import kr.co.hanipaction.application.menu.model.MenuGetRes;
 import kr.co.hanipaction.application.order.model.*;
+import kr.co.hanipaction.application.order.newmodel.OrderItemsPostDto;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
+import kr.co.hanipaction.configuration.model.ResultResponse;
 import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.entity.OrdersItem;
 import kr.co.hanipaction.entity.OrdersItemOption;
+import kr.co.hanipaction.openfeign.menu.MenuClient;
+import kr.co.hanipaction.openfeign.menu.model.MenuGetItem;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.weaver.ast.Or;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -28,12 +36,17 @@ public class OrderService {
     private final CartMapper cartMapper;
     private final OrderRepository orderRepository;
 
+
+    //openfeign
+    private final MenuClient menuClient;
+
+
     // ----------요구사항명세서 : order-주문등록-------------
     //상품 정보 DB로 부터 가져오기.
     //List<MenuGetListRes> menuList = menuMapper.menuGetList(req.getMenuIds());
 
 
-    // 구매 총금액 (menu 전달 받고 구현예정)
+    // 구매 총금액 (menu 전달 받고 구현예정 / 프론트에서 가격을 전달 받을지..?)
 //        int amount = 0;
 //        for (OrderMenuVo item : req.getOrders()) {
 //            MenuGetRes menu = menuMapper.menuGetOne(item.getMenuId());
@@ -67,6 +80,45 @@ public class OrderService {
     @Transactional
     public Orders saveOrder(OrderPostDto dto, long loginedMemberId) {
 
+        List<Long> menuIds = dto.getItems().stream()
+                .map(OrderItemsPostDto::getMenuId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<Long> optionId = dto.getItems().stream()
+                .flatMap(item -> item.getOptions().stream())
+                .distinct()
+                .collect(Collectors.toList());
+
+
+        ResultResponse<Map<Long, MenuGetItem>> menuRes = menuClient.getMenuList(menuIds, optionId);
+
+        Map<Long, MenuGetItem> menuMap = menuRes.getResult();
+
+        // 주문 총 가격 계산
+        int calculatedTotalPrice = dto.getItems().stream()
+                .mapToInt(itemReq -> {
+                    MenuGetItem menu = menuMap.get(itemReq.getMenuId());
+                    if (menu == null) {
+                        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "존재하지 않는 메뉴입니다.");
+                    }
+
+                    int menuPrice = (int)(menu.getPrice() * itemReq.getQuantity());
+
+                    int optionsPrice = itemReq.getOptions().stream()
+                            .mapToInt(optId -> {
+                                MenuGetItem option = menuMap.get(optId);
+                                if (option == null) {
+                                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "존재하지 않은 옵션입니다.");
+                                }
+                                return option.getPrice();
+                            })
+                            .sum();
+
+                    return menuPrice + optionsPrice;
+                })
+                .sum();
+
         Orders orders = Orders.builder()
                 .userId(loginedMemberId)
                 .storeId(dto.getStoreId())
@@ -74,6 +126,7 @@ public class OrderService {
                 .address(dto.getAddress())
                 .payment(dto.getPayment())
                 .status(dto.getStatus())
+                .amount(calculatedTotalPrice)
                 .build();
 
         List<OrdersItem> orderItems = dto.getItems().stream().map(itemReq -> {

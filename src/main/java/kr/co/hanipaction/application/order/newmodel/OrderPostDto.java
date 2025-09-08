@@ -18,6 +18,7 @@ public class OrderPostDto {
     private String postcode;
     private String address;
     private List<OrderItemsPostDto> items;
+    private int amount;
     private OrdersType payment;
     private StatusType status;
 
