@@ -11,7 +11,6 @@ public class ReviewGetRes {
     private double rating;
     private String menuName;
     private int menuCount;
-    private String imagePath;
     private String comment;
     private String ownerComment;
     private String created;

@@ -61,8 +61,7 @@ public class ReviewController {
     @GetMapping("/store/{storeId}")
     public ResponseEntity<ResultResponse<List<ReviewGetRes>>> findAllByStoreId(@PathVariable long storeId) {
         List<ReviewGetRes> result = reviewService.findAllByStoreId(storeId);
-//        return ResponseEntity.ok(ResultResponse.success(result));
-    return null;
+        return ResponseEntity.ok(new ResultResponse<>("가게 리뷰 조회 완료 ",result));
     }
 
     @GetMapping
@@ -78,8 +77,15 @@ public class ReviewController {
     public ResultResponse<ReviewGetRes> reviewGet(@PathVariable long orderId) {
         ReviewGetRes res = reviewService.reviewGet(orderId);
         log.info("orderId :{}", orderId);
-//        return res == null ? ResultResponse.fail(404, "리뷰 없음") : ResultResponse.success(res);
-        return null;
+
+        if(res == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    String.format("작성된 리뷰가 없습니다"));
+        }
+
+        return new ResultResponse<>("리뷰 조회 성공",res);
+
+
     }
 
     //전체 수정 필요 store ID를 받아와야함
