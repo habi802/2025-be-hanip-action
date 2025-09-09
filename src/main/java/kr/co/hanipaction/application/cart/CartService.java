@@ -83,6 +83,7 @@ public class CartService {
                 .storeId(req.getStoreId())
                 .amount(totalAmount)
                 .quantity(req.getQuantity())
+                .imgPath(menu.getImagePath())
                 .build();
 
         // cart 메뉴에 따라 옵션 테이블 들어감

@@ -13,6 +13,7 @@ import java.util.List;
 public class MenuGetRes {
     private Long menuId;
     private String name;
+    private String imagePath;
     private int price;
     private List<Option> options;
 

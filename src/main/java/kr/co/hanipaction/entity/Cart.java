@@ -44,6 +44,10 @@ public class Cart extends UpdatedAt {
     @Comment("수량")
     private int quantity;
 
+    @Column
+    @Comment("이미지 경로")
+    private String imgPath;
+
     @OneToMany(mappedBy = "id", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartMenuOption> options = new ArrayList<>();
 
