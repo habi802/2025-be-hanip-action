@@ -52,13 +52,9 @@ public class FavoriteController {
     }
 
     @GetMapping("/{store_id}")
-    public ResultResponse<Integer> find(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable("store_id") int storeId) {
-//        Integer userId = (Integer) HttpUtils.getSessionValue(httpReq, UserConstants.LOGGED_IN_USER_ID);
-        if (userPrincipal.getSignedUserId() == 0) {
-            return ResultResponse.success(null);
-        }
+    public ResultResponse<Integer> find(@PathVariable("store_id") int storeId) {
 
-        return ResultResponse.success(favoriteService.find(storeId, userPrincipal.getSignedUserId()));
+        return ResultResponse.success(favoriteService.find(storeId));
     }
 
     @DeleteMapping("/{store_id}")

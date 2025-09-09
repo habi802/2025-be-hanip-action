@@ -97,8 +97,15 @@ public class ReviewService {
 
 
     public List<ReviewGetRes> findAllByStoreId(long storeId) {
+
         return reviewMapper.findAllByStoreIdOrderByIdDesc(storeId);
     }
+
+    //가게 별점만 저회
+    public List<ReviewGetRatingRes> findByStoreIdAllReview(long storeId) {
+        return reviewMapper.findByStoreIdAllReview(storeId);
+    }
+
 
 //    public List<ReviewGetRes> findAllreviewByStoreId(long reviewId) {
 //

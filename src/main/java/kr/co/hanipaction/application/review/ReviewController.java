@@ -85,8 +85,6 @@ public class ReviewController {
         }
 
         return new ResultResponse<>("리뷰 조회 성공",res);
-
-
     }
 
     //전체 수정 필요 store ID를 받아와야함
@@ -140,5 +138,12 @@ public class ReviewController {
         reviewService.delete(reviewId,userId);
         return new ResultResponse<>("리뷰가 삭제되었습니다.", null);
 
+    }
+
+    // 가게 리뷰 하나 조회
+    @GetMapping("/store-review/{storeId}")
+    public ResponseEntity<ResultResponse<List<ReviewGetRatingRes>>> findByStoreIdAllReview(@PathVariable long storeId) {
+        List<ReviewGetRatingRes> result = reviewService.findByStoreIdAllReview(storeId);
+        return ResponseEntity.ok(new ResultResponse<>("별점 조회 완료 ",result));
     }
 }

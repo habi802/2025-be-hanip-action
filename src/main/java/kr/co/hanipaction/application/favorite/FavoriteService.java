@@ -36,10 +36,9 @@ public class FavoriteService {
         return favoriteMapper.findAllByUserId(userId);
     }
 
-    public Integer find(long storeId, long userId) {
+    public Integer find(long storeId) {
         FavoriteGetDto dto = FavoriteGetDto.builder()
                 .storeId(storeId)
-                .userId(userId)
                 .build();
         return favoriteMapper.findByStoreIdAndUserId(dto);
     }

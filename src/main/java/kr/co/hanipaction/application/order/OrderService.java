@@ -12,6 +12,7 @@ import kr.co.hanipaction.entity.OrdersItem;
 import kr.co.hanipaction.entity.OrdersItemOption;
 import kr.co.hanipaction.openfeign.menu.MenuClient;
 import kr.co.hanipaction.openfeign.menu.model.MenuGetItem;
+import kr.co.hanipaction.openfeign.menu.model.MenuGetOption;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.weaver.ast.Or;
@@ -80,44 +81,22 @@ public class OrderService {
     @Transactional
     public Orders saveOrder(OrderPostDto dto, long loginedMemberId) {
 
-        List<Long> menuIds = dto.getItems().stream()
-                .map(OrderItemsPostDto::getMenuId)
-                .distinct()
-                .collect(Collectors.toList());
+//        List<Long> menuIds = dto.getItems().stream()
+//                .map(OrderItemsPostDto::getMenuId)
+//                .distinct()
+//                .collect(Collectors.toList());
+//
+//        List<Long> optionId = dto.getItems().stream()
+//                .flatMap(item -> item.getOptions().stream())
+//                .distinct()
+//                .collect(Collectors.toList());
+        List<Long> menuId = new ArrayList<>();
+        List<Long>  optionId = new ArrayList<>();
 
-        List<Long> optionId = dto.getItems().stream()
-                .flatMap(item -> item.getOptions().stream())
-                .distinct()
-                .collect(Collectors.toList());
 
 
-        ResultResponse<Map<Long, MenuGetItem>> menuRes = menuClient.getMenuList(menuIds, optionId);
 
-        Map<Long, MenuGetItem> menuMap = menuRes.getResult();
 
-        // 주문 총 가격 계산
-        int calculatedTotalPrice = dto.getItems().stream()
-                .mapToInt(itemReq -> {
-                    MenuGetItem menu = menuMap.get(itemReq.getMenuId());
-                    if (menu == null) {
-                        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "존재하지 않는 메뉴입니다.");
-                    }
-
-                    int menuPrice = (int)(menu.getPrice() * itemReq.getQuantity());
-
-                    int optionsPrice = itemReq.getOptions().stream()
-                            .mapToInt(optId -> {
-                                MenuGetItem option = menuMap.get(optId);
-                                if (option == null) {
-                                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "존재하지 않은 옵션입니다.");
-                                }
-                                return option.getPrice();
-                            })
-                            .sum();
-
-                    return menuPrice + optionsPrice;
-                })
-                .sum();
 
         Orders orders = Orders.builder()
                 .userId(loginedMemberId)
@@ -126,28 +105,29 @@ public class OrderService {
                 .address(dto.getAddress())
                 .payment(dto.getPayment())
                 .status(dto.getStatus())
-                .amount(calculatedTotalPrice)
                 .build();
 
-        List<OrdersItem> orderItems = dto.getItems().stream().map(itemReq -> {
-            OrdersItem item = OrdersItem.builder()
-                    .menuId(itemReq.getMenuId())
-                    .quantity(itemReq.getQuantity())
-                    .orders(orders)
-                    .build();
+//        List<OrdersItem> orderItems = dto.getItems().stream().map(itemReq -> {
+//            OrdersItem item = OrdersItem.builder()
+//                    .menuId(itemReq.getMenuId())
+//                    .quantity(itemReq.getQuantity())
+//                    .orders(orders)
+//                    .build();
+//
+//            List<OrdersItemOption> optionsNum = itemReq.getOptions().stream().map(optId ->
+//                    OrdersItemOption.builder()
+//                            .optionId(optId)
+//                            .ordersItem(item)
+//                            .build()
+//            ).toList();
+//
+//            item.setOptions(optionsNum);
+//            return item;
+//        }).toList();
 
-            List<OrdersItemOption> optionsNum = itemReq.getOptions().stream().map(optId ->
-                    OrdersItemOption.builder()
-                            .optionId(optId)
-                            .ordersItem(item)
-                            .build()
-            ).toList();
 
-            item.setOptions(optionsNum);
-            return item;
-        }).toList();
 
-        orders.setItems(orderItems);
+        int totalPrice = 0;
 
         return orderRepository.save(orders);
     }
