@@ -13,7 +13,8 @@ public enum StatusType implements EnumMapperType {
     PREPARING("02", "음식준비중"),
     DELIVERED("03", "배달중"),
     COMPLETED("04", "배달완료"),
-    CANCELED("05", "주문취소"),;
+    CANCELED("05", "주문취소"),
+    ;
 
     private final String code;
     private final String value;

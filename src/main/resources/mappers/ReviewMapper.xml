@@ -22,19 +22,26 @@
 
     <!-- 가게 리뷰 조회 -->
     <select id="findAllByStoreIdOrderByIdDesc">
-        SELECT r.id, u.name AS user_name, r.rating, m.store_id, m.name AS menu_name, COUNT(m.id) AS menu_count, r.image_path, r.comment, r.owner_comment, r.created
-        FROM reviews r
+<!--        SELECT r.id, u.name AS user_name, r.rating, m.store_id, m.name AS menu_name, COUNT(m.id) AS menu_count, r.image_path, r.comment, r.owner_comment, r.created-->
+<!--        FROM reviews r-->
+<!--        JOIN orders o-->
+<!--        ON o.id = r.order_id-->
+<!--        JOIN users u-->
+<!--        ON u.id = o.user_id-->
+<!--        JOIN order_menus om-->
+<!--        ON om.order_id = o.id-->
+<!--        JOIN menus m-->
+<!--        ON m.id = om.menu_id-->
+<!--        WHERE o.store_id = #{storeId}-->
+<!--        GROUP BY r.id-->
+<!--        ORDER BY r.id DESC-->
+        SELECT *
+        FROM review r
         JOIN orders o
         ON o.id = r.order_id
-        JOIN users u
-        ON u.id = o.user_id
-        JOIN order_menus om
-        ON om.order_id = o.id
-        JOIN menus m
-        ON m.id = om.menu_id
         WHERE o.store_id = #{storeId}
         GROUP BY r.id
-        ORDER BY r.id DESC
+        ORDER BY r.id DESC;
     </select>
 
     <!-- 유저(자신)이 쓴 리뷰 조회 -->
@@ -56,9 +63,21 @@
 
 <!--     리뷰 상세 조회 -->
     <select id="findByorderId">
-        SELECT id, order_id AS orderId, rating, comment, created, image_path
-        FROM reviews
-        WHERE order_id = #{orderId}
+        SELECT r.id,o.id AS order_id , r.rating, o.store_id, SUM(oi.quantity) AS menuCount, r.`comment`
+        FROM review r
+        JOIN orders o
+        ON o.id = r.order_id
+        JOIN orders_item oi
+        ON oi.order_id = o.id
+        WHERE o.id = #{orderId}
+        GROUP BY r.id
+        ORDER BY r.id DESC;
+    </select>
+
+    <select id="findByOrderIdPics">
+        SELECT pic
+        FROM review_image r
+        WHERE r.review_id ={reviewId}
     </select>
 
     <!-- 사장 답글 등록 전 본인 가게인지 검증 -->

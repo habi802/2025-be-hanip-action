@@ -8,13 +8,13 @@ import java.io.Serializable;
 
 @Getter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Embeddable
 @EqualsAndHashCode
-public class ReviewImageIds implements Serializable {
+public class ContactImageIds implements Serializable {
     @Comment("이미지 아이디")
     private long id;
-    @Comment("리뷰 이미지")
+    @Comment("문의 이미지")
     private String pic;
 }
