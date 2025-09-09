@@ -9,6 +9,7 @@ import java.util.List;
 public interface ReviewMapper {
     int save(ReviewPostReq req);
     List<ReviewGetRes> findAllByStoreIdOrderByIdDesc(long storeId);
+    List<ReviewGetRatingRes> findByStoreIdAllReview(long storeId);
     List<ReviewGetRes> findAllByUserIdOrderByIdDesc(long userId);
     ReviewGetRes findByorderId(long orderId);
     Integer findByReviewIdAndStoreId(ReviewPatchDto dto);

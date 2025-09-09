@@ -6,6 +6,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public class UserGetRes {
+    private String id;
     private String userNickName;
     private String userPic;
 }

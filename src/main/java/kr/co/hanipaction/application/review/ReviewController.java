@@ -3,6 +3,7 @@ package kr.co.hanipaction.application.review;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
+import jakarta.validation.constraints.Positive;
 import kr.co.hanipaction.application.common.util.HttpUtils;
 import kr.co.hanipaction.application.review.model.*;
 import kr.co.hanipaction.application.user.etc.UserConstants;
@@ -55,7 +56,7 @@ public class ReviewController {
 
         }
 
-        return new ResultResponse<>("리뷰 등록 완료",result);
+        return new ResultResponse<>("리뷰 수정 완료",result);
     }
 
     @GetMapping("/store/{storeId}")
@@ -84,8 +85,6 @@ public class ReviewController {
         }
 
         return new ResultResponse<>("리뷰 조회 성공",res);
-
-
     }
 
     //전체 수정 필요 store ID를 받아와야함
@@ -131,4 +130,20 @@ public class ReviewController {
 //                        .body(ResultResponse.fail(400, "삭제 실패"))
 //                : ResponseEntity.ok(ResultResponse.success(result));
 //    }
+
+    @DeleteMapping("/{reviewId}")
+    public ResultResponse<?> deleteReview(@Valid @Positive @PathVariable long reviewId, @AuthenticationPrincipal SignedUser signedUser) {
+        long userId = signedUser.signedUserId;
+
+        reviewService.delete(reviewId,userId);
+        return new ResultResponse<>("리뷰가 삭제되었습니다.", null);
+
+    }
+
+    // 가게 리뷰 하나 조회
+    @GetMapping("/store-review/{storeId}")
+    public ResponseEntity<ResultResponse<List<ReviewGetRatingRes>>> findByStoreIdAllReview(@PathVariable long storeId) {
+        List<ReviewGetRatingRes> result = reviewService.findByStoreIdAllReview(storeId);
+        return ResponseEntity.ok(new ResultResponse<>("별점 조회 완료 ",result));
+    }
 }
