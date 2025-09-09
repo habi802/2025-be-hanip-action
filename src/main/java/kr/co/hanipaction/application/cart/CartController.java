@@ -11,6 +11,7 @@ import kr.co.hanipaction.application.user.etc.UserConstants;
 import kr.co.hanipaction.configuration.model.SignedUser;
 import kr.co.hanipaction.configuration.model.UserPrincipal;
 import kr.co.hanipaction.entity.Cart;
+import kr.co.hanipaction.entity.CartMenuOption;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -38,21 +39,15 @@ public class CartController {
         return new ResultResponse<>("메뉴 한개 담기 성공",result);
     }
 
-//    @GetMapping
-//    public ResponseEntity<ResultResponse<List<CartListGetRes>>> findAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-//        Integer loggedInUserId = (Integer) HttpUtils.getSessionValue(httpReq, UserConstants.LOGGED_IN_USER_ID);
-//        if (userPrincipal.getSignedUserId() == 0) {
-//            return ResponseEntity
-//                    .status(HttpStatus.UNAUTHORIZED)
-//                    .body(ResultResponse.fail(401, "로그인 후 이용해주세요."));
-//        }
-//
-//        List<CartListGetRes> result = cartService.findAll(userPrincipal.getSignedUserId());
-//        if (result == null || result.size() == 0) {
-//            return ResponseEntity.ok(ResultResponse.fail(400, "조회 실패"));
-//        }
-//        return ResponseEntity.ok(ResultResponse.success(result));
-//    }
+    @GetMapping
+    public ResultResponse<List<CartMenuOption>> findAll(@AuthenticationPrincipal SignedUser signedUser) {
+        long userId=signedUser.signedUserId;
+
+
+        List<CartMenuOption> result = cartService.findAll(userId);
+
+        return new ResultResponse<>("메뉴 한개 담기 성공",result);
+    }
 
 //    @PatchMapping
 //    public ResponseEntity<ResultResponse<Integer>> updateQuantity(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody CartPatchReq req) {

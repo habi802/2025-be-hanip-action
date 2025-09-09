@@ -118,8 +118,10 @@ public class CartService {
 
 
 
-    public List<CartListGetRes> findAll(long userId) {
-        return cartMapper.findAllMenuAndUserId(userId);
+    public List<CartMenuOption> findAll(long userId) {
+
+
+        return cartRepository.findByUserId(userId);
     }
 
     public int updateQuantity(CartPatchReq req, long userId) {

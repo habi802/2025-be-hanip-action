@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,5 +34,9 @@ public class CartMenuOption {
 
     @Column
     private Long parentId;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parentId", referencedColumnName = "optionId", insertable = false, updatable = false)
+    private List<CartMenuOption> children;
 
 }
