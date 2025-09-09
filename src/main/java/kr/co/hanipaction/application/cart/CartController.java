@@ -34,7 +34,6 @@ public class CartController {
 ///*        Integer loggedInUserId = (Integer) HttpUtils.getSessionValue(httpReq, UserConstants.LOGGED_IN_USER_ID);
         long userId=signedUser.signedUserId;
 
-//        req.setUserId(loggedInUserId);
         Cart result = cartService.save(req,userId); // 파라미터 추가하고, 유저프린서펄로 넣어주기
         return new ResultResponse<>("메뉴 한개 담기 성공",result);
     }

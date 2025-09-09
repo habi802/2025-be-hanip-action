@@ -27,6 +27,10 @@ public class CartMenuOption {
     @Column
     private String optionName;
 
-    @Column long optionPrice;
+    @Column
+    private long optionPrice;
+
+    @Column
+    private Long parentId;
 
 }

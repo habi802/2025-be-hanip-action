@@ -67,9 +67,11 @@ public class CartService {
 
         Map<Long, String> optionIdToCommentMap = new HashMap<>();
         Map<Long, Integer> optionIdToPriceMap = new HashMap<>();
+        Map<Long, Long> optionIdToParentIdMap = new HashMap<>();
+
         for (MenuGetRes menus : menuList) {
             for (MenuGetRes.Option option : menu.getOptions()) {
-                collectOptions(option, optionIdToCommentMap, optionIdToPriceMap);
+                collectOptions(option, optionIdToCommentMap, optionIdToPriceMap, optionIdToParentIdMap);
             }
         }
 
@@ -90,6 +92,7 @@ public class CartService {
                         .optionName(optionIdToCommentMap.get(optionId))
                         .optionPrice(optionIdToPriceMap.get(optionId))
                         .optionId(optionId)
+                        .parentId(optionIdToParentIdMap.get(optionId))
                         .build())
                 .collect(Collectors.toList());
 
@@ -100,12 +103,13 @@ public class CartService {
     }
 
     // 옵션의 이름과 가격을 찾는 함수
-    private void collectOptions(MenuGetRes.Option option, Map<Long, String> commentMap, Map<Long, Integer> priceMap) {
+    private void collectOptions(MenuGetRes.Option option, Map<Long, String> commentMap, Map<Long, Integer> priceMap, Map<Long, Long> childToParentMap) {
         commentMap.put(option.getOptionId(), option.getComment());
         priceMap.put(option.getOptionId(), option.getPrice());
         if (option.getChildren() != null) {
             for (MenuGetRes.Option child : option.getChildren()) {
-                collectOptions(child, commentMap, priceMap);
+                childToParentMap.put(child.getOptionId(), option.getOptionId());
+                collectOptions(child, commentMap, priceMap, childToParentMap);
             }
         }
     }
