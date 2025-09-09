@@ -28,6 +28,10 @@ public class Review extends UpdatedAt {
     private Orders orderId;
 
     @Column
+    @Comment("유저 아이디")
+    private long userId;
+
+    @Column
     @Comment("별점")
     private double rating;
 
