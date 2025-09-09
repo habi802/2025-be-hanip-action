@@ -2,6 +2,8 @@ package kr.co.hanipaction.application.review.model;
 
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 public class ReviewGetRes {
     private int id;
@@ -14,4 +16,5 @@ public class ReviewGetRes {
     private String comment;
     private String ownerComment;
     private String created;
+    private List<String> pic;
 }

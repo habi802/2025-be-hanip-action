@@ -69,9 +69,15 @@
         ON o.id = r.order_id
         JOIN orders_item oi
         ON oi.order_id = o.id
-        WHERE o.store_id = #{storeId}
+        WHERE o.id = #{orderId}
         GROUP BY r.id
         ORDER BY r.id DESC;
+    </select>
+
+    <select id="findByOrderIdPics">
+        SELECT pic
+        FROM review_image r
+        WHERE r.review_id ={reviewId}
     </select>
 
     <!-- 사장 답글 등록 전 본인 가게인지 검증 -->

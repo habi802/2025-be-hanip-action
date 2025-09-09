@@ -122,4 +122,8 @@ public int modify(List<MultipartFile> pics, ReviewPutReq req, long signedUserId)
     public void deleteOldReviewImages(Review review) {
         review.getReviewPicList().clear();
     }
+
+    public ReviewGetPics getPics(long orderId) {
+        return reviewMapper.findByOrderIdPics(orderId);
+    }
 }

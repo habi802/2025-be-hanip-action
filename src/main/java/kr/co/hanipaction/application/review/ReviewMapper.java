@@ -15,5 +15,6 @@ public interface ReviewMapper {
     int updateOwnerComment(ReviewPatchReq req);
     int delete(ReviewDeleteDto req);
     int modify(ReviewPutReq req);
+    ReviewGetPics findByOrderIdPics(long orderId);
 
 }
