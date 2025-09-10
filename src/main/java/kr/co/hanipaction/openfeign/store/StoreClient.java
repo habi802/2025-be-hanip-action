@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(
         name = "HANIP-ACTOR",
         contextId = "storeClient",
+        url = "http://localhost:8081",
         configuration = FeignConfiguration.class
 )
 public interface StoreClient {
-    @PatchMapping("/api/store")
+    @PatchMapping(value = "/api/store", consumes = "application/json")
     ResponseEntity<ResultResponse<?>> patchStore(@RequestBody StorePatchReq req);
 }

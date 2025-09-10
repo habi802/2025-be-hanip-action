@@ -12,6 +12,6 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
     Optional<Review> findByOrderId(Orders orderId);
     Optional<Review> findByUserId(long userId);
 
-    @Query("SELECT AVG(r.rating) FROM Review r JOIN r.orderId o WHERE o.storeId = :storeId")
+    @Query("SELECT AVG(r.rating) FROM Review r JOIN r.orderId o WHERE o.storeId = :storeId AND r.isHide = 0")
     Double findAverageRatingByStoreId(Long storeId);
 }

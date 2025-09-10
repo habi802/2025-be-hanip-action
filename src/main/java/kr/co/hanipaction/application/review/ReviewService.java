@@ -38,9 +38,15 @@ public class ReviewService {
     private final UserClient userClient;
     private final StoreClient storeClient;
 
-    // 평균 별점 계산
-    private Double calculateAverageRating(Long storeId) {
-        return reviewRepository.findAverageRatingByStoreId(storeId);
+    // 평균 별점을 계산한 후, Store의 평균 별점 컬럼을 수정할 수 있게 Action으로 전달
+    private void patchAverageRating(Long storeId) {
+        Double rating = reviewRepository.findAverageRatingByStoreId(storeId);
+
+        StorePatchReq storePatchReq = StorePatchReq.builder()
+                                                   .id(storeId)
+                                                   .rating(rating)
+                                                   .build();
+        storeClient.patchStore(storePatchReq);
     }
 
     // 리뷰 등록
@@ -64,12 +70,7 @@ public class ReviewService {
         reviewRepository.save(review);
 
         // 리뷰 등록 후 평균 별점 계산한 뒤 Action의 Store로 전달
-        Double rating = calculateAverageRating(orders.getStoreId());
-        StorePatchReq storePatchReq = StorePatchReq.builder()
-                                                   .id(orders.getStoreId())
-                                                   .rating(rating)
-                                                   .build();
-        storeClient.patchStore(storePatchReq);
+        patchAverageRating(orders.getStoreId());
 
         // 리뷰 이미지 실제 폴더에 저장
         List<String> fileNames = myFileManager.saveReviewPics(review.getId(), pics);
@@ -120,7 +121,6 @@ public class ReviewService {
 
     // 가게 리뷰 조회
     public List<ReviewGetRes> findAllByStoreId(long storeId) {
-
         return reviewMapper.findAllByStoreIdOrderByIdDesc(storeId);
     }
 
@@ -129,10 +129,8 @@ public class ReviewService {
         return reviewMapper.findByStoreIdAllReview(storeId);
     }
 
-
-    // 당장 쓰이는 곳이 없는 API
-    public List<ReviewGetRes> findAllByUserId(long userId) {
-
+    // 자신(고객)이 쓴 리뷰 조회
+//    public List<ReviewGetRes> findAllByUserId(long userId) {
 //        Review review = reviewRepository.findByUserId(userId)
 //                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 아이디를 찾을 수 없습니다."));
 //
@@ -160,8 +158,8 @@ public class ReviewService {
 //                        .map(r -> r.getReviewImageIds().getPic())
 //                        .collect(Collectors.toList()))
 //                .build();
-        return reviewMapper.findAllByUserIdOrderByIdDesc(userId);
-    }
+//        return reviewMapper.findAllByUserIdOrderByIdDesc(userId);
+//    }
 
     // 리뷰에 사장 답변 추가
     public Integer updateOwnerComment(ReviewPatchReq req, long storeId) {
@@ -178,18 +176,20 @@ public class ReviewService {
         return reviewMapper.updateOwnerComment(req);
     }
 
-    // 리뷰 삭제
-    public void delete(long reviewId, long loggedInUserId) {
+    // 리뷰 숨기기 상태 변경
+    @Transactional
+    public void patchHide(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "리뷰 아이디를 찾을 수 없습니다."));
+                                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "등록되지 않은 리뷰입니다."));
+        Orders order = review.getOrderId();
 
-        if(review.getUserId() != loggedInUserId) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"삭제 권한이 없습니다");
-        }
+        // 관리자인지 확인하는 코드 필요, Jwt 부분 좀 보고 진행하겠음
 
-        reviewRepository.delete(review);
+        review.setIsHide(review.getIsHide() == 0 ? 1 : 0);
+
+        // 리뷰 숨기기 상태 변경 후, 평균 별점 계산한 뒤 Action의 Store로 전달
+        patchAverageRating(order.getStoreId());
     }
-
 
     // 리뷰 수정
     @Transactional
