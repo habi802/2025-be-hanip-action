@@ -30,7 +30,9 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping
-    public ResultResponse<?> save(@RequestPart(name = "pic") List<MultipartFile> pics, @Valid @RequestPart ReviewPostReq req, @AuthenticationPrincipal SignedUser signedUser) {
+    public ResultResponse<?> save(@RequestPart(name = "pic", required = false) List<MultipartFile> pics,
+                                  @Valid @RequestPart ReviewPostReq req,
+                                  @AuthenticationPrincipal SignedUser signedUser) {
         long userId = signedUser.signedUserId;
 
         ReviewPostRes result = reviewService.save(pics,req,userId);
