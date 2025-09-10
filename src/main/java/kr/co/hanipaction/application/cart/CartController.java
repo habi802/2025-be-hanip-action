@@ -1,20 +1,15 @@
 package kr.co.hanipaction.application.cart;
 
-import jakarta.servlet.http.HttpServletRequest;
+
 import kr.co.hanipaction.application.cart.model.CartDeleteReq;
 import kr.co.hanipaction.application.cart.model.CartListGetRes;
-import kr.co.hanipaction.application.cart.model.CartPatchReq;
 import kr.co.hanipaction.application.cart.model.CartPostReq;
 import kr.co.hanipaction.configuration.model.ResultResponse;
-import kr.co.hanipaction.application.common.util.HttpUtils;
-import kr.co.hanipaction.application.user.etc.UserConstants;
 import kr.co.hanipaction.configuration.model.SignedUser;
-import kr.co.hanipaction.configuration.model.UserPrincipal;
+
 import kr.co.hanipaction.entity.Cart;
-import kr.co.hanipaction.entity.CartMenuOption;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +24,10 @@ import java.util.List;
 public class CartController {
     private final CartService cartService;
 
-//JWT 되는지 확인용
+//
+//
+//
+//    POST 완료
     @PostMapping
     public ResultResponse<Cart> save(@AuthenticationPrincipal SignedUser signedUser, @RequestBody CartPostReq req) {
 ///*        Integer loggedInUserId = (Integer) HttpUtils.getSessionValue(httpReq, UserConstants.LOGGED_IN_USER_ID);
@@ -39,15 +37,43 @@ public class CartController {
         return new ResultResponse<>("메뉴 한개 담기 성공",result);
     }
 
+//
+//
+//
+//    List GET 완료
     @GetMapping
-    public ResultResponse<List<CartMenuOption>> findAll(@AuthenticationPrincipal SignedUser signedUser) {
+    public ResultResponse<List<CartListGetRes>> findAll(@AuthenticationPrincipal SignedUser signedUser) {
         long userId=signedUser.signedUserId;
 
 
-        List<CartMenuOption> result = cartService.findAll(userId);
+        List<CartListGetRes> result = cartService.findAll(userId);
 
-        return new ResultResponse<>("메뉴 한개 담기 성공",result);
+        return new ResultResponse<>("카트 리스트 조회 성공",result);
     }
+
+//
+//
+//
+//  1개 GET 완료
+    @GetMapping("/{cartId}")
+    public ResultResponse<CartListGetRes> findById(@PathVariable long cartId, @AuthenticationPrincipal SignedUser signedUser) {
+        long userId=signedUser.signedUserId;
+
+        CartListGetRes result = cartService.getCartById(userId,cartId);
+
+        return new ResultResponse<>("장바구니 메뉴 1개 조회 성공",result);
+    }
+
+
+    @DeleteMapping("/{cartId}")
+    public ResultResponse<?> deleteOneByCartId(@PathVariable long cartId, @AuthenticationPrincipal SignedUser signedUser) {
+        long userId=signedUser.signedUserId;
+
+        cartService.delete(cartId,userId);
+
+        return new ResultResponse<>("메뉴가 삭제되었습니다.", null);
+    }
+
 
 //    @PatchMapping
 //    public ResponseEntity<ResultResponse<Integer>> updateQuantity(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody CartPatchReq req) {
@@ -63,20 +89,11 @@ public class CartController {
 //    }
 //
 //    @DeleteMapping("/{cartId}")
-//    public ResponseEntity<ResultResponse<Integer>> deleteByCartId(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable int cartId) {
-//        if (userPrincipal.getSignedUserId() == 0) {
-//            return ResponseEntity
-//                    .status(HttpStatus.UNAUTHORIZED)
-//                    .body(ResultResponse.fail(401, "로그인 후 이용해주세요."));
-//        }
+//    public ResponseEntity<ResultResponse<Integer>> deleteByCartId(@AuthenticationPrincipal SignedUser signedUser, @PathVariable int cartId) {
+//        long userId=signedUser.signedUserId;
 //
-//        CartDeleteReq req = new CartDeleteReq(cartId, userPrincipal.getSignedUserId());
-//        int result = cartService.delete(req);
 //
-//        if (result == 1) {
-//            return ResponseEntity.ok(ResultResponse.success(result));
-//        }
-//        return ResponseEntity.ok(ResultResponse.fail(400, "삭제 실패"));
+//        return ResponseEntity.ok(ResultRespon se.fail(400, "삭제 실패"));
 //    }
 //
 //    @DeleteMapping
