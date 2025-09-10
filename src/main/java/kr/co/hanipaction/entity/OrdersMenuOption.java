@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class OrdersItemOption {
+public class OrdersMenuOption {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,5 +20,5 @@ public class OrdersItemOption {
     @ManyToOne
     @JoinColumn(name = "orders_item_id")
     @JsonBackReference
-    private OrdersItem ordersItem;
+    private OrdersMenu ordersItem;
 }

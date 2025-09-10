@@ -40,13 +40,13 @@ public class CartController {
     }
 
     @GetMapping
-    public ResultResponse<List<CartMenuOption>> findAll(@AuthenticationPrincipal SignedUser signedUser) {
+    public ResultResponse<List<CartListGetRes>> findAll(@AuthenticationPrincipal SignedUser signedUser) {
         long userId=signedUser.signedUserId;
 
 
-        List<CartMenuOption> result = cartService.findAll(userId);
+        List<CartListGetRes> result = cartService.findAll(userId);
 
-        return new ResultResponse<>("메뉴 한개 담기 성공",result);
+        return new ResultResponse<>("카트 리스트 조회 성공",result);
     }
 
 //    @PatchMapping

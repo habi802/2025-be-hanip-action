@@ -11,7 +11,9 @@ import lombok.*;
 import org.hibernate.annotations.Comment;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Builder
 @NoArgsConstructor
@@ -19,6 +21,7 @@ import java.util.List;
 @Entity
 @EqualsAndHashCode
 @Setter
+@Getter
 public class Cart extends UpdatedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,7 +51,8 @@ public class Cart extends UpdatedAt {
     @Comment("이미지 경로")
     private String imgPath;
 
-    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "menuId", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<CartMenuOption> options = new ArrayList<>();
 
 

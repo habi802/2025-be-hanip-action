@@ -3,7 +3,6 @@ package kr.co.hanipaction.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.Order;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
-public class OrdersItem {
+public class OrdersMenu {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -31,5 +30,5 @@ public class OrdersItem {
 
     @OneToMany(mappedBy = "ordersItem", cascade = CascadeType.ALL)
     @JsonManagedReference
-    private List<OrdersItemOption> options = new ArrayList<>();
+    private List<OrdersMenuOption> options = new ArrayList<>();
 }

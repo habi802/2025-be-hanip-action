@@ -25,6 +25,7 @@ public class CartService {
     private final CartMapper cartMapper;
     private final MenuClient  menuClient;
     private final CartRepository cartRepository;
+    private final CartMenuOptionRepository cartMenuOptionRepository;
 
     public Cart save(CartPostReq req, long userId) {
 
@@ -118,10 +119,54 @@ public class CartService {
 
 
 
-    public List<CartMenuOption> findAll(long userId) {
+    public List<CartListGetRes> findAll(long userId) {
+        List<Cart> carts = cartRepository.findAllWithOptions(userId);
+
+        List<Long> optionIds = carts.stream()
+                .flatMap(c -> c.getOptions().stream())
+                .map(CartMenuOption::getId)
+                .toList();
+
+        if (!optionIds.isEmpty()) {
+            List<CartMenuOption> optionsWithChildren =
+                    cartMenuOptionRepository.findAllWithChildren(optionIds);
+
+            // 엔티티 객체에 children 을 붙여줌 (영속성 컨텍스트에 merge)
+            optionsWithChildren.forEach(o -> {
+                o.getChildren().size(); // lazy 강제 초기화
+            });
+        }
+
+        return carts.stream()
+                .map(this::toDto)
+                .toList();
+    }
+    private CartListGetRes toDto(Cart cart) {
+        return CartListGetRes.builder()
+                .id(cart.getId())
+                .menuId(cart.getMenuId())
+                .name(cart.getMenuName())
+                .price(cart.getAmount())
+                .imagePath(cart.getImgPath())
+                .options(cart.getOptions().stream()
+                        .filter(o -> o.getParentId() == null)
+                        .map(this::toOptionDto)
+                        .distinct()
+                        .toList())
+                .build();
+    }
 
 
-        return cartRepository.findByUserId(userId);
+    private CartListGetRes.Option toOptionDto(CartMenuOption option) {
+        return CartListGetRes.Option.builder()
+                .optionId(option.getOptionId())
+                .comment(option.getOptionName())
+                .price(option.getOptionPrice())
+                .children(option.getChildren().stream()
+                        .map(this::toOptionDto)
+                        .distinct()
+                        .toList())
+                .build();
     }
 
     public int updateQuantity(CartPatchReq req, long userId) {

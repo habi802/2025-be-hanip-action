@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import kr.co.hanipaction.configuration.enumcode.model.OrdersType;
 import kr.co.hanipaction.configuration.enumcode.model.StatusType;
-import kr.co.hanipaction.entity.actor.StoreId;
-import kr.co.hanipaction.entity.actor.UserId;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
@@ -74,6 +72,6 @@ public class Orders {
     }
     @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
     @JsonManagedReference
-    private List<OrdersItem> items = new ArrayList<>();
+    private List<OrdersMenu> items = new ArrayList<>();
 
 }
