@@ -29,7 +29,10 @@ import java.util.List;
 public class CartController {
     private final CartService cartService;
 
-//JWT 되는지 확인용
+//
+//
+//
+//    POST 완료
     @PostMapping
     public ResultResponse<Cart> save(@AuthenticationPrincipal SignedUser signedUser, @RequestBody CartPostReq req) {
 ///*        Integer loggedInUserId = (Integer) HttpUtils.getSessionValue(httpReq, UserConstants.LOGGED_IN_USER_ID);
@@ -39,6 +42,10 @@ public class CartController {
         return new ResultResponse<>("메뉴 한개 담기 성공",result);
     }
 
+//
+//
+//
+//    List GET 완료
     @GetMapping
     public ResultResponse<List<CartListGetRes>> findAll(@AuthenticationPrincipal SignedUser signedUser) {
         long userId=signedUser.signedUserId;
@@ -48,6 +55,17 @@ public class CartController {
 
         return new ResultResponse<>("카트 리스트 조회 성공",result);
     }
+
+
+    @GetMapping("/{cartId}")
+    public ResultResponse<CartListGetRes> findById(@PathVariable long cartId, @AuthenticationPrincipal SignedUser signedUser) {
+        long userId=signedUser.signedUserId;
+
+        CartListGetRes result = cartService.getCartById(userId,cartId);
+
+        return new ResultResponse<>("장바구니 메뉴 1개 조회 성공",result);
+    }
+
 
 //    @PatchMapping
 //    public ResponseEntity<ResultResponse<Integer>> updateQuantity(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody CartPatchReq req) {

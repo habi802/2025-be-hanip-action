@@ -116,9 +116,6 @@ public class CartService {
         }
     }
 
-
-
-
     public List<CartListGetRes> findAll(long userId) {
         List<Cart> carts = cartRepository.findAllWithOptions(userId);
 
@@ -141,6 +138,14 @@ public class CartService {
                 .map(this::toDto)
                 .toList();
     }
+
+    public CartListGetRes getCartById(Long userId, Long cartId) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "메뉴를 찾을 수 없습니다."));
+
+        return CartListGetRes.fromEntity(cart);
+    }
+
     private CartListGetRes toDto(Cart cart) {
         return CartListGetRes.builder()
                 .id(cart.getId())
@@ -155,8 +160,6 @@ public class CartService {
                         .toList())
                 .build();
     }
-
-
     private CartListGetRes.Option toOptionDto(CartMenuOption option) {
         return CartListGetRes.Option.builder()
                 .optionId(option.getOptionId())
@@ -186,6 +189,7 @@ public class CartService {
     public int deleteAll(long userId) {
         return cartMapper.deleteByAllUserId(userId);
     }
+
 
 
 //    public List<MenuGetRes> callMenuClient(List<Long> menuIds, List<Long> optionIds) {
