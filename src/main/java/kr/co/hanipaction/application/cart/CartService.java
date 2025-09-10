@@ -27,6 +27,9 @@ public class CartService {
     private final CartRepository cartRepository;
     private final CartMenuOptionRepository cartMenuOptionRepository;
 
+
+    //
+     // JPA 사용 완료
     public Cart save(CartPostReq req, long userId) {
 
         MenuGetReq menuGetReq = new MenuGetReq();
@@ -181,29 +184,17 @@ public class CartService {
 
         return cartMapper.updateQuantityByCartIdAndUserId(dto);
     }
-
-    public int delete(CartDeleteReq req) {
-        return cartMapper.deleteByCartId(req);
-    }
-
     public int deleteAll(long userId) {
         return cartMapper.deleteByAllUserId(userId);
     }
 
+    public void delete(long cartId, long userId) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "메뉴를 찾을 수 없습니다."));
+
+            cartRepository.delete(cart);
+    }
 
 
-//    public List<MenuGetRes> callMenuClient(List<Long> menuIds, List<Long> optionIds) {
-//        MenuGetReq req = new MenuGetReq();
-//        req.setMenuIds(menuIds);
-//        req.setOptionIds(optionIds);
-//
-//        ResultResponse<List<MenuGetRes>> response = menuClient.getOrderMenu(req);
-//
-//        if (response == null || response.getResult() == null) {
-//            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "메뉴 정보를 불러올 수 없습니다.");
-//        }
-//
-//        return response.getResult();  // List<MenuGetRes> 반환
-//    }
 
 }
