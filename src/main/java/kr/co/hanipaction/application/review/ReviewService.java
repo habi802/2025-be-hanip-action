@@ -1,7 +1,5 @@
 package kr.co.hanipaction.application.review;
 
-
-import jakarta.persistence.criteria.Order;
 import kr.co.hanipaction.application.common.util.MyFileUtils;
 import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.application.review.model.*;
@@ -9,6 +7,8 @@ import kr.co.hanipaction.configuration.model.ResultResponse;
 import kr.co.hanipaction.configuration.utill.MyFileManager;
 import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.entity.Review;
+import kr.co.hanipaction.openfeign.store.StoreClient;
+import kr.co.hanipaction.openfeign.store.model.StorePatchReq;
 import kr.co.hanipaction.openfeign.user.UserClient;
 import kr.co.hanipaction.openfeign.user.model.UserGetRes;
 import lombok.RequiredArgsConstructor;
@@ -34,29 +34,51 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final MyFileUtils myFileUtils;
     private final OrderRepository orderRepository;
-    private final UserClient userClient;
 
+    private final UserClient userClient;
+    private final StoreClient storeClient;
+
+    // 평균 별점 계산
+    private Double calculateAverageRating(Long storeId) {
+        return reviewRepository.findAverageRatingByStoreId(storeId);
+    }
+
+    // 리뷰 등록
     @Transactional
     public ReviewPostRes save(List<MultipartFile> pics, ReviewPostReq req, long signedUserId) {
-
         if(pics.size() > 5) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST
                     , String.format("사진은 %d장까지 선택 가능합니다.", 5));
         }
+
         Orders orders = orderRepository.findById(req.getOrderId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "주문을 찾을 수 없습니다."));
+
         Review review = Review.builder()
                 .userId(signedUserId)
                 .orderId(orders)
                 .rating(req.getRating())
                 .comment(req.getComment())
                 .build();
+
         reviewRepository.save(review);
+
+        // 리뷰 등록 후 평균 별점 계산한 뒤 Action의 Store로 전달
+        Double rating = calculateAverageRating(orders.getStoreId());
+        StorePatchReq storePatchReq = StorePatchReq.builder()
+                                                   .id(orders.getStoreId())
+                                                   .rating(rating)
+                                                   .build();
+        storeClient.patchStore(storePatchReq);
+
+        // 리뷰 이미지 실제 폴더에 저장
         List<String> fileNames = myFileManager.saveReviewPics(review.getId(), pics);
         review.addReviewPics(fileNames);
+
         return new ReviewPostRes(review.getId(),fileNames);
     }
 
+    // 리뷰 상세 조회
     public ReviewGetRes reviewGet(long orderId) {
         Orders orders = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "오더 아이디를 찾을 수 없습니다"));
@@ -96,22 +118,16 @@ public class ReviewService {
     }
 
 
+    // 가게 리뷰 조회
     public List<ReviewGetRes> findAllByStoreId(long storeId) {
 
         return reviewMapper.findAllByStoreIdOrderByIdDesc(storeId);
     }
 
-    //가게 별점만 저회
+    // 가게 별점만 조회
     public List<ReviewGetRatingRes> findByStoreIdAllReview(long storeId) {
         return reviewMapper.findByStoreIdAllReview(storeId);
     }
-
-
-//    public List<ReviewGetRes> findAllreviewByStoreId(long reviewId) {
-//
-//
-//
-//    }
 
 
     // 당장 쓰이는 곳이 없는 API
@@ -147,11 +163,7 @@ public class ReviewService {
         return reviewMapper.findAllByUserIdOrderByIdDesc(userId);
     }
 
-//    public ReviewGetRes reviewGet(long orderId) {
-//        return reviewMapper.findByorderId(orderId);
-//    }
-
-
+    // 리뷰에 사장 답변 추가
     public Integer updateOwnerComment(ReviewPatchReq req, long storeId) {
         ReviewPatchDto dto = ReviewPatchDto.builder()
                 .reviewId(req.getReviewId())
@@ -166,6 +178,7 @@ public class ReviewService {
         return reviewMapper.updateOwnerComment(req);
     }
 
+    // 리뷰 삭제
     public void delete(long reviewId, long loggedInUserId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "리뷰 아이디를 찾을 수 없습니다."));
@@ -178,35 +191,37 @@ public class ReviewService {
     }
 
 
-//      리뷰 수정용
-@Transactional
-public int modify(List<MultipartFile> pics, ReviewPutReq req, long signedUserId) {
-    if (pics.size() > 5) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                String.format("사진은 %d장까지 선택 가능합니다.", 5));
+    // 리뷰 수정
+    @Transactional
+    public int modify(List<MultipartFile> pics, ReviewPutReq req, long signedUserId) {
+        if (pics.size() > 5) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    String.format("사진은 %d장까지 선택 가능합니다.", 5));
+        }
+
+        Orders orders = orderRepository.findById(req.getOrderId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "주문 번호를 찾지 못했습니다"));
+
+        Review review = reviewRepository.findByOrderId(orders)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "작성한 리뷰를 찾지 못했습니다"));
+
+
+        review.setRating(req.getRating());
+        review.setComment(req.getComment());
+
+        deleteOldReviewImages(review);
+
+
+        myFileManager.removeReviewDirectory(review.getId());
+
+        List<String> fileNames = myFileManager.saveReviewPics(review.getId(), pics);
+
+        review.addReviewPics(fileNames);
+
+        return 1;
     }
 
-    Orders orders = orderRepository.findById(req.getOrderId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "주문 번호를 찾지 못했습니다"));
-
-    Review review = reviewRepository.findByOrderId(orders)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "작성한 리뷰를 찾지 못했습니다"));
-
-
-    review.setRating(req.getRating());
-    review.setComment(req.getComment());
-
-    deleteOldReviewImages(review);
-
-
-    myFileManager.removeReviewDirectory(review.getId());
-
-    List<String> fileNames = myFileManager.saveReviewPics(review.getId(), pics);
-
-    review.addReviewPics(fileNames);
-
-    return 1;
-}
+    // 리뷰 이미지 전체 삭제
     public void deleteOldReviewImages(Review review) {
         review.getReviewPicList().clear();
     }
