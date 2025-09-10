@@ -47,7 +47,9 @@ public class ReviewController {
     }
 
     @PutMapping
-    public ResultResponse<?> modify(@RequestPart(name = "pic") List<MultipartFile> pics, @Valid @RequestPart ReviewPutReq req, @AuthenticationPrincipal SignedUser signedUser) {
+    public ResultResponse<?> modify(@RequestPart(name = "pic", required = false) List<MultipartFile> pics,
+                                    @Valid @RequestPart ReviewPutReq req,
+                                    @AuthenticationPrincipal SignedUser signedUser) {
 
         long userId = signedUser.signedUserId;
         int result = reviewService.modify(pics,req,userId);
