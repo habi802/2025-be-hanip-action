@@ -17,5 +17,6 @@ public interface CartRepository extends JpaRepository<Cart,Long> {
             "where c.userId = :userId")
     List<Cart> findAllWithOptions(@Param("userId") Long userId);
     Optional<Cart> findById(long id);
+    List<Cart> findByUserId(@Param("userId") long userId);
 
 }

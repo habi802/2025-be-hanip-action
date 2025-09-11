@@ -3,9 +3,13 @@ package kr.co.hanipaction.application.order;
 import kr.co.hanipaction.application.cart.CartMapper;
 //import kr.co.hanipaction.application.menu.MenuMapper;
 //import kr.co.hanipaction.application.menu.model.MenuGetRes;
+import kr.co.hanipaction.application.cart.CartRepository;
 import kr.co.hanipaction.application.order.model.*;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
+import kr.co.hanipaction.entity.Cart;
 import kr.co.hanipaction.entity.Orders;
+import kr.co.hanipaction.entity.OrdersMenu;
+import kr.co.hanipaction.entity.OrdersMenuOption;
 import kr.co.hanipaction.openfeign.menu.MenuClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,6 +29,9 @@ public class OrderService {
 //    private final MenuMapper menuMapper;
     private final CartMapper cartMapper;
     private final OrderRepository orderRepository;
+    private final CartRepository cartRepository;
+    private final OrderMenuRepository orderMenuRepository;
+    private final OrderMenuOptionRepository orderMenuOptionRepository;
 
 
     //openfeign
@@ -67,27 +75,13 @@ public class OrderService {
     // 주문 메뉴 저장 후 장바구니 삭제
 //        cartMapper.deleteByAllUserId(logginedMemberId);
     @Transactional
-    public Orders saveOrder(OrderPostDto dto, long loginedMemberId) {
+    public Orders saveOrder(OrderPostDto dto, long loginUserId) {
 
-//        List<Long> menuIds = dto.getItems().stream()
-//                .map(OrderItemsPostDto::getMenuId)
-//                .distinct()
-//                .collect(Collectors.toList());
-//
-//        List<Long> optionId = dto.getItems().stream()
-//                .flatMap(item -> item.getOptions().stream())
-//                .distinct()
-//                .collect(Collectors.toList());
-        List<Long> menuId = new ArrayList<>();
-        List<Long>  optionId = new ArrayList<>();
-
-
-
-
+        List<Cart> userId = cartRepository.findByUserId(loginUserId);
 
 
         Orders orders = Orders.builder()
-                .userId(loginedMemberId)
+                .userId(loginUserId)
                 .storeId(dto.getStoreId())
                 .postcode(dto.getPostcode())
                 .address(dto.getAddress())
@@ -95,29 +89,35 @@ public class OrderService {
                 .status(dto.getStatus())
                 .build();
 
-//        List<OrdersItem> orderItems = dto.getItems().stream().map(itemReq -> {
-//            OrdersItem item = OrdersItem.builder()
-//                    .menuId(itemReq.getMenuId())
-//                    .quantity(itemReq.getQuantity())
-//                    .orders(orders)
-//                    .build();
-//
-//            List<OrdersItemOption> optionsNum = itemReq.getOptions().stream().map(optId ->
-//                    OrdersItemOption.builder()
-//                            .optionId(optId)
-//                            .ordersItem(item)
-//                            .build()
-//            ).toList();
-//
-//            item.setOptions(optionsNum);
-//            return item;
-//        }).toList();
 
 
+        for (Cart cart : userId) {
+            // 카트에서 메뉴 정보를 OrdersMenu로 변환
+            OrdersMenu ordersMenu = new OrdersMenu();
+            ordersMenu.setMenuId(cart.getMenuId());
+            ordersMenu.setQuantity(cart.getQuantity());
+            ordersMenu.setOrders(orders); // 새로 만든 주문에 해당 메뉴를 연결
 
-        int totalPrice = 0;
+            // 4. 카트 옵션을 OrdersMenuOption으로 변환하여 저장
+            List<OrdersMenuOption> ordersMenuOptions = cart.getOptions().stream()
+                    .map(cartMenuOption -> {
+                        OrdersMenuOption ordersMenuOption = new OrdersMenuOption();
+                        ordersMenuOption.setOptionId(cartMenuOption.getOptionId());
+                        ordersMenuOption.setOrdersItem(ordersMenu); // OrdersMenu와 연결
+                        return ordersMenuOption;
+                    })
+                    .collect(Collectors.toList());
 
-        return orderRepository.save(orders);
+            ordersMenu.setOptions(ordersMenuOptions); // 옵션들 연결
+           orderMenuRepository.save(ordersMenu); // OrdersMenu 저장
+
+            // 5. OrdersMenuOption 저장
+           orderMenuOptionRepository.saveAll(ordersMenuOptions);
+        }
+
+        cartRepository.deleteAll(userId);
+
+        return orders;
     }
 
 
@@ -162,7 +162,6 @@ public class OrderService {
 //        calendar.set(Calendar.MINUTE, 59);
 //        calendar.set(Calendar.SECOND, 59);
 //        calendar.set(Calendar.MILLISECOND, 999);
-//
 //        req.setEndDate(calendar.getTime());
         List<OrderGetDetailRes> results = orderMapper.findByStoreIdAndDate(req);
 

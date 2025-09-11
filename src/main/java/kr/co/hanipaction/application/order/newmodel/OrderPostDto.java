@@ -21,6 +21,4 @@ public class OrderPostDto {
     private int amount;
     private OrdersType payment;
     private StatusType status;
-
-
 }

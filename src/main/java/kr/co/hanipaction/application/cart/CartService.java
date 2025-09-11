@@ -111,11 +111,6 @@ public class CartService {
     //말이 수정이지 삭제했다가 다시 올리는 겁니다.
     public Cart modify(long cartId,CartPostReq req, long userId) {
 
-        if(req.getUserId() !=userId){
-
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "해당 옵션 변경 권한이 없습니다.");
-        }
-
         Cart cartPk = cartRepository.findById(cartId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "메뉴를 찾을 수 없습니다."));
 

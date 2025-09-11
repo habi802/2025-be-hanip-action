@@ -43,7 +43,7 @@ public class CartController {
         long userId=signedUser.signedUserId;
         Cart result = cartService.modify(cartId,req,userId);
 
-        return new ResultResponse<>("메뉴 한개 담기 성공",result);
+        return new ResultResponse<>("메뉴 한개 수정 성공",result);
     }
 
 //

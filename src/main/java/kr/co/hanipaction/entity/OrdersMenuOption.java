@@ -10,6 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 public class OrdersMenuOption {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
