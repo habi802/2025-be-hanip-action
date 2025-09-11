@@ -19,11 +19,24 @@ public class OrdersMenu {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
+    @Column(nullable = false)
     private Long menuId;
+    @Column(nullable = false)
+    private long storeId;
+
+    @Column(nullable = false)
+    private int amount;
+
+    @Column(nullable = false,length = 250)
+    private String menuName;
+
+    @Column(nullable = false)
     private long quantity;
 
-    @ManyToOne
+    @Column(nullable = false,length = 250)
+    private String menuImg;
+
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "order_id")
     @JsonBackReference
     private Orders orders;

@@ -16,7 +16,20 @@ public class OrdersMenuOption {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private Long optionId; // 메뉴 서비스의 옵션 PK
+
+    @Column(nullable = false,length = 100)
+    private String optionName;
+
+    @Column(nullable = false)
+    private long optionPrice;
+
+    @Column
+    private Long parentId;
+
+    @Column(nullable = false)
+    private long menuId;
 
     @ManyToOne
     @JoinColumn(name = "orders_item_id")

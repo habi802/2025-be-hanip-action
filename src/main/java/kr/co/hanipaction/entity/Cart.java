@@ -28,26 +28,26 @@ public class Cart extends UpdatedAt {
     @Comment("카트 아이디")
     private Long id;
 
-    @Column
+    @Column (nullable = false)
     private long userId;
 
-    @Column
+    @Column (nullable = false)
     private long menuId;
 
-    @Column
+    @Column (nullable = false,length = 250)
     private String menuName;
 
-    @Column
+    @Column (nullable = false)
     private long storeId;
 
-    @Column
+    @Column (nullable = false)
     private int amount;
 
     @Column(nullable = false)
     @Comment("수량")
     private int quantity;
 
-    @Column
+    @Column (nullable = false,length = 250)
     @Comment("이미지 경로")
     private String imgPath;
 
