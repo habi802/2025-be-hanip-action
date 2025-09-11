@@ -1,7 +1,5 @@
 package kr.co.hanipaction.application.review;
 
-
-import jakarta.persistence.criteria.Order;
 import kr.co.hanipaction.application.common.util.MyFileUtils;
 import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.application.review.model.*;
@@ -9,6 +7,8 @@ import kr.co.hanipaction.configuration.model.ResultResponse;
 import kr.co.hanipaction.configuration.utill.MyFileManager;
 import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.entity.Review;
+import kr.co.hanipaction.openfeign.store.StoreClient;
+import kr.co.hanipaction.openfeign.store.model.StorePatchReq;
 import kr.co.hanipaction.openfeign.user.UserClient;
 import kr.co.hanipaction.openfeign.user.model.UserGetRes;
 import lombok.RequiredArgsConstructor;
@@ -34,29 +34,56 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final MyFileUtils myFileUtils;
     private final OrderRepository orderRepository;
-    private final UserClient userClient;
 
+    private final UserClient userClient;
+    private final StoreClient storeClient;
+
+    // 평균 별점을 계산한 후, Store의 평균 별점 컬럼을 수정할 수 있게 Action으로 전달
+    private void patchAverageRating(Long storeId) {
+        if (storeId == null) {
+            return;
+        }
+
+        Double rating = reviewRepository.findAverageRatingByStoreId(storeId);
+
+        StorePatchReq storePatchReq = StorePatchReq.builder()
+                                                   .id(storeId)
+                                                   .rating(rating)
+                                                   .build();
+        storeClient.patchStore(storePatchReq);
+    }
+
+    // 리뷰 등록
     @Transactional
     public ReviewPostRes save(List<MultipartFile> pics, ReviewPostReq req, long signedUserId) {
-
         if(pics.size() > 5) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST
                     , String.format("사진은 %d장까지 선택 가능합니다.", 5));
         }
+
         Orders orders = orderRepository.findById(req.getOrderId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "주문을 찾을 수 없습니다."));
+
         Review review = Review.builder()
                 .userId(signedUserId)
                 .orderId(orders)
                 .rating(req.getRating())
                 .comment(req.getComment())
                 .build();
+
         reviewRepository.save(review);
+
+        // 리뷰 등록 후 평균 별점 계산한 뒤 Action의 Store로 전달
+        patchAverageRating(orders.getStoreId());
+
+        // 리뷰 이미지 실제 폴더에 저장
         List<String> fileNames = myFileManager.saveReviewPics(review.getId(), pics);
         review.addReviewPics(fileNames);
+
         return new ReviewPostRes(review.getId(),fileNames);
     }
 
+    // 리뷰 상세 조회
     public ReviewGetRes reviewGet(long orderId) {
         Orders orders = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "오더 아이디를 찾을 수 없습니다"));
@@ -96,27 +123,18 @@ public class ReviewService {
     }
 
 
+    // 가게 리뷰 조회
     public List<ReviewGetRes> findAllByStoreId(long storeId) {
-
         return reviewMapper.findAllByStoreIdOrderByIdDesc(storeId);
     }
 
-    //가게 별점만 저회
+    // 가게 별점만 조회
     public List<ReviewGetRatingRes> findByStoreIdAllReview(long storeId) {
         return reviewMapper.findByStoreIdAllReview(storeId);
     }
 
-
-//    public List<ReviewGetRes> findAllreviewByStoreId(long reviewId) {
-//
-//
-//
-//    }
-
-
-    // 당장 쓰이는 곳이 없는 API
-    public List<ReviewGetRes> findAllByUserId(long userId) {
-
+    // 자신(고객)이 쓴 리뷰 조회
+//    public List<ReviewGetRes> findAllByUserId(long userId) {
 //        Review review = reviewRepository.findByUserId(userId)
 //                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유저 아이디를 찾을 수 없습니다."));
 //
@@ -144,14 +162,10 @@ public class ReviewService {
 //                        .map(r -> r.getReviewImageIds().getPic())
 //                        .collect(Collectors.toList()))
 //                .build();
-        return reviewMapper.findAllByUserIdOrderByIdDesc(userId);
-    }
-
-//    public ReviewGetRes reviewGet(long orderId) {
-//        return reviewMapper.findByorderId(orderId);
+//        return reviewMapper.findAllByUserIdOrderByIdDesc(userId);
 //    }
 
-
+    // 리뷰에 사장 답변 추가
     public Integer updateOwnerComment(ReviewPatchReq req, long storeId) {
         ReviewPatchDto dto = ReviewPatchDto.builder()
                 .reviewId(req.getReviewId())
@@ -166,47 +180,52 @@ public class ReviewService {
         return reviewMapper.updateOwnerComment(req);
     }
 
-    public void delete(long reviewId, long loggedInUserId) {
+    // 리뷰 숨기기 상태 변경
+    @Transactional
+    public void patchHide(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "리뷰 아이디를 찾을 수 없습니다."));
+                                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "등록되지 않은 리뷰입니다."));
+        Orders order = review.getOrderId();
 
-        if(review.getUserId() != loggedInUserId) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"삭제 권한이 없습니다");
+        // 관리자인지 확인하는 코드 필요, Jwt 부분 좀 보고 진행하겠음
+
+        review.setIsHide(review.getIsHide() == 0 ? 1 : 0);
+
+        // 리뷰 숨기기 상태 변경 후, 평균 별점 계산한 뒤 Action의 Store로 전달
+        patchAverageRating(order.getStoreId());
+    }
+
+    // 리뷰 수정
+    @Transactional
+    public int modify(List<MultipartFile> pics, ReviewPutReq req, long signedUserId) {
+        if (pics.size() > 5) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    String.format("사진은 %d장까지 선택 가능합니다.", 5));
         }
 
-        reviewRepository.delete(review);
+        Orders orders = orderRepository.findById(req.getOrderId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "주문 번호를 찾지 못했습니다"));
+
+        Review review = reviewRepository.findByOrderId(orders)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "작성한 리뷰를 찾지 못했습니다"));
+
+
+        review.setRating(req.getRating());
+        review.setComment(req.getComment());
+
+        deleteOldReviewImages(review);
+
+
+        myFileManager.removeReviewDirectory(review.getId());
+
+        List<String> fileNames = myFileManager.saveReviewPics(review.getId(), pics);
+
+        review.addReviewPics(fileNames);
+
+        return 1;
     }
 
-
-//      리뷰 수정용
-@Transactional
-public int modify(List<MultipartFile> pics, ReviewPutReq req, long signedUserId) {
-    if (pics.size() > 5) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                String.format("사진은 %d장까지 선택 가능합니다.", 5));
-    }
-
-    Orders orders = orderRepository.findById(req.getOrderId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "주문 번호를 찾지 못했습니다"));
-
-    Review review = reviewRepository.findByOrderId(orders)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "작성한 리뷰를 찾지 못했습니다"));
-
-
-    review.setRating(req.getRating());
-    review.setComment(req.getComment());
-
-    deleteOldReviewImages(review);
-
-
-    myFileManager.removeReviewDirectory(review.getId());
-
-    List<String> fileNames = myFileManager.saveReviewPics(review.getId(), pics);
-
-    review.addReviewPics(fileNames);
-
-    return 1;
-}
+    // 리뷰 이미지 전체 삭제
     public void deleteOldReviewImages(Review review) {
         review.getReviewPicList().clear();
     }
