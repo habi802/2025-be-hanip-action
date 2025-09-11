@@ -6,6 +6,8 @@ import kr.co.hanipaction.configuration.enumcode.EnumMapperType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Arrays;
+
 @Getter
 @RequiredArgsConstructor
 public enum StatusType implements EnumMapperType {
@@ -24,4 +26,10 @@ public enum StatusType implements EnumMapperType {
         public CodeConverter() { super(StatusType.class, false); }
     }
 
+    public static StatusType valueOfCode(String code) {
+        return Arrays.stream(values())
+                .filter(e -> e.getCode().equals(code))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown PaymentType code: " + code));
+    }
 }

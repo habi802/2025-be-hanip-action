@@ -6,6 +6,8 @@ import kr.co.hanipaction.configuration.enumcode.EnumMapperType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Arrays;
+
 @Getter
 @RequiredArgsConstructor
 public enum PaymentType implements EnumMapperType {
@@ -21,5 +23,12 @@ public enum PaymentType implements EnumMapperType {
     @Converter(autoApply = true)
     public static class CodeConverter extends AbstractEnumCodeConverter<PaymentType> {
         public CodeConverter() { super(PaymentType.class, false); }
+    }
+
+    public static PaymentType valueOfCode(String code) {
+        return Arrays.stream(values())
+                .filter(e -> e.getCode().equals(code))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown PaymentType code: " + code));
     }
 }
