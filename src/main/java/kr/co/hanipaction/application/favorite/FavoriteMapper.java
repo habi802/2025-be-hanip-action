@@ -13,5 +13,6 @@ public interface FavoriteMapper {
     List<FavoriteGetRes> findAllByUserId(long userId);
     Integer findByStoreIdAndUserId(FavoriteGetDto dto);
     int deleteByUserIdAndStoreId(long userId, long storeId);
+    boolean findIsFavoriteByStoreIdAndUserId(Long storeId, Long userId);
 
 }
