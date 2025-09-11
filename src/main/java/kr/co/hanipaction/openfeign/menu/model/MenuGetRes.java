@@ -12,6 +12,7 @@ import java.util.List;
 @ToString
 public class MenuGetRes {
     private Long menuId;
+    private Long storeId;
     private String name;
     private String imagePath;
     private int price;

@@ -1,7 +1,7 @@
 package kr.co.hanipaction.openfeign.user;
 
 import kr.co.hanipaction.configuration.FeignConfiguration;
-import kr.co.hanipaction.configuration.model.ResultResponse;
+import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.openfeign.user.model.UserGetRes;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

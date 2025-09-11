@@ -10,6 +10,8 @@ import org.hibernate.annotations.Comment;
 import java.util.ArrayList;
 import java.util.List;
 
+import static kr.co.hanipaction.configuration.enumcode.model.StatusType.ORDERED;
+
 @Entity
 @EqualsAndHashCode
 @Builder
@@ -68,6 +70,9 @@ public class Orders {
     public void prePersist() {
         if (this.isDeleted == null) {
             this.isDeleted = 0;
+        }
+        if (this.status == null) {
+            this.status = ORDERED;
         }
     }
     @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)

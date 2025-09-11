@@ -79,6 +79,19 @@
         ORDER BY o.updated DESC
     </select>
 
+<!---->
+<!-- 신규 추가 맵퍼-->
+
+    <select id="findOrders">
+        SELECT *
+        FROM orders o
+        <if test="menuName !=null">
+        WHERE o
+        </if>
+        ORDER By o.id DESC
+        LIMIT {startIdx},{size}
+
+    </select>
 
 
 </mapper>

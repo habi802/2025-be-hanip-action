@@ -3,7 +3,7 @@ package kr.co.hanipaction.application.review;
 import kr.co.hanipaction.application.common.util.MyFileUtils;
 import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.application.review.model.*;
-import kr.co.hanipaction.configuration.model.ResultResponse;
+import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.configuration.utill.MyFileManager;
 import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.entity.Review;
@@ -95,11 +95,11 @@ public class ReviewService {
 
         List<Long> userIdList = Collections.singletonList(userId);
         ResultResponse<Map<String, UserGetRes>> userRes = userClient.getUserList(userIdList);
-        if (userRes == null || userRes.getResult() == null) {
+        if (userRes == null || userRes.getResultData() == null) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "유저 정보를 가져올 수 없습니다.");
         }
 
-        Map<String, UserGetRes> userMap = userRes.getResult();
+        Map<String, UserGetRes> userMap = userRes.getResultData();
         UserGetRes userInfo = userMap.get(userId.toString());
 
         int menuCount = orders.getItems().stream()

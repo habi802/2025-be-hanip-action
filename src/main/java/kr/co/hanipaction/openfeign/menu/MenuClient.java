@@ -1,7 +1,7 @@
 package kr.co.hanipaction.openfeign.menu;
 
 import kr.co.hanipaction.configuration.FeignConfiguration;
-import kr.co.hanipaction.configuration.model.ResultResponse;
+import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.openfeign.menu.model.MenuGetItem;
 import kr.co.hanipaction.openfeign.menu.model.MenuGetReq;
 import kr.co.hanipaction.openfeign.menu.model.MenuGetRes;
