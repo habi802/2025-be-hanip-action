@@ -1,15 +1,10 @@
 package kr.co.hanipaction.application.review;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-import jakarta.validation.constraints.Positive;
-import kr.co.hanipaction.application.common.util.HttpUtils;
 import kr.co.hanipaction.application.review.model.*;
-import kr.co.hanipaction.application.user.etc.UserConstants;
 import kr.co.hanipaction.configuration.model.ResultResponse;
 import kr.co.hanipaction.configuration.model.SignedUser;
-import kr.co.hanipaction.configuration.model.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,9 +21,9 @@ import java.util.List;
 @RequestMapping("/api/review")
 @Slf4j
 public class ReviewController {
-
     private final ReviewService reviewService;
 
+    // 리뷰 등록
     @PostMapping
     public ResultResponse<?> save(@RequestPart(name = "pic", required = false) List<MultipartFile> pics,
                                   @Valid @RequestPart ReviewPostReq req,
@@ -46,6 +41,7 @@ public class ReviewController {
         return new ResultResponse<>("리뷰 등록 완료",result);
     }
 
+    // 리뷰 수정
     @PutMapping
     public ResultResponse<?> modify(@RequestPart(name = "pic", required = false) List<MultipartFile> pics,
                                     @Valid @RequestPart ReviewPutReq req,
@@ -63,6 +59,7 @@ public class ReviewController {
         return new ResultResponse<>("리뷰 수정 완료",result);
     }
 
+    // 가게 리뷰 조회
     @GetMapping("/store/{storeId}")
     public ResponseEntity<ResultResponse<List<ReviewGetRes>>> findAllByStoreId(@PathVariable long storeId) {
         List<ReviewGetRes> result = reviewService.findAllByStoreId(storeId);
@@ -78,6 +75,7 @@ public class ReviewController {
 //    }
 
 
+    // 리뷰 상세 조회
     @GetMapping("/{orderId}")
     public ResultResponse<ReviewGetRes> reviewGet(@PathVariable long orderId) {
         ReviewGetRes res = reviewService.reviewGet(orderId);

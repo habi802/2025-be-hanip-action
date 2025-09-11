@@ -40,6 +40,10 @@ public class ReviewService {
 
     // 평균 별점을 계산한 후, Store의 평균 별점 컬럼을 수정할 수 있게 Action으로 전달
     private void patchAverageRating(Long storeId) {
+        if (storeId == null) {
+            return;
+        }
+
         Double rating = reviewRepository.findAverageRatingByStoreId(storeId);
 
         StorePatchReq storePatchReq = StorePatchReq.builder()
