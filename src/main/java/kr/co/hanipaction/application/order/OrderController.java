@@ -1,7 +1,7 @@
 package kr.co.hanipaction.application.order;
 
 import jakarta.servlet.http.HttpServletRequest;
-import kr.co.hanipaction.configuration.model.ResultResponse;
+import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.common.util.HttpUtils;
 import kr.co.hanipaction.application.order.model.*;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
@@ -30,36 +30,34 @@ public class OrderController {
     private final OrderService orderService;
 
 
-    //----------요구사항명세서 : order-주문등록-------------
+//
+//
+//
+//    POST 완료
     @PostMapping("/order")
     public ResultResponse<Orders> saveOrder(@AuthenticationPrincipal SignedUser signedUser , @RequestBody OrderPostDto dto) {
-//        int sessionId = (int) HttpUtils.getSessionValue(httpReq, UserConstants.LOGGED_IN_USER_ID);
-//        int logginedMemberId = sessionId;  // == true ? sessionId : 2 ; //일단 유저아이디 임의숫자
         log.info("req: {}", dto);
         long userId=signedUser.signedUserId;
         Orders result = orderService.saveOrder(dto, userId);
-
-
-        return new ResultResponse<>("주문 완료",result);
-        //return new ResponseEntity<>(HttpStatus.OK);
+        return new ResultResponse<>(200,"주문 완료",result);
     }
 
 
 
     // ----------요구사항명세서 : order-주문조회-------------
-    @GetMapping("/order")
-    public ResultResponse<List<OrderGetRes>> getOrderListByUserId(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-//        int logginedMemberId = (int) HttpUtils.getSessionValue(httpReq, UserConstants.LOGGED_IN_USER_ID);
-        log.info("userId: {}", userPrincipal.getSignedUserId());
-        List<OrderGetRes> result = orderService.getOrderList(userPrincipal.getSignedUserId());
-        return new ResultResponse<>("주문 완료",result);
-    }
+//    @GetMapping("/order")
+//    public ResultResponse<List<OrderGetRes>> getOrderListByUserId(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+//        log.info("userId: {}", userPrincipal.getSignedUserId());
+//        List<OrderGetRes> result = orderService.getOrderList(userPrincipal.getSignedUserId());
+//        return new ResultResponse<>("주문 완료",result);
+//    }
+
 
     // ---------- order-주문상세조회-------------
     @GetMapping("/order/{orderId}")
     public ResultResponse<List<OrderGetReq>> getOrderById(@PathVariable("orderId") long orderId) {
         List<OrderGetReq> result = orderService.getOrderById(orderId);
-        return new ResultResponse<>("주문 완료",result);
+        return new ResultResponse<>(200,"주문 완료",result);
     }
 
     //ResultResponse<>
@@ -67,7 +65,7 @@ public class OrderController {
     @PatchMapping("/order/status")
     public ResultResponse<Integer> modifyStatus(@RequestBody OrderStatusPatchReq req) {
         int result = orderService.modifyOrderStatus(req);
-        return new ResultResponse<>("주문 완료",result);
+        return new ResultResponse<>(200,"주문 완료",result);
     }
 
 
@@ -77,7 +75,7 @@ public class OrderController {
 //        Integer logginedMemberId = (Integer) HttpUtils.getSessionValue(httpReq, UserConstants.LOGGED_IN_USER_ID);
         if (userPrincipal.getSignedUserId() != 0) {
             int result = orderService.hideByOrderId(orderId);
-            return new ResultResponse<>("주문 완료",result);
+            return new ResultResponse<>(200,"주문 완료",result);
         }
 //        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     return null;
@@ -89,7 +87,7 @@ public class OrderController {
         List<OrderGetDetailRes> result;
         if(userPrincipal.getSignedUserId() != 0){
             result = orderService.findByStoreId(storeId);
-            return new ResultResponse<>("주문 완료",result);
+            return new ResultResponse<>(200,"주문 완료",result);
         }
 //        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         return null;
@@ -101,11 +99,21 @@ public class OrderController {
         List<OrderGetDetailRes> result;
         if(userPrincipal.getSignedUserId() != 0){
             result = orderService.findByStoreIdAndDate(req);
-            return new ResultResponse<>("주문 완료",result);
+            return new ResultResponse<>(200,"주문 완료",result);
         }
 //        return new ResultResponse<>("주문 완료",result);
     return null;
     }
+
+
+    @GetMapping("/order")
+    public ResultResponse<List<OrderGetRes>> getOrderList(@AuthenticationPrincipal SignedUser signedUser, @ModelAttribute OrderGetReq dto) {
+        long userId = signedUser.signedUserId;
+
+
+        return null;
+    }
+
 
 
 }

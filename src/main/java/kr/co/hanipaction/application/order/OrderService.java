@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import kr.co.hanipaction.application.common.model.ResultResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,6 +95,11 @@ public class OrderService {
     }
 
 
+
+
+
+
+
     // ------------------주문 조회 GET--------------------
     public List<OrderGetRes> getOrderList(long userId) {
         List<OrderGetRes> results = orderMapper.findByOrderIdAndUserId(userId);
@@ -144,4 +150,13 @@ public class OrderService {
         }
         return results;
     }
+    public List<OrderGetRes> getOrderList(long userId, OrderGetDto req) {
+
+
+
+        return null;
+    }
+
+
+
 }

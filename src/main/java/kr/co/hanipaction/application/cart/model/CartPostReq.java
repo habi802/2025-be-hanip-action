@@ -14,7 +14,7 @@ public class CartPostReq {
     private long cartId;
     private long userId;
     private long menuId;
-    private long storeId;
+    private Long storeId;
     private int amount;
     private List<Long> optionId;
     private int quantity;

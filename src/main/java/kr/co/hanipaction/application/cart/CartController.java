@@ -2,7 +2,7 @@ package kr.co.hanipaction.application.cart;
 
 import kr.co.hanipaction.application.cart.model.CartListGetRes;
 import kr.co.hanipaction.application.cart.model.CartPostReq;
-import kr.co.hanipaction.configuration.model.ResultResponse;
+import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.configuration.model.SignedUser;
 
 import kr.co.hanipaction.entity.Cart;
@@ -31,7 +31,7 @@ public class CartController {
     public ResultResponse<Cart> save(@AuthenticationPrincipal SignedUser signedUser, @RequestBody CartPostReq req) {
         long userId=signedUser.signedUserId;
         Cart result = cartService.save(req,userId); // 파라미터 추가하고, 유저프린서펄로 넣어주기
-        return new ResultResponse<>("메뉴 한개 담기 성공",result);
+        return new ResultResponse<>(200,"메뉴 한개 담기 성공",result);
     }
 
 //
@@ -43,7 +43,7 @@ public class CartController {
         long userId=signedUser.signedUserId;
         Cart result = cartService.modify(cartId,req,userId);
 
-        return new ResultResponse<>("메뉴 한개 수정 성공",result);
+        return new ResultResponse<>(200,"메뉴 한개 수정 성공",result);
     }
 
 //
@@ -55,7 +55,7 @@ public class CartController {
         long userId=signedUser.signedUserId;
         List<CartListGetRes> result = cartService.findAll(userId);
 
-        return new ResultResponse<>("카트 리스트 조회 성공",result);
+        return new ResultResponse<>(200,"카트 리스트 조회 성공",result);
     }
 
 //
@@ -67,7 +67,7 @@ public class CartController {
         long userId=signedUser.signedUserId;
         CartListGetRes result = cartService.getCartById(userId,cartId);
 
-        return new ResultResponse<>("장바구니 메뉴 1개 조회 성공",result);
+        return new ResultResponse<>(200,"장바구니 메뉴 1개 조회 성공",result);
     }
 
 //
@@ -79,7 +79,7 @@ public class CartController {
         long userId=signedUser.signedUserId;
         cartService.delete(cartId,userId);
 
-        return new ResultResponse<>("메뉴가 삭제되었습니다.", null);
+        return new ResultResponse<>(200,"메뉴가 삭제되었습니다.", null);
     }
 
 //
@@ -91,7 +91,7 @@ public class CartController {
         long userId=signedUser.signedUserId;
         cartService.deleteAll(userId);
 
-        return new ResultResponse<>("메뉴 전체가 삭제되었습니다.", null);
+        return new ResultResponse<>(200,"메뉴 전체가 삭제되었습니다.", null);
     }
 
 
