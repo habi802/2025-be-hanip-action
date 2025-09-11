@@ -17,6 +17,7 @@ import java.util.Map;
 @FeignClient(
         name = "HANIP-ACTOR",
         contextId = "menuClient",
+        url = "http://localhost:8081",
         configuration = FeignConfiguration.class
 )
 public interface MenuClient {

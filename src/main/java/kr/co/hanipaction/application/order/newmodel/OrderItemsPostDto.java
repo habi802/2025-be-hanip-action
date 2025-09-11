@@ -12,6 +12,8 @@ import java.util.List;
 @Getter
 public class OrderItemsPostDto {
     private long menuId;
+    private int amount;
     private long quantity;
-    private List<Long> options;
+    private List<Long> optionId;
+
 }

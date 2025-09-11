@@ -2,6 +2,7 @@ package kr.co.hanipaction.application.cart;
 
 
 import kr.co.hanipaction.entity.Cart;
+import kr.co.hanipaction.entity.CartMenuOption;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,5 +17,6 @@ public interface CartRepository extends JpaRepository<Cart,Long> {
             "where c.userId = :userId")
     List<Cart> findAllWithOptions(@Param("userId") Long userId);
     Optional<Cart> findById(long id);
+    List<Cart> findByUserId(@Param("userId") long userId);
 
 }

@@ -2,6 +2,7 @@ package kr.co.hanipaction.application.cart;
 
 import kr.co.hanipaction.application.cart.model.*;
 import kr.co.hanipaction.configuration.model.ResultResponse;
+import kr.co.hanipaction.configuration.model.SignedUser;
 import kr.co.hanipaction.entity.Cart;
 import kr.co.hanipaction.entity.CartMenuOption;
 import kr.co.hanipaction.openfeign.menu.MenuClient;
@@ -12,7 +13,9 @@ import kr.co.hanipaction.openfeign.menu.model.MenuGetRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
@@ -22,7 +25,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CartService {
-    private final CartMapper cartMapper;
     private final MenuClient  menuClient;
     private final CartRepository cartRepository;
     private final CartMenuOptionRepository cartMenuOptionRepository;
@@ -45,7 +47,6 @@ public class CartService {
         MenuGetRes menu = menuRes.getResult().get(0);
 
         int menuPrice = menu.getPrice();
-
 
         int totalOptionPrice = 0;
         List<Long> selectedOptionIds = req.getOptionId();
@@ -107,6 +108,22 @@ public class CartService {
         return cartRepository.save(cart);
     }
 
+    //말이 수정이지 삭제했다가 다시 올리는 겁니다.
+    public Cart modify(long cartId,CartPostReq req, long userId) {
+
+        Cart cartPk = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "메뉴를 찾을 수 없습니다."));
+
+        cartRepository.delete(cartPk);
+
+
+        return save(req, userId);
+
+
+    }
+
+
+
     // 옵션의 이름과 가격을 찾는 함수
     private void collectOptions(MenuGetRes.Option option, Map<Long, String> commentMap, Map<Long, Integer> priceMap, Map<Long, Long> childToParentMap) {
         commentMap.put(option.getOptionId(), option.getComment());
@@ -131,9 +148,8 @@ public class CartService {
             List<CartMenuOption> optionsWithChildren =
                     cartMenuOptionRepository.findAllWithChildren(optionIds);
 
-            // 엔티티 객체에 children 을 붙여줌 (영속성 컨텍스트에 merge)
             optionsWithChildren.forEach(o -> {
-                o.getChildren().size(); // lazy 강제 초기화
+                o.getChildren().size();
             });
         }
 
@@ -175,19 +191,6 @@ public class CartService {
                 .build();
     }
 
-    public int updateQuantity(CartPatchReq req, long userId) {
-        CartPatchDto dto = CartPatchDto.builder()
-                .cartId(req.getCartId())
-                .userId(userId)
-                .quantity(req.getQuantity())
-                .build();
-
-        return cartMapper.updateQuantityByCartIdAndUserId(dto);
-    }
-    public int deleteAll(long userId) {
-        return cartMapper.deleteByAllUserId(userId);
-    }
-
     public void delete(long cartId, long userId) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "메뉴를 찾을 수 없습니다."));
@@ -196,5 +199,8 @@ public class CartService {
     }
 
 
+    public void deleteAll(long userId) {
+    cartRepository.deleteAll();
+    }
 
 }

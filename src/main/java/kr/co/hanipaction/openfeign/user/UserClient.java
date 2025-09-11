@@ -14,6 +14,7 @@ import java.util.Set;
 @FeignClient(
         name = "HANIP-ACTOR",
         contextId = "userClient",
+        url = "http://localhost:8081",
         configuration = FeignConfiguration.class
 )
 public interface UserClient {
