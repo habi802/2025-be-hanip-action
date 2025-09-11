@@ -4,7 +4,6 @@ import kr.co.hanipaction.application.favorite.model.FavoriteGetDto;
 import kr.co.hanipaction.application.favorite.model.FavoriteGetRes;
 import kr.co.hanipaction.application.favorite.model.FavoritePostReq;
 import kr.co.hanipaction.entity.Favorites;
-import kr.co.hanipaction.entity.FavoritesIds;
 import kr.co.hanipaction.openfeign.store.StoreClient;
 import kr.co.hanipaction.openfeign.store.model.StorePatchReq;
 import lombok.RequiredArgsConstructor;
@@ -72,5 +71,11 @@ public class FavoriteService {
 
         // 찜 삭제 후 총 찜 수 계산한 뒤 Action의 Store로 전달
         patchSumFavorite(storeId);
+    }
+
+    // 유저 좋아요 유무
+    public boolean getStoreFavorites(Long storeId, Long userId) {
+        boolean favorite = favoriteMapper.findIsFavoriteByStoreIdAndUserId(storeId, userId);
+        return favorite;
     }
 }

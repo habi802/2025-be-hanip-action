@@ -52,6 +52,14 @@ public class FavoriteController {
 
         return ResultResponse.success(1);
     }
+
+    // 유저 좋아요 유무 (서버 API)
+    @GetMapping("/count")
+    public boolean getStoreFavorites(@RequestParam("store_id") Long storeId,
+                                                              @RequestParam(value = "user_id", required = false) Long userId) {
+        boolean result = favoriteService.getStoreFavorites(storeId, userId);
+        return result;
+    }
 }
 
 

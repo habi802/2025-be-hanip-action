@@ -37,4 +37,11 @@
         WHERE user_id = #{userId}
         AND store_id = #{storeId}
     </delete>
+
+    <select id="findIsFavoriteByStoreIdAndUserId">
+        SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END
+        FROM favorites
+        WHERE user_id = #{userId}
+        AND store_id = #{storeId}
+    </select>
 </mapper>
