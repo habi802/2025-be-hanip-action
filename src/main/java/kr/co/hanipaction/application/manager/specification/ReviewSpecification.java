@@ -5,6 +5,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ReviewSpecification {
     // 리뷰 등록일(시작)
@@ -32,8 +33,26 @@ public class ReviewSpecification {
     }
 
     // 작성자명
+    public static Specification<Review> hasUserIds(List<Long> userIds) {
+        return (root, query, cb) -> {
+            if (userIds == null || userIds.isEmpty()) {
+                return null;
+            }
+
+            return root.get("userId").in(userIds);
+        };
+    }
 
     // 상호명
+    public static Specification<Review> hasOrderIds(List<Long> orderIds) {
+        return (root, query, cb) -> {
+            if (orderIds == null || orderIds.isEmpty()) {
+                return null;
+            }
+
+            return root.get("orderId").in(orderIds);
+        };
+    }
 
     // 내용
     public static Specification<Review> hasComment(String comment) {

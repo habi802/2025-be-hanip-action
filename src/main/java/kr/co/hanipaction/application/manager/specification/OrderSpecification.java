@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class OrderSpecification {
     // 주문 등록일(시작)
@@ -35,26 +36,26 @@ public class OrderSpecification {
     }
 
     // 주문자명
-//    public static Specification<Orders> hasUserName(String userName) {
-//        return (root, query, cb) -> {
-//            if (userName == null || userName.isEmpty()) {
-//                return null;
-//            }
-//
-//            return cb.like(root.get("userName"), "%" + userName + "%");
-//        };
-//    }
+    public static Specification<Orders> hasUserIds(List<Long> userIds) {
+        return (root, query, cb) -> {
+            if (userIds == null || userIds.isEmpty()) {
+                return null;
+            }
+
+            return root.get("userId").in(userIds);
+        };
+    }
 
     // 상호명
-//    public static Specification<Orders> hasStoreName(String storeName) {
-//        return (root, query, cb) -> {
-//            if (storeName == null || storeName.isEmpty()) {
-//                return null;
-//            }
-//
-//            return cb.like(root.get("storeName"), "%" + storeName + "%");
-//        };
-//    }
+    public static Specification<Orders> hasStoreIds(List<Long> storeIds) {
+        return (root, query, cb) -> {
+            if (storeIds == null || storeIds.isEmpty()) {
+                return null;
+            }
+
+            return root.get("storeId").in(storeIds);
+        };
+    }
 
     // 배달 주소
     public static Specification<Orders> hasAddress(String address) {

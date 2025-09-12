@@ -6,4 +6,14 @@ import lombok.ToString;
 @Getter
 @ToString
 public class OrderListReq {
+    private String startDate;
+    private String endDate;
+    private String storeName;
+    private String userName;
+    private String address;
+    private String payment;
+    private int isDeleted;
+    private String status;
+    private int pageNumber;
+    private int pageSize;
 }
