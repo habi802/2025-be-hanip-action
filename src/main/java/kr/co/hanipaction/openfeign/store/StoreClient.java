@@ -3,6 +3,7 @@ package kr.co.hanipaction.openfeign.store;
 import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.configuration.FeignConfiguration;
 import kr.co.hanipaction.openfeign.store.model.StoreGetRes;
+import kr.co.hanipaction.openfeign.store.model.StoreListReq;
 import kr.co.hanipaction.openfeign.store.model.StorePatchReq;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -24,4 +25,6 @@ public interface StoreClient {
     @GetMapping(value= "/{storeId}")
     ResultResponse<StoreGetRes> findStore(@PathVariable long storeId);
 
+    @GetMapping("/api/hanip-manager/actor/store")
+    ResponseEntity<ResultResponse<?>> getStoreIdsInManager(@RequestBody StoreListReq req);
 }

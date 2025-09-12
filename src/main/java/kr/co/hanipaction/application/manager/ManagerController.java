@@ -1,12 +1,10 @@
 package kr.co.hanipaction.application.manager;
 
 import kr.co.hanipaction.application.common.model.ResultResponse;
-import kr.co.hanipaction.application.manager.model.OrderInManagerRes;
-import kr.co.hanipaction.application.manager.model.OrderListReq;
-import kr.co.hanipaction.application.manager.model.ReviewInManagerRes;
-import kr.co.hanipaction.application.manager.model.ReviewListReq;
+import kr.co.hanipaction.application.manager.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +20,8 @@ public class ManagerController {
     // 주문 전체 조회
     @GetMapping("/order")
     public ResponseEntity<ResultResponse<?>> getOrderList(@RequestBody OrderListReq req) {
-        return null;
+        Page<OrderListRes> result = managerService.getOrderList(req);
+        return ResponseEntity.ok(ResultResponse.success(result));
     }
 
     // 주문 상세 조회
