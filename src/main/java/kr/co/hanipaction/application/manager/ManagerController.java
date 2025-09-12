@@ -1,6 +1,7 @@
 package kr.co.hanipaction.application.manager;
 
 import kr.co.hanipaction.application.common.model.ResultResponse;
+import kr.co.hanipaction.application.manager.model.OrderInManagerRes;
 import kr.co.hanipaction.application.manager.model.OrderListReq;
 import kr.co.hanipaction.application.manager.model.ReviewInManagerRes;
 import kr.co.hanipaction.application.manager.model.ReviewListReq;
@@ -27,7 +28,8 @@ public class ManagerController {
     // 주문 상세 조회
     @GetMapping("/order/{orderId}")
     public ResponseEntity<ResultResponse<?>> getOrder(@PathVariable Long orderId) {
-        return null;
+        OrderInManagerRes result = managerService.getOrder(orderId);
+        return ResponseEntity.ok(ResultResponse.success(result));
     }
 
     // 주문 취소

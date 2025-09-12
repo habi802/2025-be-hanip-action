@@ -4,8 +4,11 @@ import kr.co.hanipaction.application.manager.model.OrderInManagerRes;
 import kr.co.hanipaction.application.manager.model.OrderListRes;
 import kr.co.hanipaction.application.manager.model.ReviewInManagerRes;
 import kr.co.hanipaction.application.manager.model.ReviewListRes;
+import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.application.review.ReviewRepository;
 import kr.co.hanipaction.application.review.ReviewService;
+import kr.co.hanipaction.configuration.enumcode.model.OrdersType;
+import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.entity.Review;
 import kr.co.hanipaction.entity.ReviewImage;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ManagerService {
+    private final OrderRepository orderRepository;
     private final ReviewRepository reviewRepository;
     private final ReviewService reviewService;
 
@@ -30,8 +34,19 @@ public class ManagerService {
     }
 
     // 주문 상세 조회
-    public OrderInManagerRes getOrder() {
-        return null;
+    public OrderInManagerRes getOrder(Long orderId) {
+        Orders order = orderRepository.findById(orderId).orElse(null);
+
+        return OrderInManagerRes.builder()
+                                .orderId(orderId)
+                                //.storeName()
+                                //.userName()
+                                .address(String.format("%s, %s, %s", order.getPostcode(), order.getAddress(), order.getAddressDetail()))
+                                .payment(order.getPayment().getValue())
+                                .amount(order.getAmount())
+                                .status(order.getStatus().getValue())
+                                .isDeleted(order.getIsDeleted())
+                                .build();
     }
 
     // 주문 취소
@@ -55,14 +70,14 @@ public class ManagerService {
         }
 
         return ReviewInManagerRes.builder()
-                .reviewId(reviewId)
-                //.storeName()
-                //.userName()
-                .images(images)
-                .comment(review.getComment())
-                .ownerComment(review.getOwnerComment())
-                .isHide(review.getIsHide())
-                .build();
+                                 .reviewId(reviewId)
+                                 //.storeName()
+                                 //.userName()
+                                 .images(images)
+                                 .comment(review.getComment())
+                                 .ownerComment(review.getOwnerComment())
+                                 .isHide(review.getIsHide())
+                                 .build();
     }
 
     // 리뷰 숨기기 상태 변경
