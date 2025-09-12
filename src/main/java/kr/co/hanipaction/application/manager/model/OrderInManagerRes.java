@@ -9,11 +9,11 @@ import lombok.ToString;
 @ToString
 public class OrderInManagerRes {
     private long orderId;
+    private String createdAt;
     private String storeName;
     private String userName;
     private String address;
     private int amount;
-    private String createdAt;
     private String payment;
     private String status;
     private int isDeleted;

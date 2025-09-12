@@ -9,4 +9,5 @@ import lombok.ToString;
 @ToString
 public class UserListReq {
     private String name;
+    private int pageSize = -1;
 }

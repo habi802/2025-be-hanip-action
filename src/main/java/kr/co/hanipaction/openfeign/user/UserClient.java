@@ -4,9 +4,12 @@ import kr.co.hanipaction.openfeign.user.model.UserListReq;
 import kr.co.hanipaction.configuration.FeignConfiguration;
 import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.openfeign.user.model.UserGetRes;
+import kr.co.hanipaction.openfeign.user.model.UserListRes;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -24,5 +27,8 @@ public interface UserClient {
     ResultResponse<Map<String, UserGetRes>> getUserList(@RequestParam(name="user_id") List<Long> userIdList);
 
     @GetMapping("/api/hanip-manager/actor/user")
-    ResponseEntity<ResultResponse<?>> getUserIdsInManager(@RequestBody UserListReq req);
+    ResponseEntity<ResultResponse<Page<UserListRes>>> getUserIdsInManager(@RequestBody UserListReq req);
+
+    @GetMapping("/api/hanip-manager/actor/user/{userId}")
+    ResponseEntity<ResultResponse<String>> getUserNameInManager(@PathVariable Long userId);
 }
