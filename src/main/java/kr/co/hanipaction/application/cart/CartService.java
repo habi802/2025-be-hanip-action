@@ -49,6 +49,9 @@ public class CartService {
 
         ResultResponse<StoreGetRes> storeRes = storeClient.findStore(storeId);
 
+        StoreGetRes store =  storeRes.getResultData();
+
+
         int menuPrice = menu.getPrice();
 
         int totalOptionPrice = 0;
@@ -85,6 +88,7 @@ public class CartService {
                 .quantity(req.getQuantity())
                 .imgPath(menu.getImagePath())
                 .storeId(storeId)
+                .storeName(store.getName())
                 .build();
 
         for (MenuGetRes menus : menuList) {

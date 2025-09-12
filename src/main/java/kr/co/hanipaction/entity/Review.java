@@ -53,6 +53,7 @@ public class Review extends UpdatedAt {
             this.isHide = 0;
         }
     }
+
     //양방향 관계 설정
     @Builder.Default //builder 패턴 이용시 null이 되는데 이 애노테이션을 주면 주소값 생성됨
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -16,6 +16,7 @@ public class StoreGetRes {
     private int isPickUp;
     private int maxDeliveryFee;
     private int minDeliveryFee;
+    private int minAmount;
     private String businessNumber;
     private String ownerName;
     private String tel;

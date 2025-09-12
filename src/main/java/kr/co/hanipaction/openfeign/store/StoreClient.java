@@ -22,7 +22,7 @@ public interface StoreClient {
     @PatchMapping(value = "/api/store", consumes = "application/json")
     ResponseEntity<ResultResponse<?>> patchStore(@RequestBody StorePatchReq req);
 
-    @GetMapping(value= "/{storeId}")
+    @GetMapping(value= "/api/store/{storeId}")
     ResultResponse<StoreGetRes> findStore(@PathVariable long storeId);
 
     @GetMapping("/api/hanip-manager/actor/store")
