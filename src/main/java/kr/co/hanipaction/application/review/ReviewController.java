@@ -89,14 +89,6 @@ public class ReviewController {
         return new ResultResponse<>("리뷰 조회 성공", res);
     }
 
-    // 리뷰 숨기기 상태 변경
-    @PatchMapping("/hide/{reviewId}")
-    public ResponseEntity<ResultResponse<?>> patchHide(@PathVariable Long reviewId) {
-        reviewService.patchHide(reviewId);
-
-        return ResponseEntity.ok(new ResultResponse<>("리뷰 수정 완료", 1));
-    }
-
     // 가게 리뷰 하나 조회
     @GetMapping("/store-review/{storeId}")
     public ResponseEntity<ResultResponse<List<ReviewGetRatingRes>>> findByStoreIdAllReview(@PathVariable long storeId) {
