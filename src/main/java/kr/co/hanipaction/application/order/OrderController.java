@@ -142,6 +142,19 @@ public class OrderController {
                     .body(new ResultResponse<>(400, "삭제 처리에 실패했습니다.", e.getMessage()));
         }
     }
+//
+//    @GetMapping("/order/{orderId}")
+//    public ResultResponse<OrderGetRes>  getOrderOne(@AuthenticationPrincipal SignedUser signedUser, @PathVariable long orderId) {
+//        long userId = signedUser.signedUserId;
+//
+//        OrderGetRes result = orderService.getOrderOne(userId,orderId);
+//
+//        return new ResultResponse<>(200,"주문 내역 1개 조회 완료",result);
+//
+//
+//    }
+
+
 
 
 }

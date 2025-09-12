@@ -1,8 +1,7 @@
 package kr.co.hanipaction.application.order.newmodel;
 
 import kr.co.hanipaction.entity.OrdersMenu;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,7 +19,6 @@ public class OrderGetRes {
     private int favorites;
     private int minAmount;
     private LocalDateTime createAt;
-
-
     private List<OrdersMenu> menuItems = new ArrayList<>();
+
 }

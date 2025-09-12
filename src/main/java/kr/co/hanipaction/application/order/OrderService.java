@@ -1,27 +1,26 @@
 package kr.co.hanipaction.application.order;
 
-import jakarta.persistence.criteria.Order;
-import kr.co.hanipaction.application.cart.CartMapper;
+
 //import kr.co.hanipaction.application.menu.MenuMapper;
 //import kr.co.hanipaction.application.menu.model.MenuGetRes;
 import kr.co.hanipaction.application.cart.CartRepository;
 import kr.co.hanipaction.application.order.model.*;
+import kr.co.hanipaction.application.order.model.OrderGetDetailRes;
 import kr.co.hanipaction.application.order.newmodel.OrderGetDto;
 import kr.co.hanipaction.application.order.newmodel.OrderGetRes;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
 import kr.co.hanipaction.entity.*;
-import kr.co.hanipaction.openfeign.menu.MenuClient;
 import kr.co.hanipaction.openfeign.store.StoreClient;
 import kr.co.hanipaction.openfeign.store.model.StoreGetRes;
+import kr.co.hanipaction.openfeign.user.UserClient;
+import kr.co.hanipaction.openfeign.user.model.UserGetRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import kr.co.hanipaction.application.common.model.ResultResponse;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -35,6 +34,7 @@ public class OrderService {
     private final OrderMenuRepository orderMenuRepository;
     private final OrderMenuOptionRepository orderMenuOptionRepository;
     private final StoreClient storeClient;
+    private final UserClient userClient;
 
 
 
@@ -42,6 +42,12 @@ public class OrderService {
     public Orders saveOrder(OrderPostDto dto, long loginUserId) {
 
         List<Cart> userId = cartRepository.findByUserId(loginUserId);
+
+        List<Long> userIdList = Collections.singletonList(loginUserId);
+        ResultResponse<Map<String, UserGetRes>> userRes = userClient.getUserList(userIdList);
+
+        Map<String, UserGetRes> userMap = userRes.getResultData();
+        UserGetRes userInfo = userMap.get(userId);
 
 
         Orders orders = Orders.builder()
@@ -51,6 +57,7 @@ public class OrderService {
                 .address(dto.getAddress())
                 .payment(dto.getPayment())
                 .status(dto.getStatus())
+                .userPhone(userInfo.getUserTel())
                 .storeRequest(dto.getStoreRequest())
                 .riderRequest(dto.getRiderRequest())
                 .build();
@@ -212,5 +219,76 @@ public class OrderService {
 
         order.setIsDeleted(1);
     }
+//
+//    @Transactional
+//    public OrderGetDetailRes getOrderOne(long userId, long orderId) {
+//        Orders order = orderRepository.findById(orderId)
+//                .orElseThrow(() -> new RuntimeException("Order not found"));
+//
+//        // 2. OrdersRes 객체 생성
+//        OrderGetDetailRes orderOne = new OrderGetRes();
+//        orderOne.setOrderId(order.getId());
+//        orderOne.setUserId(order.getUserId());
+//        orderOne.setStoreId(order.getStoreId());
+//        orderOne.setStoreName(order.getStoreName());
+//        orderOne.setPostcode(order.getPostcode());
+//        orderOne.setAddress(order.getAddress());
+//        orderOne.setAddressDetail(order.getAddressDetail());
+//        orderOne.setAmount(order.getAmount());
+//        orderOne.setStoreRequest(order.getStoreRequest());
+//        orderOne.setRiderRequest(order.getRiderRequest());
+//        orderOne.setPayment(order.getPayment().toString()); // assuming it's an enum
+//        orderOne.setStatus(order.getStatus().toString());  // assuming it's an enum
+//        orderOne.setIsDeleted(order.getIsDeleted());
+//
+//        // 3. 메뉴 항목 목록 변환
+//        List<OrdersMenuRes> items = order.getItems().stream()
+//                .map(this::convertToOrdersMenuRes)
+//                .collect(Collectors.toList());
+//
+//        ordersRes.setItems(items);
+//
+//        return ordersRes;
+//    }
+//
+//    // OrdersMenuRes 변환
+//    private OrdersMenuRes convertToOrdersMenuRes(OrdersMenu menu) {
+//        OrdersMenuRes menuRes = new OrdersMenuRes();
+//        menuRes.setId(menu.getId());
+//        menuRes.setMenuId(menu.getMenuId());
+//        menuRes.setStoreId(menu.getStoreId());
+//        menuRes.setAmount(menu.getAmount());
+//        menuRes.setMenuName(menu.getMenuName());
+//        menuRes.setQuantity(menu.getQuantity());
+//        menuRes.setMenuImg(menu.getMenuImg());
+//
+//        // 4. 옵션 목록 변환
+//        List<OrdersMenuOptionRes> options = menu.getOptions().stream()
+//                .map(this::convertToOrdersMenuOptionRes)
+//                .collect(Collectors.toList());
+//
+//        menuRes.setOptions(options);
+//        return menuRes;
+//    }
+//
+//    // OrdersMenuOptionRes 변환
+//    private OrdersMenuOptionRes convertToOrdersMenuOptionRes(OrdersMenuOption option) {
+//        OrdersMenuOptionRes optionRes = new OrdersMenuOptionRes();
+//        optionRes.setId(option.getId());
+//        optionRes.setOptionId(option.getOptionId());
+//        optionRes.setOptionName(option.getOptionName());
+//        optionRes.setOptionPrice(option.getOptionPrice());
+//        optionRes.setParentId(option.getParentId());
+//        optionRes.setMenuId(option.getMenuId());
+//        return optionRes;
+//    }
+//
+//
+//
+//
+//     }
+
+
+
 
 }

@@ -47,6 +47,10 @@ public class Orders extends UpdatedAt {
     @Comment("상세 주소")
     private String addressDetail;
 
+    @Column(length = 13)
+    @Comment("유저 전화번호")
+    private String userPhone;
+
     @Column
     @Comment("결제 금액")
     private int amount;
