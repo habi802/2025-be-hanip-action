@@ -8,4 +8,12 @@ import lombok.ToString;
 @Builder
 @ToString
 public class OrderListRes {
+    private String createdAt;
+    private long orderId;
+    private String userName;
+    private String storeName;
+    private String address;
+    private String payment;
+    private String status;
+    private int isDeleted;
 }

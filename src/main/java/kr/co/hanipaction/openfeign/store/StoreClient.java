@@ -2,14 +2,11 @@ package kr.co.hanipaction.openfeign.store;
 
 import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.configuration.FeignConfiguration;
-import kr.co.hanipaction.openfeign.store.model.StoreGetRes;
-import kr.co.hanipaction.openfeign.store.model.StorePatchReq;
+import kr.co.hanipaction.openfeign.store.model.*;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 @FeignClient(
         name = "HANIP-ACTOR",
@@ -24,4 +21,9 @@ public interface StoreClient {
     @GetMapping(value= "/api/store/{storeId}")
     ResultResponse<StoreGetRes> findStore(@PathVariable long storeId);
 
+    @GetMapping("/api/hanip-manager/actor/store")
+    ResponseEntity<ResultResponse<Page<StoreListRes>>> getStoreIdsInManager(@RequestBody StoreListReq req);
+
+    @GetMapping("/api/hanip-manager/actor/store/{storeId}")
+    ResponseEntity<ResultResponse<StoreInManagerRes>> getStoreNameInManager(@PathVariable Long storeId);
 }
