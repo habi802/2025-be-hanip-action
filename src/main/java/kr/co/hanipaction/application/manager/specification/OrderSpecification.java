@@ -35,13 +35,13 @@ public class OrderSpecification {
     }
 
     // 주문자명
-//    public static Specification<Orders> hasName(String name) {
+//    public static Specification<Orders> hasUserName(String userName) {
 //        return (root, query, cb) -> {
-//            if (name == null || name.isEmpty()) {
+//            if (userName == null || userName.isEmpty()) {
 //                return null;
 //            }
 //
-//            return cb.like(root.get("name"), "%" + name + "%");
+//            return cb.like(root.get("userName"), "%" + userName + "%");
 //        };
 //    }
 
