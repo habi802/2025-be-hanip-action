@@ -23,4 +23,6 @@ public interface OrderMapper {
 //    신규 맵퍼용
     List<OrderGetRes> findOrders(OrderGetDto dto);
     List<OrderDetailGetRes> findOrdered(long storeId);
+    List<OrderDetailGetRes> findPreParing(long storeId);
+    List<OrderDetailGetRes> findDelivered(long storeId);
 }

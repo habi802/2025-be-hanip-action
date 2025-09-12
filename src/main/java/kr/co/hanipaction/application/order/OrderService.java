@@ -389,17 +389,20 @@ public class OrderService {
     }
 
 
+//
+//
+//    사장 조회용
+
     public List<OrderDetailGetRes> findOrders(long storeId, long userId) {
         List<OrderDetailGetRes> orders= orderMapper.findOrdered(storeId);
 
-        for(OrderDetailGetRes order:orders){
-            OrderDetailGetRes orderRes=new OrderDetailGetRes();
-            orderRes.setOrderId(order.getOrderId());
-            orderRes.setCreateAt(order.getCreateAt());
-            orderRes.setAddress(order.getAddress());
-            orderRes.setAddressDetail(order.getAddressDetail());
-            orderRes.setMenuName(order.getMenuName());
-            orderRes.setAmount(order.getAmount());
+        for(OrderDetailGetRes order: orders){
+            order.setOrderId(order.getOrderId());
+            order.setCreateAt(order.getCreateAt());
+            order.setAddress(order.getAddress());
+            order.setAddressDetail(order.getAddressDetail());
+            order.setMenuName(order.getMenuName());
+            order.setAmount(order.getAmount());
 
             List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(order.getOrderId());
 
@@ -430,16 +433,120 @@ public class OrderService {
                 menuItemRes.setImagePath(orderMenu.getMenuImg());
 
                 List<OrderDetailGetRes.OrderMenuOptionRes> options = convertToOptionTree(orderMenu.getOptions());
+
                 menuItemRes.setOptions(options);
 
                 order.getMenuItems().add(menuItemRes);
                 }
-
         }
+                return orders;
 
-        return null;
+
     }
 
+    public List<OrderDetailGetRes> findPreparing(long storeId, long userId) {
+        List<OrderDetailGetRes> orders= orderMapper.findPreParing(storeId);
+
+        for(OrderDetailGetRes order: orders){
+            order.setOrderId(order.getOrderId());
+            order.setCreateAt(order.getCreateAt());
+            order.setAddress(order.getAddress());
+            order.setAddressDetail(order.getAddressDetail());
+            order.setMenuName(order.getMenuName());
+            order.setAmount(order.getAmount());
+
+            List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(order.getOrderId());
+
+            for (OrdersMenu orderMenu : orderMenus) {
+                OrdersMenu menuRes = new OrdersMenu();
+                menuRes.setId(orderMenu.getId());
+                menuRes.setMenuId(orderMenu.getMenuId());
+                menuRes.setStoreId(orderMenu.getStoreId());
+                menuRes.setMenuName(orderMenu.getMenuName());
+                menuRes.setMenuImg(orderMenu.getMenuImg());
+                menuRes.setAmount(orderMenu.getAmount());
+                menuRes.setQuantity(orderMenu.getQuantity());
+
+
+
+                MenuGetReq menuGetReq = new MenuGetReq();
+                menuGetReq.setMenuIds(Collections.singletonList(orderMenu.getMenuId()));
+                menuGetReq.setOptionIds(orderMenu.getOptions().stream().map(OrdersMenuOption::getOptionId).collect(Collectors.toList()));
+
+                ResultResponse<List<MenuGetRes>> menuRes2 = menuClient.getOrderMenu(menuGetReq);
+
+                MenuGetRes menuOne = menuRes2.getResultData().get(0);
+
+                OrderDetailGetRes.OrderMenuItemRes menuItemRes = new OrderDetailGetRes.OrderMenuItemRes();
+                menuItemRes.setMenuId(orderMenu.getMenuId());
+                menuItemRes.setName(orderMenu.getMenuName());
+                menuItemRes.setPrice(menuOne.getPrice());
+                menuItemRes.setImagePath(orderMenu.getMenuImg());
+
+                List<OrderDetailGetRes.OrderMenuOptionRes> options = convertToOptionTree(orderMenu.getOptions());
+
+                menuItemRes.setOptions(options);
+
+                order.getMenuItems().add(menuItemRes);
+            }
+        }
+        return orders;
+
+
+    }
+
+    public List<OrderDetailGetRes> findDelivered(long storeId, long userId) {
+        List<OrderDetailGetRes> orders= orderMapper.findDelivered(storeId);
+
+        for(OrderDetailGetRes order: orders){
+            order.setOrderId(order.getOrderId());
+            order.setCreateAt(order.getCreateAt());
+            order.setAddress(order.getAddress());
+            order.setAddressDetail(order.getAddressDetail());
+            order.setMenuName(order.getMenuName());
+            order.setAmount(order.getAmount());
+
+            List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(order.getOrderId());
+
+            for (OrdersMenu orderMenu : orderMenus) {
+                OrdersMenu menuRes = new OrdersMenu();
+                menuRes.setId(orderMenu.getId());
+                menuRes.setMenuId(orderMenu.getMenuId());
+                menuRes.setStoreId(orderMenu.getStoreId());
+                menuRes.setMenuName(orderMenu.getMenuName());
+                menuRes.setMenuImg(orderMenu.getMenuImg());
+                menuRes.setAmount(orderMenu.getAmount());
+                menuRes.setQuantity(orderMenu.getQuantity());
+
+
+
+                MenuGetReq menuGetReq = new MenuGetReq();
+                menuGetReq.setMenuIds(Collections.singletonList(orderMenu.getMenuId()));
+                menuGetReq.setOptionIds(orderMenu.getOptions().stream().map(OrdersMenuOption::getOptionId).collect(Collectors.toList()));
+
+                ResultResponse<List<MenuGetRes>> menuRes2 = menuClient.getOrderMenu(menuGetReq);
+
+                MenuGetRes menuOne = menuRes2.getResultData().get(0);
+
+                OrderDetailGetRes.OrderMenuItemRes menuItemRes = new OrderDetailGetRes.OrderMenuItemRes();
+                menuItemRes.setMenuId(orderMenu.getMenuId());
+                menuItemRes.setName(orderMenu.getMenuName());
+                menuItemRes.setPrice(menuOne.getPrice());
+                menuItemRes.setImagePath(orderMenu.getMenuImg());
+
+                List<OrderDetailGetRes.OrderMenuOptionRes> options = convertToOptionTree(orderMenu.getOptions());
+
+                menuItemRes.setOptions(options);
+
+                order.getMenuItems().add(menuItemRes);
+            }
+        }
+        return orders;
+
+    }
+//
+//
+//
 
 
 }

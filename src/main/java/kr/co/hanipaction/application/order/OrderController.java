@@ -97,14 +97,41 @@ public class OrderController {
 //
 //
 //
-//    가게 Ordered만 조회
-    @GetMapping("/order/{storeId}")
-    public ResultResponse<List<OrderDetailGetRes>> getOrdered(@AuthenticationPrincipal SignedUser signedUser, @PathVariable int storeId) {
+//    가게 ORDERED만 조회
+    @GetMapping("/order/status/ordered/{storeId}")
+    public ResultResponse<List<OrderDetailGetRes>> getOrdered(@AuthenticationPrincipal SignedUser signedUser, @PathVariable long storeId) {
         long userId = signedUser.signedUserId;
 
         List<OrderDetailGetRes> result = orderService.findOrders(userId,storeId);
 
         return new ResultResponse<>(200,"주문 대기중 조회 완료",result);
+
+    }
+//
+//
+//
+//  가게 PREPARING만 조회
+    @GetMapping("/order/status/preparing/{storeId}")
+    public ResultResponse<List<OrderDetailGetRes>> getPreparing(@AuthenticationPrincipal SignedUser signedUser, @PathVariable long storeId) {
+        long userId = signedUser.signedUserId;
+
+        List<OrderDetailGetRes> result = orderService.findPreparing(userId,storeId);
+
+        return new ResultResponse<>(200,"음식 준비중 리스트 조회 완료",result);
+
+    }
+
+//
+//
+//
+//  가게 Delivered 관련 조회
+    @GetMapping("/order/status/delivered/{storeId}")
+    public ResultResponse<List<OrderDetailGetRes>> getDelivered(@AuthenticationPrincipal SignedUser signedUser, @PathVariable long storeId) {
+        long userId = signedUser.signedUserId;
+
+        List<OrderDetailGetRes> result = orderService.findDelivered(userId,storeId);
+
+        return new ResultResponse<>(200,"배달확인 리스트 조회 완료",result);
 
     }
 
