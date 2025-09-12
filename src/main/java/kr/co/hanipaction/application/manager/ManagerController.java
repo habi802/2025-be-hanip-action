@@ -2,6 +2,7 @@ package kr.co.hanipaction.application.manager;
 
 import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.manager.model.OrderListReq;
+import kr.co.hanipaction.application.manager.model.ReviewInManagerRes;
 import kr.co.hanipaction.application.manager.model.ReviewListReq;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/hanip-manager/action")
+@RequestMapping("/api/hanip-manager/action")
 @RequiredArgsConstructor
 public class ManagerController {
     private final ManagerService managerService;
@@ -44,7 +45,8 @@ public class ManagerController {
     // 리뷰 상세 조회
     @GetMapping("/review/{reviewId}")
     public ResponseEntity<ResultResponse<?>> getReview(@PathVariable Long reviewId) {
-        return null;
+        ReviewInManagerRes result = managerService.getReview(reviewId);
+        return ResponseEntity.ok(ResultResponse.success(result));
     }
 
     // 리뷰 숨기기 상태 변경

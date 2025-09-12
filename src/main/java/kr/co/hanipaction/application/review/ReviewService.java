@@ -39,7 +39,7 @@ public class ReviewService {
     private final StoreClient storeClient;
 
     // 평균 별점을 계산한 후, Store의 평균 별점 컬럼을 수정할 수 있게 Action으로 전달
-    private void patchAverageRating(Long storeId) {
+    public void patchAverageRating(Long storeId) {
         if (storeId == null) {
             return;
         }
@@ -178,21 +178,6 @@ public class ReviewService {
         }
 
         return reviewMapper.updateOwnerComment(req);
-    }
-
-    // 리뷰 숨기기 상태 변경
-    @Transactional
-    public void patchHide(Long reviewId) {
-        Review review = reviewRepository.findById(reviewId)
-                                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "등록되지 않은 리뷰입니다."));
-        Orders order = review.getOrderId();
-
-        // 관리자인지 확인하는 코드 필요, Jwt 부분 좀 보고 진행하겠음
-
-        review.setIsHide(review.getIsHide() == 0 ? 1 : 0);
-
-        // 리뷰 숨기기 상태 변경 후, 평균 별점 계산한 뒤 Action의 Store로 전달
-        patchAverageRating(order.getStoreId());
     }
 
     // 리뷰 수정
