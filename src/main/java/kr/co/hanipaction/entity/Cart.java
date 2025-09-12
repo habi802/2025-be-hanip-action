@@ -34,6 +34,9 @@ public class Cart extends UpdatedAt {
     @Column (nullable = false)
     private long menuId;
 
+    @Column (nullable = false)
+    private String storeName;
+
     @Column (nullable = false,length = 250)
     private String menuName;
 

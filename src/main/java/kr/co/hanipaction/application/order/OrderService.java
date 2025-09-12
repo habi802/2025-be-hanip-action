@@ -1,16 +1,18 @@
 package kr.co.hanipaction.application.order;
 
+import jakarta.persistence.criteria.Order;
 import kr.co.hanipaction.application.cart.CartMapper;
 //import kr.co.hanipaction.application.menu.MenuMapper;
 //import kr.co.hanipaction.application.menu.model.MenuGetRes;
 import kr.co.hanipaction.application.cart.CartRepository;
 import kr.co.hanipaction.application.order.model.*;
+import kr.co.hanipaction.application.order.newmodel.OrderGetDto;
+import kr.co.hanipaction.application.order.newmodel.OrderGetRes;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
-import kr.co.hanipaction.entity.Cart;
-import kr.co.hanipaction.entity.Orders;
-import kr.co.hanipaction.entity.OrdersMenu;
-import kr.co.hanipaction.entity.OrdersMenuOption;
+import kr.co.hanipaction.entity.*;
 import kr.co.hanipaction.openfeign.menu.MenuClient;
+import kr.co.hanipaction.openfeign.store.StoreClient;
+import kr.co.hanipaction.openfeign.store.model.StoreGetRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import kr.co.hanipaction.application.common.model.ResultResponse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -31,6 +34,8 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final OrderMenuRepository orderMenuRepository;
     private final OrderMenuOptionRepository orderMenuOptionRepository;
+    private final StoreClient storeClient;
+
 
 
     @Transactional
@@ -79,6 +84,7 @@ public class OrderService {
                     .collect(Collectors.toList());
 
             ordersMenu.setOptions(ordersMenuOptions);
+            orders.setStoreName(cart.getStoreName());
            orderMenuRepository.save(ordersMenu);
 
 
@@ -100,16 +106,7 @@ public class OrderService {
 
 
 
-    // ------------------주문 조회 GET--------------------
-    public List<OrderGetRes> getOrderList(long userId) {
-        List<OrderGetRes> results = orderMapper.findByOrderIdAndUserId(userId);
-        for (OrderGetRes order : results) {
-            List<OrderGetListReq> orderGetList = orderMenusMapper.findAllByOrderIdFromUser(order.getId());
-            order.setOrderGetList(orderGetList);
-        }
-        return results;
-    }
-//
+
     public List<OrderGetReq> getOrderById(long orderId) {
         return orderMapper.findById(orderId);
     }
@@ -150,13 +147,70 @@ public class OrderService {
         }
         return results;
     }
-    public List<OrderGetRes> getOrderList(long userId, OrderGetDto req) {
 
 
 
-        return null;
+    // 리스트 조회
+    public List<OrderGetRes> orderInfoList(long userId, OrderGetDto dto){
+        List<OrderGetRes> orders = orderMapper.findOrders(dto);
+
+
+        List<Long> orderList = new ArrayList<>(orders.size());
+
+
+        for (OrderGetRes order : orders) {
+            orderList.add(order.getStoreId());
+            orderList.add(order.getOrderId());
+            ResultResponse<StoreGetRes> storeId = storeClient.findStore(order.getStoreId());
+            StoreGetRes storeRes = storeId.getResultData();
+
+            Orders orderRes = orderRepository.findById(order.getOrderId()).orElse(null);
+
+            order.setStoreName(storeRes.getName());
+            order.setStorePic(storeRes.getImagePath());
+            order.setRating(storeRes.getRating());
+            order.setFavorites(storeRes.getFavorites());
+            order.setMinAmount(storeRes.getMinAmount());
+            order.setCreateAt(orderRes.getCreatedAt());
+
+            List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(order.getOrderId());
+            for (OrdersMenu orderMenu : orderMenus) {
+                OrdersMenu menuRes = new OrdersMenu();
+                menuRes.setId(orderMenu.getId());
+                menuRes.setMenuId(orderMenu.getMenuId());
+                menuRes.setStoreId(orderMenu.getStoreId());
+                menuRes.setMenuName(orderMenu.getMenuName());
+                menuRes.setMenuImg(orderMenu.getMenuImg());
+                menuRes.setAmount(orderMenu.getAmount());
+                menuRes.setQuantity(orderMenu.getQuantity());
+
+
+                List<OrdersMenuOption> menuOptions = orderMenuOptionRepository.findByOrdersItemId(orderMenu.getId());
+                for (OrdersMenuOption option : menuOptions) {
+                    OrdersMenuOption optionRes = new OrdersMenuOption();
+                    optionRes.setOptionId(option.getOptionId());
+                    optionRes.setOptionName(option.getOptionName());
+                    optionRes.setOptionPrice(option.getOptionPrice());
+                    optionRes.setMenuId(option.getMenuId());
+
+                    menuRes.getOptions().add(optionRes);
+                }
+
+                order.getMenuItems().add(menuRes);
+            }
+
+        }
+
+
+            return orders;
     }
 
+    @Transactional
+    public void orderDeleted(long orderId) {
+        Orders order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
 
+        order.setIsDeleted(1);
+    }
 
 }

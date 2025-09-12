@@ -82,15 +82,24 @@
 <!---->
 <!-- 신규 추가 맵퍼-->
 
+    <!-- 주문내역 인피니티, 페이지네이션용-->
     <select id="findOrders">
         SELECT *
         FROM orders o
-        <if test="menuName !=null">
-        WHERE o
+        JOIN orders_menu om
+        ON o.id = om.order_id
+        <where>
+        o.is_deleted = 0
+        <if test="storeName !=null">
+        AND o.store_name = #{storeName}
         </if>
+        <if test="menuName !=null">
+        AND om.menu_name = #{menuName}
+        </if>
+        </where>
+        GROUP BY o.id
         ORDER By o.id DESC
-        LIMIT {startIdx},{size}
-
+        LIMIT #{startIdx}, #{size}
     </select>
 
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import kr.co.hanipaction.configuration.enumcode.model.OrdersType;
 import kr.co.hanipaction.configuration.enumcode.model.StatusType;
+import kr.co.hanipaction.entity.localDateTime.UpdatedAt;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
@@ -19,7 +20,7 @@ import static kr.co.hanipaction.configuration.enumcode.model.StatusType.ORDERED;
 @AllArgsConstructor
 @Setter
 @Getter
-public class Orders {
+public class Orders extends UpdatedAt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Comment("오더 아이디")
@@ -30,6 +31,9 @@ public class Orders {
 
     @Column(nullable = false)
     private long storeId;
+
+    @Column(nullable = false)
+    private String storeName;
 
     @Column(nullable = false, length = 12)
     @Comment("우편 번호")

@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.common.util.HttpUtils;
 import kr.co.hanipaction.application.order.model.*;
+import kr.co.hanipaction.application.order.newmodel.OrderGetDto;
+import kr.co.hanipaction.application.order.newmodel.OrderGetRes;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
 import kr.co.hanipaction.application.user.etc.UserConstants;
 import kr.co.hanipaction.configuration.model.SignedUser;
@@ -105,15 +107,41 @@ public class OrderController {
     return null;
     }
 
-
+//
+//
+//
+//    주문 내역 전체 조회
     @GetMapping("/order")
-    public ResultResponse<List<OrderGetRes>> getOrderList(@AuthenticationPrincipal SignedUser signedUser, @ModelAttribute OrderGetReq dto) {
+    public ResultResponse<List<OrderGetRes>> getOrderList(@AuthenticationPrincipal SignedUser signedUser, @ModelAttribute OrderGetReq req) {
         long userId = signedUser.signedUserId;
 
+        OrderGetDto ordergetDto = OrderGetDto.builder()
+                .startIdx((req.getPage()-1) * req.getRowPerPage())
+                .size(req.getRowPerPage())
+                .menuName(req.getMenuName())
+                .storeName(req.getStoreName())
+                .build();
 
-        return null;
+
+        List<OrderGetRes> result = orderService.orderInfoList(userId,ordergetDto);
+        return new ResultResponse<>(200,"조회 성공", result);
     }
 
+//
+//
+//
+//    주문 삭제 처리 패치로 숨기기
+    @PatchMapping("/order/{orderId}")
+    public ResponseEntity<ResultResponse<String>> softDeleteOrder(@PathVariable long orderId) {
+        try {
+             orderService.orderDeleted(orderId);
+            return ResponseEntity.ok(new ResultResponse<>(200, "주문이 삭제되었습니다.", "Success"));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResultResponse<>(400, "삭제 처리에 실패했습니다.", e.getMessage()));
+        }
+    }
 
 
 }
