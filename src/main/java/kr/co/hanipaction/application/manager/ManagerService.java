@@ -3,6 +3,7 @@ package kr.co.hanipaction.application.manager;
 import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.manager.model.*;
 import kr.co.hanipaction.application.manager.specification.OrderSpecification;
+import kr.co.hanipaction.application.manager.specification.ReviewSpecification;
 import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.application.review.ReviewRepository;
 import kr.co.hanipaction.application.review.ReviewService;
@@ -108,7 +109,16 @@ public class ManagerService {
     }
 
     // 리뷰 전체 조회
-    public Page<ReviewListRes> getReviewList() {
+    public Page<ReviewListRes> getReviewList(ReviewListReq req) {
+        // 검색 조건 적용
+        Specification<Review> spec = ReviewSpecification.hasStartDate(req.getStartDate())
+                                                        .and(ReviewSpecification.hasEndDate(req.getEndDate()));
+
+        // 페이징 및 페이지 사이즈 적용
+        Pageable pageable = PageRequest.of(req.getPageNumber(), req.getPageSize());
+
+
+
         return null;
     }
 
