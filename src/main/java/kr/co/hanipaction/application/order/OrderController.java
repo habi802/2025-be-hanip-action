@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.common.util.HttpUtils;
 import kr.co.hanipaction.application.order.model.*;
+import kr.co.hanipaction.application.order.newmodel.OrderDetailGetRes;
 import kr.co.hanipaction.application.order.newmodel.OrderGetDto;
 import kr.co.hanipaction.application.order.newmodel.OrderGetRes;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
@@ -45,44 +46,6 @@ public class OrderController {
     }
 
 
-
-    // ----------요구사항명세서 : order-주문조회-------------
-//    @GetMapping("/order")
-//    public ResultResponse<List<OrderGetRes>> getOrderListByUserId(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-//        log.info("userId: {}", userPrincipal.getSignedUserId());
-//        List<OrderGetRes> result = orderService.getOrderList(userPrincipal.getSignedUserId());
-//        return new ResultResponse<>("주문 완료",result);
-//    }
-
-
-    // ---------- order-주문상세조회-------------
-    @GetMapping("/order/{orderId}")
-    public ResultResponse<List<OrderGetReq>> getOrderById(@PathVariable("orderId") long orderId) {
-        List<OrderGetReq> result = orderService.getOrderById(orderId);
-        return new ResultResponse<>(200,"주문 완료",result);
-    }
-
-    //ResultResponse<>
-    // ----------- order-주문상태수정-------------
-    @PatchMapping("/order/status")
-    public ResultResponse<Integer> modifyStatus(@RequestBody OrderStatusPatchReq req) {
-        int result = orderService.modifyOrderStatus(req);
-        return new ResultResponse<>(200,"주문 완료",result);
-    }
-
-
-    // ----------- order-주문삭제 --------------
-    @PatchMapping("/order/owner/{orderId}")
-    public ResultResponse<Integer> modifyOrderStatus(@AuthenticationPrincipal UserPrincipal userPrincipal , @PathVariable int orderId) {
-//        Integer logginedMemberId = (Integer) HttpUtils.getSessionValue(httpReq, UserConstants.LOGGED_IN_USER_ID);
-        if (userPrincipal.getSignedUserId() != 0) {
-            int result = orderService.hideByOrderId(orderId);
-            return new ResultResponse<>(200,"주문 완료",result);
-        }
-//        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-    return null;
-    }
-
     @GetMapping("/order/owner/{storeId}")
     public ResultResponse<List<OrderGetDetailRes>> findOrder(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable int storeId) {
 //        Integer logginedMemberId = (Integer) HttpUtils.getSessionValue(httpReq, UserConstants.LOGGED_IN_USER_ID);
@@ -107,10 +70,13 @@ public class OrderController {
     return null;
     }
 
+
+
+
 //
 //
 //
-//    주문 내역 전체 조회
+//    주문 내역 전체 조회 [유저 기준]
     @GetMapping("/order")
     public ResultResponse<List<OrderGetRes>> getOrderList(@AuthenticationPrincipal SignedUser signedUser, @ModelAttribute OrderGetReq req) {
         long userId = signedUser.signedUserId;
@@ -127,14 +93,31 @@ public class OrderController {
         return new ResultResponse<>(200,"조회 성공", result);
     }
 
+
 //
 //
 //
-//    주문 삭제 처리 패치로 숨기기
+//    가게 Ordered만 조회
+    @GetMapping("/order/{storeId}")
+    public ResultResponse<List<OrderDetailGetRes>> getOrdered(@AuthenticationPrincipal SignedUser signedUser, @PathVariable int storeId) {
+        long userId = signedUser.signedUserId;
+
+        List<OrderDetailGetRes> result = orderService.findOrders(userId,storeId);
+
+        return new ResultResponse<>(200,"주문 대기중 조회 완료",result);
+
+    }
+
+
+//
+//
+//
+//    주문 삭제 처리 패치로 숨기기 [ 유저용 ]
     @PatchMapping("/order/{orderId}")
-    public ResponseEntity<ResultResponse<String>> softDeleteOrder(@PathVariable long orderId) {
+    public ResponseEntity<ResultResponse<String>> DeleteOrder(@AuthenticationPrincipal SignedUser signedUser,@PathVariable long orderId) {
+        long userId = signedUser.signedUserId;
         try {
-             orderService.orderDeleted(orderId);
+             orderService.orderDeleted(userId,orderId);
             return ResponseEntity.ok(new ResultResponse<>(200, "주문이 삭제되었습니다.", "Success"));
         }
         catch (Exception e) {
@@ -142,17 +125,91 @@ public class OrderController {
                     .body(new ResultResponse<>(400, "삭제 처리에 실패했습니다.", e.getMessage()));
         }
     }
-//
-//    @GetMapping("/order/{orderId}")
-//    public ResultResponse<OrderGetRes>  getOrderOne(@AuthenticationPrincipal SignedUser signedUser, @PathVariable long orderId) {
-//        long userId = signedUser.signedUserId;
-//
-//        OrderGetRes result = orderService.getOrderOne(userId,orderId);
-//
-//        return new ResultResponse<>(200,"주문 내역 1개 조회 완료",result);
+
+
 //
 //
-//    }
+//
+//    주문 상태 변경 : 음식준비중
+    @PatchMapping("/order/status/preparing/{orderId}")
+    public ResponseEntity<ResultResponse<String>> statusPreparing(@AuthenticationPrincipal SignedUser signedUser,@PathVariable long orderId) {
+        long userId = signedUser.signedUserId;
+        try {
+            orderService.statusPreparing(userId,orderId);
+            return ResponseEntity.ok(new ResultResponse<>(200, "배달 상태가 변경 되었습니다.", "Success"));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResultResponse<>(400, "상태를 변경할 수 없습니다", e.getMessage()));
+        }
+
+    }
+//
+//
+//
+//    주문 상태 변경 : 배달중
+    @PatchMapping("/order/status/delivered/{orderId}")
+    public ResponseEntity<ResultResponse<String>> statusDelivered(@AuthenticationPrincipal SignedUser signedUser,@PathVariable long orderId) {
+        long userId = signedUser.signedUserId;
+        try {
+            orderService.statusDelevered(userId,orderId);
+            return ResponseEntity.ok(new ResultResponse<>(200, "배달 상태가 변경 되었습니다.", "Success"));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResultResponse<>(400, "상태를 변경할 수 없습니다", e.getMessage()));
+        }
+
+    }
+
+//
+//
+//
+//    주문 상태 변경 : 배달 완료
+    @PatchMapping("/order/status/completed/{orderId}")
+    public ResponseEntity<ResultResponse<String>> statusCompleted(@AuthenticationPrincipal SignedUser signedUser,@PathVariable long orderId) {
+        long userId = signedUser.signedUserId;
+        try {
+            orderService.statusCompleted(userId,orderId);
+            return ResponseEntity.ok(new ResultResponse<>(200, "배달 상태가 변경 되었습니다.", "Success"));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResultResponse<>(400, "상태를 변경할 수 없습니다", e.getMessage()));
+        }
+
+    }
+//
+//
+//
+//    주문 상태 변경 : 주문 취소
+    @PatchMapping("/order/status/canceled/{orderId}")
+    public ResponseEntity<ResultResponse<String>> statusCanceled(@AuthenticationPrincipal SignedUser signedUser,@PathVariable long orderId) {
+        long userId = signedUser.signedUserId;
+        try {
+            orderService.statusCanceled(userId,orderId);
+            return ResponseEntity.ok(new ResultResponse<>(200, "주문을 취소하였습니다.", "Success"));
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResultResponse<>(400, "상태를 변경할 수 없습니다", e.getMessage()));
+        }
+
+    }
+
+
+//
+//
+//
+//  유저 주문 상세 조회 완료 - > 사장도 주문 조회시 pk로 조회하기
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<ResultResponse<OrderDetailGetRes>>  getOrderDetail(@AuthenticationPrincipal SignedUser signedUser,@PathVariable long orderId) {
+        long userId = signedUser.signedUserId;
+
+        OrderDetailGetRes result = orderService.getOrderOne(userId,orderId);
+
+        return ResponseEntity.ok(new ResultResponse<>(200, "주문 상세 조회 성공",result));
+    }
 
 
 

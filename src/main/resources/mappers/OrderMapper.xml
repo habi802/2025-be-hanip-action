@@ -91,16 +91,25 @@
         <where>
         o.is_deleted = 0
         <if test="storeName !=null">
-        AND o.store_name = #{storeName}
+        AND o.store_name LIKE CONCAT('%', #{storeName}, '%')
         </if>
         <if test="menuName !=null">
-        AND om.menu_name = #{menuName}
+        AND om.menu_name LIKE CONCAT('%', #{menuName}, '%')
         </if>
         </where>
         GROUP BY o.id
         ORDER By o.id DESC
         LIMIT #{startIdx}, #{size}
     </select>
+
+<!--    사장용 주문 대기 조회 -->
+    <select id="findOrdered">
+        SELECT *
+        FROM orders o
+        WHERE o.`status` = '01'
+        AND o.store_id = #{storeId}
+    </select>
+
 
 
 </mapper>

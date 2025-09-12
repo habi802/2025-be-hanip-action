@@ -14,6 +14,7 @@ import java.util.List;
 @ToString
 public class OrderPostDto {
     private Long userId;
+    private String userPone;
     private long storeId;
     private String postcode;
     private String address;
