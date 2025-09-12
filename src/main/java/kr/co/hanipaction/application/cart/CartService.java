@@ -27,9 +27,6 @@ public class CartService {
     private final CartRepository cartRepository;
     private final CartMenuOptionRepository cartMenuOptionRepository;
 
-
-     //
-     // JPA 사용 완료
     public Cart save(CartPostReq req, long userId) {
 
         MenuGetReq menuGetReq = new MenuGetReq();
@@ -143,6 +140,8 @@ public class CartService {
         }
     }
 
+// 카트에 별도 배달료 컬럼 넣기 애매해서, 장바구니 페이지에 보여지는 배달료와 합계는 프론트에서 적용해주는 걸로,
+//    프론트에서 숫자 바꿔서 날려보내도  실제 거래 가격은 오더쪽에서 배달료 + 카트 메뉴 합계로 RES 처리해서 상관 없음
     public List<CartListGetRes> findAll(long userId) {
         List<Cart> carts = cartRepository.findAllWithOptions(userId);
 

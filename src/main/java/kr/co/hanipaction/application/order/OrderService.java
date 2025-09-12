@@ -1,24 +1,28 @@
 package kr.co.hanipaction.application.order;
 
-
-//import kr.co.hanipaction.application.menu.MenuMapper;
-//import kr.co.hanipaction.application.menu.model.MenuGetRes;
 import kr.co.hanipaction.application.cart.CartRepository;
 import kr.co.hanipaction.application.order.model.*;
 import kr.co.hanipaction.application.order.model.OrderGetDetailRes;
+import kr.co.hanipaction.application.order.newmodel.OrderDetailGetRes;
 import kr.co.hanipaction.application.order.newmodel.OrderGetDto;
 import kr.co.hanipaction.application.order.newmodel.OrderGetRes;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
+import kr.co.hanipaction.configuration.enumcode.model.StatusType;
 import kr.co.hanipaction.entity.*;
+import kr.co.hanipaction.openfeign.menu.MenuClient;
+import kr.co.hanipaction.openfeign.menu.model.MenuGetReq;
+import kr.co.hanipaction.openfeign.menu.model.MenuGetRes;
 import kr.co.hanipaction.openfeign.store.StoreClient;
 import kr.co.hanipaction.openfeign.store.model.StoreGetRes;
 import kr.co.hanipaction.openfeign.user.UserClient;
 import kr.co.hanipaction.openfeign.user.model.UserGetRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import kr.co.hanipaction.application.common.model.ResultResponse;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,6 +39,7 @@ public class OrderService {
     private final OrderMenuOptionRepository orderMenuOptionRepository;
     private final StoreClient storeClient;
     private final UserClient userClient;
+    private final MenuClient menuClient;
 
 
 
@@ -45,10 +50,14 @@ public class OrderService {
 
         List<Long> userIdList = Collections.singletonList(loginUserId);
         ResultResponse<Map<String, UserGetRes>> userRes = userClient.getUserList(userIdList);
+                if (userRes == null || userRes.getResultData() == null) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "유저 정보를 가져올 수 없습니다.");
+        }
+
+        String loginUserIdStr = String.valueOf(loginUserId);
 
         Map<String, UserGetRes> userMap = userRes.getResultData();
-        UserGetRes userInfo = userMap.get(userId);
-
+        UserGetRes userInfo = userMap.get(loginUserIdStr);
 
         Orders orders = Orders.builder()
                 .userId(loginUserId)
@@ -77,6 +86,12 @@ public class OrderService {
             totalAmount += cart.getAmount();
             orders.setStoreId(cart.getStoreId());
 
+            ResultResponse<StoreGetRes> storeId = storeClient.findStore(cart.getStoreId());
+            StoreGetRes storeRes = storeId.getResultData();
+
+            orders.setMinDeliveryFee(storeRes.getMinDeliveryFee());
+
+
             List<OrdersMenuOption> ordersMenuOptions = cart.getOptions().stream()
                     .map(cartMenuOption -> {
                         OrdersMenuOption ordersMenuOption = new OrdersMenuOption();
@@ -98,8 +113,8 @@ public class OrderService {
            orderMenuOptionRepository.saveAll(ordersMenuOptions);
         }
 
-        // 총 주문금액 orders에 넣기
-        orders.setAmount(totalAmount);
+        // 총 주문금액 orders에 넣기  배달료 여기서 포함
+        orders.setAmount(totalAmount + orders.getMinDeliveryFee());
 
         // 카트 비우기
         cartRepository.deleteAll(userId);
@@ -157,13 +172,14 @@ public class OrderService {
 
 
 
-    // 리스트 조회
+//
+//
+//
+//  주문내역 리스트 조회용
     public List<OrderGetRes> orderInfoList(long userId, OrderGetDto dto){
         List<OrderGetRes> orders = orderMapper.findOrders(dto);
 
-
         List<Long> orderList = new ArrayList<>(orders.size());
-
 
         for (OrderGetRes order : orders) {
             orderList.add(order.getStoreId());
@@ -181,6 +197,7 @@ public class OrderService {
             order.setCreateAt(orderRes.getCreatedAt());
 
             List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(order.getOrderId());
+
             for (OrdersMenu orderMenu : orderMenus) {
                 OrdersMenu menuRes = new OrdersMenu();
                 menuRes.setId(orderMenu.getId());
@@ -193,102 +210,343 @@ public class OrderService {
 
 
                 List<OrdersMenuOption> menuOptions = orderMenuOptionRepository.findByOrdersItemId(orderMenu.getId());
-                for (OrdersMenuOption option : menuOptions) {
-                    OrdersMenuOption optionRes = new OrdersMenuOption();
-                    optionRes.setOptionId(option.getOptionId());
-                    optionRes.setOptionName(option.getOptionName());
-                    optionRes.setOptionPrice(option.getOptionPrice());
-                    optionRes.setMenuId(option.getMenuId());
 
-                    menuRes.getOptions().add(optionRes);
-                }
+                List<OrdersMenuOption> rootOptions = convertToOptionTreeList(menuOptions);
+
+                menuRes.setOptions(rootOptions);
 
                 order.getMenuItems().add(menuRes);
             }
 
-        }
+            }
+
+
 
 
             return orders;
     }
 
+    private List<OrdersMenuOption> convertToOptionTreeList(List<OrdersMenuOption> menuOptions) {
+
+        Map<Long, OrdersMenuOption> optionMap = new HashMap<>();
+
+        for (OrdersMenuOption option : menuOptions) {
+            optionMap.put(option.getOptionId(), option);
+            option.setChildren(new ArrayList<>());
+        }
+
+        List<OrdersMenuOption> rootOptions = new ArrayList<>();
+
+        for (OrdersMenuOption option : menuOptions) {
+            if (option.getParentId() == null) {
+                rootOptions.add(option);
+            } else {
+                OrdersMenuOption parentOption = optionMap.get(option.getParentId());
+                if (parentOption != null) {
+                    parentOption.getChildren().add(option);
+                }
+            }
+        }
+
+        return rootOptions;
+    }
+
+
     @Transactional
-    public void orderDeleted(long orderId) {
+    public void orderDeleted(long userId, long orderId) {
         Orders order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
 
         order.setIsDeleted(1);
     }
-//
-//    @Transactional
-//    public OrderGetDetailRes getOrderOne(long userId, long orderId) {
-//        Orders order = orderRepository.findById(orderId)
-//                .orElseThrow(() -> new RuntimeException("Order not found"));
-//
-//        // 2. OrdersRes 객체 생성
-//        OrderGetDetailRes orderOne = new OrderGetRes();
-//        orderOne.setOrderId(order.getId());
-//        orderOne.setUserId(order.getUserId());
-//        orderOne.setStoreId(order.getStoreId());
-//        orderOne.setStoreName(order.getStoreName());
-//        orderOne.setPostcode(order.getPostcode());
-//        orderOne.setAddress(order.getAddress());
-//        orderOne.setAddressDetail(order.getAddressDetail());
-//        orderOne.setAmount(order.getAmount());
-//        orderOne.setStoreRequest(order.getStoreRequest());
-//        orderOne.setRiderRequest(order.getRiderRequest());
-//        orderOne.setPayment(order.getPayment().toString()); // assuming it's an enum
-//        orderOne.setStatus(order.getStatus().toString());  // assuming it's an enum
-//        orderOne.setIsDeleted(order.getIsDeleted());
-//
-//        // 3. 메뉴 항목 목록 변환
-//        List<OrdersMenuRes> items = order.getItems().stream()
-//                .map(this::convertToOrdersMenuRes)
-//                .collect(Collectors.toList());
-//
-//        ordersRes.setItems(items);
-//
-//        return ordersRes;
-//    }
-//
-//    // OrdersMenuRes 변환
-//    private OrdersMenuRes convertToOrdersMenuRes(OrdersMenu menu) {
-//        OrdersMenuRes menuRes = new OrdersMenuRes();
-//        menuRes.setId(menu.getId());
-//        menuRes.setMenuId(menu.getMenuId());
-//        menuRes.setStoreId(menu.getStoreId());
-//        menuRes.setAmount(menu.getAmount());
-//        menuRes.setMenuName(menu.getMenuName());
-//        menuRes.setQuantity(menu.getQuantity());
-//        menuRes.setMenuImg(menu.getMenuImg());
-//
-//        // 4. 옵션 목록 변환
-//        List<OrdersMenuOptionRes> options = menu.getOptions().stream()
-//                .map(this::convertToOrdersMenuOptionRes)
-//                .collect(Collectors.toList());
-//
-//        menuRes.setOptions(options);
-//        return menuRes;
-//    }
-//
-//    // OrdersMenuOptionRes 변환
-//    private OrdersMenuOptionRes convertToOrdersMenuOptionRes(OrdersMenuOption option) {
-//        OrdersMenuOptionRes optionRes = new OrdersMenuOptionRes();
-//        optionRes.setId(option.getId());
-//        optionRes.setOptionId(option.getOptionId());
-//        optionRes.setOptionName(option.getOptionName());
-//        optionRes.setOptionPrice(option.getOptionPrice());
-//        optionRes.setParentId(option.getParentId());
-//        optionRes.setMenuId(option.getMenuId());
-//        return optionRes;
-//    }
-//
-//
-//
-//
-//     }
+    @Transactional
+    public void statusPreparing(long userId,long orderId) {
+        Orders order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
+
+        StatusType status =StatusType.valueOfCode("02");
+        order.setStatus(status);
+    }
+    @Transactional
+    public void statusDelevered(long userId,long orderId) {
+        Orders order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
+
+        StatusType status =StatusType.valueOfCode("03");
+        order.setStatus(status);
+
+    }
+    @Transactional
+    public void statusCompleted(long userId,long orderId) {
+        Orders order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
+
+        StatusType status =StatusType.valueOfCode("04");
+        order.setStatus(status);
+
+    }
+    @Transactional
+    public void statusCanceled(long userId,long orderId) {
+        Orders order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
+
+        StatusType status =StatusType.valueOfCode("05");
+        order.setStatus(status);
+    }
 
 
+
+
+    @Transactional
+    public OrderDetailGetRes getOrderOne(long userId, long orderId) {
+        Orders order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("주문 번호를 찾지 못했습니다."));
+
+
+        ResultResponse<StoreGetRes> storeRes = storeClient.findStore(order.getStoreId());
+
+        StoreGetRes store =  storeRes.getResultData();
+
+        List<Long> userIdList = Collections.singletonList(userId);
+        ResultResponse<Map<String, UserGetRes>> userRes = userClient.getUserList(userIdList);
+        if (userRes == null || userRes.getResultData() == null) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "유저 정보를 가져올 수 없습니다.");
+        }
+
+        String loginUserIdStr = String.valueOf(userId);
+
+        Map<String, UserGetRes> userMap = userRes.getResultData();
+        UserGetRes userInfo = userMap.get(loginUserIdStr);
+
+        OrderDetailGetRes orderDetailRes = new OrderDetailGetRes();
+        orderDetailRes.setOrderId(order.getId());
+        orderDetailRes.setStoreId(order.getStoreId());
+        orderDetailRes.setStoreName(order.getStoreName());
+        orderDetailRes.setStoreImg(store.getImagePath());
+        orderDetailRes.setStatus(order.getStatus().toString());
+        orderDetailRes.setUserName(userInfo.getUserNickName());
+        orderDetailRes.setUserPhone(order.getUserPhone());
+        orderDetailRes.setAddress(order.getAddress());
+        orderDetailRes.setAddressDetail(order.getAddressDetail());
+        orderDetailRes.setStoreRequest(order.getStoreRequest());
+        orderDetailRes.setCreateAt(order.getCreatedAt());
+        orderDetailRes.setPayment(order.getPayment().toString());
+        orderDetailRes.setAmount(order.getAmount());
+        orderDetailRes.setMinDeliveryFee(store.getMinDeliveryFee());
+
+        for (OrdersMenu menu : order.getItems()) {
+
+
+            MenuGetReq menuGetReq = new MenuGetReq();
+            menuGetReq.setMenuIds(Collections.singletonList(menu.getMenuId()));
+            menuGetReq.setOptionIds(menu.getOptions().stream().map(OrdersMenuOption::getOptionId).collect(Collectors.toList()));
+
+            ResultResponse<List<MenuGetRes>> menuRes = menuClient.getOrderMenu(menuGetReq);
+
+            MenuGetRes menuOne = menuRes.getResultData().get(0);
+
+            OrderDetailGetRes.OrderMenuItemRes menuItemRes = new OrderDetailGetRes.OrderMenuItemRes();
+            menuItemRes.setMenuId(menu.getMenuId());
+            menuItemRes.setName(menu.getMenuName());
+            menuItemRes.setPrice(menuOne.getPrice());
+            menuItemRes.setImagePath(menu.getMenuImg());
+
+            List<OrderDetailGetRes.OrderMenuOptionRes> options = convertToOptionTree(menu.getOptions());
+            menuItemRes.setOptions(options);
+
+            orderDetailRes.getMenuItems().add(menuItemRes);
+        }
+
+        return orderDetailRes;
+
+
+    }
+
+    public List<OrderDetailGetRes.OrderMenuOptionRes> convertToOptionTree(List<OrdersMenuOption> allOptions) {
+        Map<Long, OrderDetailGetRes.OrderMenuOptionRes> optionMap = new HashMap<>();
+
+        for (OrdersMenuOption option : allOptions) {
+            OrderDetailGetRes.OrderMenuOptionRes optionRes = new OrderDetailGetRes.OrderMenuOptionRes();
+            optionRes.setOptionId(option.getOptionId());
+            optionRes.setComment(option.getOptionName());
+            optionRes.setPrice(option.getOptionPrice());
+
+            optionMap.put(option.getOptionId(), optionRes);
+        }
+
+        List<OrderDetailGetRes.OrderMenuOptionRes> rootOptions = new ArrayList<>();
+
+        for (OrdersMenuOption option : allOptions) {
+            if (option.getParentId() == null) {
+                rootOptions.add(optionMap.get(option.getOptionId()));
+            } else {
+                OrderDetailGetRes.OrderMenuOptionRes parentOption = optionMap.get(option.getParentId());
+                parentOption.getChildren().add(optionMap.get(option.getOptionId()));
+            }
+        }
+
+        return rootOptions;
+    }
+
+
+//
+//
+//    사장 조회용
+
+    public List<OrderDetailGetRes> findOrders(long storeId, long userId) {
+        List<OrderDetailGetRes> orders= orderMapper.findOrdered(storeId);
+
+        for(OrderDetailGetRes order: orders){
+            order.setOrderId(order.getOrderId());
+            order.setCreateAt(order.getCreateAt());
+            order.setAddress(order.getAddress());
+            order.setAddressDetail(order.getAddressDetail());
+            order.setMenuName(order.getMenuName());
+            order.setAmount(order.getAmount());
+
+            List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(order.getOrderId());
+
+            for (OrdersMenu orderMenu : orderMenus) {
+                OrdersMenu menuRes = new OrdersMenu();
+                menuRes.setId(orderMenu.getId());
+                menuRes.setMenuId(orderMenu.getMenuId());
+                menuRes.setStoreId(orderMenu.getStoreId());
+                menuRes.setMenuName(orderMenu.getMenuName());
+                menuRes.setMenuImg(orderMenu.getMenuImg());
+                menuRes.setAmount(orderMenu.getAmount());
+                menuRes.setQuantity(orderMenu.getQuantity());
+
+
+
+                MenuGetReq menuGetReq = new MenuGetReq();
+                menuGetReq.setMenuIds(Collections.singletonList(orderMenu.getMenuId()));
+                menuGetReq.setOptionIds(orderMenu.getOptions().stream().map(OrdersMenuOption::getOptionId).collect(Collectors.toList()));
+
+                ResultResponse<List<MenuGetRes>> menuRes2 = menuClient.getOrderMenu(menuGetReq);
+
+                MenuGetRes menuOne = menuRes2.getResultData().get(0);
+
+                OrderDetailGetRes.OrderMenuItemRes menuItemRes = new OrderDetailGetRes.OrderMenuItemRes();
+                menuItemRes.setMenuId(orderMenu.getMenuId());
+                menuItemRes.setName(orderMenu.getMenuName());
+                menuItemRes.setPrice(menuOne.getPrice());
+                menuItemRes.setImagePath(orderMenu.getMenuImg());
+
+                List<OrderDetailGetRes.OrderMenuOptionRes> options = convertToOptionTree(orderMenu.getOptions());
+
+                menuItemRes.setOptions(options);
+
+                order.getMenuItems().add(menuItemRes);
+                }
+        }
+                return orders;
+
+
+    }
+
+    public List<OrderDetailGetRes> findPreparing(long storeId, long userId) {
+        List<OrderDetailGetRes> orders= orderMapper.findPreParing(storeId);
+
+        for(OrderDetailGetRes order: orders){
+            order.setOrderId(order.getOrderId());
+            order.setCreateAt(order.getCreateAt());
+            order.setAddress(order.getAddress());
+            order.setAddressDetail(order.getAddressDetail());
+            order.setMenuName(order.getMenuName());
+            order.setAmount(order.getAmount());
+
+            List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(order.getOrderId());
+
+            for (OrdersMenu orderMenu : orderMenus) {
+                OrdersMenu menuRes = new OrdersMenu();
+                menuRes.setId(orderMenu.getId());
+                menuRes.setMenuId(orderMenu.getMenuId());
+                menuRes.setStoreId(orderMenu.getStoreId());
+                menuRes.setMenuName(orderMenu.getMenuName());
+                menuRes.setMenuImg(orderMenu.getMenuImg());
+                menuRes.setAmount(orderMenu.getAmount());
+                menuRes.setQuantity(orderMenu.getQuantity());
+
+
+
+                MenuGetReq menuGetReq = new MenuGetReq();
+                menuGetReq.setMenuIds(Collections.singletonList(orderMenu.getMenuId()));
+                menuGetReq.setOptionIds(orderMenu.getOptions().stream().map(OrdersMenuOption::getOptionId).collect(Collectors.toList()));
+
+                ResultResponse<List<MenuGetRes>> menuRes2 = menuClient.getOrderMenu(menuGetReq);
+
+                MenuGetRes menuOne = menuRes2.getResultData().get(0);
+
+                OrderDetailGetRes.OrderMenuItemRes menuItemRes = new OrderDetailGetRes.OrderMenuItemRes();
+                menuItemRes.setMenuId(orderMenu.getMenuId());
+                menuItemRes.setName(orderMenu.getMenuName());
+                menuItemRes.setPrice(menuOne.getPrice());
+                menuItemRes.setImagePath(orderMenu.getMenuImg());
+
+                List<OrderDetailGetRes.OrderMenuOptionRes> options = convertToOptionTree(orderMenu.getOptions());
+
+                menuItemRes.setOptions(options);
+
+                order.getMenuItems().add(menuItemRes);
+            }
+        }
+        return orders;
+
+
+    }
+
+    public List<OrderDetailGetRes> findDelivered(long storeId, long userId) {
+        List<OrderDetailGetRes> orders= orderMapper.findDelivered(storeId);
+
+        for(OrderDetailGetRes order: orders){
+            order.setOrderId(order.getOrderId());
+            order.setCreateAt(order.getCreateAt());
+            order.setAddress(order.getAddress());
+            order.setAddressDetail(order.getAddressDetail());
+            order.setMenuName(order.getMenuName());
+            order.setAmount(order.getAmount());
+
+            List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(order.getOrderId());
+
+            for (OrdersMenu orderMenu : orderMenus) {
+                OrdersMenu menuRes = new OrdersMenu();
+                menuRes.setId(orderMenu.getId());
+                menuRes.setMenuId(orderMenu.getMenuId());
+                menuRes.setStoreId(orderMenu.getStoreId());
+                menuRes.setMenuName(orderMenu.getMenuName());
+                menuRes.setMenuImg(orderMenu.getMenuImg());
+                menuRes.setAmount(orderMenu.getAmount());
+                menuRes.setQuantity(orderMenu.getQuantity());
+
+
+
+                MenuGetReq menuGetReq = new MenuGetReq();
+                menuGetReq.setMenuIds(Collections.singletonList(orderMenu.getMenuId()));
+                menuGetReq.setOptionIds(orderMenu.getOptions().stream().map(OrdersMenuOption::getOptionId).collect(Collectors.toList()));
+
+                ResultResponse<List<MenuGetRes>> menuRes2 = menuClient.getOrderMenu(menuGetReq);
+
+                MenuGetRes menuOne = menuRes2.getResultData().get(0);
+
+                OrderDetailGetRes.OrderMenuItemRes menuItemRes = new OrderDetailGetRes.OrderMenuItemRes();
+                menuItemRes.setMenuId(orderMenu.getMenuId());
+                menuItemRes.setName(orderMenu.getMenuName());
+                menuItemRes.setPrice(menuOne.getPrice());
+                menuItemRes.setImagePath(orderMenu.getMenuImg());
+
+                List<OrderDetailGetRes.OrderMenuOptionRes> options = convertToOptionTree(orderMenu.getOptions());
+
+                menuItemRes.setOptions(options);
+
+                order.getMenuItems().add(menuItemRes);
+            }
+        }
+        return orders;
+
+    }
+//
+//
+//
 
 
 }

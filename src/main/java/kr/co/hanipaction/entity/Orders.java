@@ -52,6 +52,10 @@ public class Orders extends UpdatedAt {
     private String userPhone;
 
     @Column
+    @Comment("배달료")
+    private int minDeliveryFee;
+
+    @Column
     @Comment("결제 금액")
     private int amount;
 
