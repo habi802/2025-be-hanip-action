@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -45,6 +46,7 @@ public class ManagerService {
     }
 
     // 리뷰 숨기기 상태 변경
+    @Transactional
     public void patchIsHideInReview(List<Long> ids, int isHide) {
         List<Review> reviews = reviewRepository.findAllById(ids);
 

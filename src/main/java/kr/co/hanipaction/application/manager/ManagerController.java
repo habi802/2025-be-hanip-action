@@ -12,7 +12,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/hanip-manager/action")
+@RequestMapping("/api/hanip-manager/action")
 @RequiredArgsConstructor
 public class ManagerController {
     private final ManagerService managerService;
