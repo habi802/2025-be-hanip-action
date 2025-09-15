@@ -41,13 +41,19 @@ public class ManagerService {
     private final ReviewService reviewService;
 
     // 주문 전체 조회
-    public Page<OrderListRes> getOrderList(OrderListReq req) {
+    public PageResponse<OrderListRes> getOrderList(OrderListReq req) {
         // 주문자명, 상호명 같이 외부 api를 호출해야 하는 경우 입력한 주문자명 혹은 상호명을 가진 id 리스트를 검색 조건으로 사용
-        ResponseEntity<ResultResponse<Page<UserListRes>>> userListRes = userClient.getUserIdsInManager(UserListReq.builder().name(req.getUserName()).build());
-        List<Long> userIds = userListRes.getBody().getResultData().stream().map(UserListRes::getUserId).toList();
+        ResponseEntity<ResultResponse<Page<UserListRes>>> userListRes = userClient.getUserIdsInManager(UserListReq.builder().name(req.getUserName())
+                                                                                                                            .pageNumber(0)
+                                                                                                                            .pageSize(-1)
+                                                                                                                            .build());
+        List<Long> userIds = userListRes.getBody().getResultData().getContent().stream().map(UserListRes::getUserId).toList();
 
-        ResponseEntity<ResultResponse<Page<StoreListRes>>> storeListRes = storeClient.getStoreIdsInManager(StoreListReq.builder().name(req.getStoreName()).build());
-        List<Long> storeIds = storeListRes.getBody().getResultData().stream().map(StoreListRes::getStoreId).toList();
+        ResponseEntity<ResultResponse<Page<StoreListRes>>> storeListRes = storeClient.getStoreIdsInManager(StoreListReq.builder().name(req.getStoreName())
+                                                                                                                                 .pageNumber(0)
+                                                                                                                                 .pageSize(-1)
+                                                                                                                                 .build());
+        List<Long> storeIds = storeListRes.getBody().getResultData().getContent().stream().map(StoreListRes::getStoreId).toList();
 
         // 검색 조건 적용
         Specification<Orders> spec = OrderSpecification.hasStartDate(req.getStartDate())
@@ -63,7 +69,7 @@ public class ManagerService {
         Pageable pageable = PageRequest.of(req.getPageNumber(), req.getPageSize());
 
         Page<Orders> page = orderRepository.findAll(spec, pageable);
-        Page<OrderListRes> result = page.map(order -> {
+        List<OrderListRes> result = page.stream().map(order -> {
             // 작성자명, 상호명 가져오기 위해 외부 api 호출
             ResponseEntity<ResultResponse<String>> userRes = userClient.getUserNameInManager(order.getUserId());
             ResponseEntity<ResultResponse<StoreInManagerRes>> storeRes = storeClient.getStoreNameInManager(order.getStoreId());
@@ -78,9 +84,9 @@ public class ManagerService {
                                .status(order.getStatus().getValue())
                                .isDeleted(order.getIsDeleted())
                                .build();
-        });
+        }).toList();
 
-        return result;
+        return new PageResponse<>(result);
     }
 
     // 주문 상세 조회
@@ -109,7 +115,7 @@ public class ManagerService {
     }
 
     // 리뷰 전체 조회
-    public Page<ReviewListRes> getReviewList(ReviewListReq req) {
+    public PageResponse<ReviewListRes> getReviewList(ReviewListReq req) {
         // 검색 조건 적용
         Specification<Review> spec = ReviewSpecification.hasStartDate(req.getStartDate())
                                                         .and(ReviewSpecification.hasEndDate(req.getEndDate()));

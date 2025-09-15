@@ -20,7 +20,7 @@ public class ManagerController {
     // 주문 전체 조회
     @GetMapping("/order")
     public ResponseEntity<ResultResponse<?>> getOrderList(@RequestBody OrderListReq req) {
-        Page<OrderListRes> result = managerService.getOrderList(req);
+        PageResponse<OrderListRes> result = managerService.getOrderList(req);
         return ResponseEntity.ok(ResultResponse.success(result));
     }
 
