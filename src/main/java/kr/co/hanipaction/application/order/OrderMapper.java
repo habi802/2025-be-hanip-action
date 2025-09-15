@@ -1,6 +1,7 @@
 package kr.co.hanipaction.application.order;
 
 import kr.co.hanipaction.application.order.model.*;
+import kr.co.hanipaction.application.order.newmodel.DrOrderGetRes;
 import kr.co.hanipaction.application.order.newmodel.OrderDetailGetRes;
 import kr.co.hanipaction.application.order.newmodel.OrderGetDto;
 import kr.co.hanipaction.application.order.newmodel.OrderGetRes;
@@ -29,4 +30,6 @@ public interface OrderMapper {
 
     List<OrderDetailGetRes> findPreParing(long storeId);
     List<OrderDetailGetRes> findDelivered(long storeId);
+
+    List<DrOrderGetRes> findDrOrderList(long userId);
 }

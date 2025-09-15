@@ -125,4 +125,14 @@
         AND o.store_id = #{storeId}
     </select>
 
+
+    <select id="findDrOrderList">
+        SELECT o.id AS order_id, o.store_id, o.store_name, o.address AS userAddress, o.address_detail AS user_address_detail, om.menu_name, o.amount,o.store_request,
+        (SELECT COUNT(o.id)) AS menu_length
+        FROM orders o
+        LEFT JOIN orders_menu om
+        ON o.id = om.order_id
+        WHERE o.`status`= 2
+        GROUP BY o.id
+    </select>
 </mapper>
