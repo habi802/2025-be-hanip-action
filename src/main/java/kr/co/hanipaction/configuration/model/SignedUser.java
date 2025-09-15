@@ -6,5 +6,5 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class SignedUser {
-    public final Long signedUserId;
+    public final long signedUserId;
 }

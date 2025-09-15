@@ -37,6 +37,9 @@ spring:
 constants:
   file:
     directory: D:/hanip/images
+  open-feign:
+    actor: HANIP-ACTOR
+
   jwt:
     issuer: green502@green.com
     bearer-format: JWT
@@ -53,9 +56,6 @@ constants:
     refresh-token-cookie-path: /api/user/reissue
     refresh-token-cookie-validity-seconds: 1_296_000
     refresh-token-validity-milliseconds: 1_296_000_000
-  open-feign:
-    actor: HANIP-ACTOR
-
 
 mybatis:
   configuration:
