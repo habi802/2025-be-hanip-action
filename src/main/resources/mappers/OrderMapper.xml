@@ -82,16 +82,47 @@
 <!---->
 <!-- 신규 추가 맵퍼-->
 
+    <!-- 주문내역 인피니티, 페이지네이션용-->
     <select id="findOrders">
         SELECT *
         FROM orders o
-        <if test="menuName !=null">
-        WHERE o
+        JOIN orders_menu om
+        ON o.id = om.order_id
+        <where>
+        o.is_deleted = 0
+        <if test="storeName !=null">
+        AND o.store_name LIKE CONCAT('%', #{storeName}, '%')
         </if>
+        <if test="menuName !=null">
+        AND om.menu_name LIKE CONCAT('%', #{menuName}, '%')
+        </if>
+        </where>
+        GROUP BY o.id
         ORDER By o.id DESC
-        LIMIT {startIdx},{size}
-
+        LIMIT #{startIdx}, #{size}
     </select>
 
+<!--    사장용 주문 대기 조회 -->
+    <select id="findOrdered">
+        SELECT *, o.id AS order_id
+        FROM orders o
+        WHERE o.`status` = '01'
+        AND o.store_id = #{storeId}
+    </select>
+<!--    사장용 음식 조리대기 조회-->
+    <select id="findPreParing">
+        SELECT *, o.id AS order_id
+        FROM orders o
+        WHERE o.`status` = '02'
+        AND o.store_id = #{storeId}
+    </select>
+<!--    배달중과 배달 완료 조회 / 프론트에서 보여지는 화면은 createAt이용해서 하루마다 초기화 해야할듯-->
+    <select id="findDelivered">
+        SELECT *, o.id AS order_id
+        FROM orders o
+        WHERE o.`status` = '03'
+        OR o.`status` = '04'
+        AND o.store_id = #{storeId}
+    </select>
 
 </mapper>

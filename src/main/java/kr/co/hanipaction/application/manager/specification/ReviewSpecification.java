@@ -1,10 +1,14 @@
 package kr.co.hanipaction.application.manager.specification;
 
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.entity.Review;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ReviewSpecification {
     // 리뷰 등록일(시작)
@@ -26,14 +30,32 @@ public class ReviewSpecification {
                 return null;
             }
 
-            LocalDateTime endDateTime = LocalDate.parse(endDate).atStartOfDay();
-            return cb.greaterThanOrEqualTo(root.get("createdAt"), endDateTime);
+            LocalDateTime endDateTime = LocalDate.parse(endDate).atTime(23, 59, 59);
+            return cb.lessThanOrEqualTo(root.get("createdAt"), endDateTime);
         };
     }
 
     // 작성자명
+    public static Specification<Review> hasUserIds(List<Long> userIds) {
+        return (root, query, cb) -> {
+            if (userIds == null || userIds.isEmpty()) {
+                return null;
+            }
+
+            return root.get("userId").in(userIds);
+        };
+    }
 
     // 상호명
+    public static Specification<Review> hasOrderIds(List<Long> storeIds, List<Long> orderIds) {
+        return (root, query, cb) -> {
+            if ((orderIds == null || orderIds.isEmpty()) && (storeIds == null || storeIds.isEmpty())) {
+                return null;
+            }
+
+            return root.get("orderId").get("id").in(orderIds);
+        };
+    }
 
     // 내용
     public static Specification<Review> hasComment(String comment) {

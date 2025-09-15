@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 public class OrderGetDto {
     private String menuName;
-    private String StoreName;
+    private String storeName;
     private int startIdx;
     private int size;
 }

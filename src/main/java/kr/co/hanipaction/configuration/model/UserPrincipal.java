@@ -1,21 +1,41 @@
 package kr.co.hanipaction.configuration.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import kr.co.hanipaction.configuration.enumcode.model.EnumUserRole;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
-import java.security.Principal;
+import java.util.Collection;
+import java.util.List;
 
-
+@Slf4j
 @Getter
-@RequiredArgsConstructor
-public class UserPrincipal implements Principal {
-    @JsonProperty("signedUser")
-    private final long signedUserId;
+public class UserPrincipal implements UserDetails {
+    private final Collection<? extends GrantedAuthority> authorities;
+    private final JwtUser jwtUser;
+
+    public UserPrincipal(JwtUser jwtUser) {
+        this.jwtUser = jwtUser;
+        EnumUserRole role = jwtUser.getRole();
+        String roleName = String.format("ROLE_%s", role.name());
+        log.info("roleName: {}", roleName);
+        this.authorities = List.of(new SimpleGrantedAuthority(roleName));
+    }
+
+    public Long getSignedUserId() {
+        return jwtUser.getSignedUserId();
+    }
 
     @Override
-    public String getName() {
-        return null;
+    public String getPassword() {
+        return "";
+    }
+
+    @Override
+    public String getUsername() {
+        return "";
     }
 }

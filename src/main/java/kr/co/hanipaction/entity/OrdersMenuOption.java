@@ -1,8 +1,12 @@
 package kr.co.hanipaction.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @EqualsAndHashCode
@@ -35,4 +39,8 @@ public class OrdersMenuOption {
     @JoinColumn(name = "orders_item_id")
     @JsonBackReference
     private OrdersMenu ordersItem;
+
+    @OneToMany(mappedBy = "parentId", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<OrdersMenuOption> children = new ArrayList<>();
 }

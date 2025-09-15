@@ -2,20 +2,15 @@ package kr.co.hanipaction.application.contact;
 
 import jakarta.transaction.Transactional;
 import kr.co.hanipaction.application.contact.model.*;
-import kr.co.hanipaction.configuration.utill.MyFileManager;
+import kr.co.hanipaction.configuration.utils.MyFileManager;
 import kr.co.hanipaction.entity.Contact;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service

@@ -6,9 +6,6 @@ import kr.co.hanipaction.application.cart.CartMapper;
 import kr.co.hanipaction.application.cart.CartRepository;
 import kr.co.hanipaction.application.order.model.*;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
-import kr.co.hanipaction.application.sse.SseService;
-import kr.co.hanipaction.application.sse.model.OrderMenuOptionDto;
-import kr.co.hanipaction.application.sse.model.OrderNotification;
 import kr.co.hanipaction.entity.Cart;
 import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.entity.OrdersMenu;
@@ -34,13 +31,11 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final OrderMenuRepository orderMenuRepository;
     private final OrderMenuOptionRepository orderMenuOptionRepository;
-    private final SseService sseService;
 
 
     @Transactional
     public Orders saveOrder(OrderPostDto dto, long loginUserId) {
 
-        List<OrderMenuDto> menuDto = new ArrayList<>();
         List<Cart> userId = cartRepository.findByUserId(loginUserId);
 
 
@@ -84,44 +79,14 @@ public class OrderService {
                     .collect(Collectors.toList());
 
             ordersMenu.setOptions(ordersMenuOptions);
-            orderMenuRepository.save(ordersMenu);
-            orderMenuOptionRepository.saveAll(ordersMenuOptions);
+           orderMenuRepository.save(ordersMenu);
 
-            // DTO 변환
-            List<OrderMenuOptionDto> optionDto = ordersMenuOptions.stream()
-                    .map(o -> OrderMenuOptionDto.builder()
-                            .optionId(o.getOptionId())
-                            .optionName(o.getOptionName())
-                            .parentId(o.getParentId())
-                            .optionPrice(o.getOptionPrice())
-                            .build())
-                    .toList();
 
-            menuDto.add(OrderMenuDto.builder()
-                    .orderId(orders.getId())
-                    .menuId(ordersMenu.getMenuId())
-                    .quantity(ordersMenu.getQuantity())
-                    .menuName(ordersMenu.getMenuName())
-                    .amount(ordersMenu.getAmount())
-                    .option(optionDto)
-                    .build());
-
+           orderMenuOptionRepository.saveAll(ordersMenuOptions);
         }
-        // sse 전송
+
         // 총 주문금액 orders에 넣기
         orders.setAmount(totalAmount);
-
-        sseService.sendOrder(
-                orders.getStoreId(),
-                OrderNotification.builder()
-                        .orderId(orders.getId())
-                        .storeId(orders.getStoreId())
-                        .userId(orders.getUserId())
-                        .status(orders.getStatus())
-                        .amount(orders.getAmount())
-                        .menus(menuDto)
-                        .build()
-        );
 
         // 카트 비우기
         cartRepository.deleteAll(userId);

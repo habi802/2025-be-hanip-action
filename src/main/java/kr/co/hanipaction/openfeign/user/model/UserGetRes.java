@@ -9,4 +9,5 @@ public class UserGetRes {
     private String id;
     private String userNickName;
     private String userPic;
+    private String userTel;
 }

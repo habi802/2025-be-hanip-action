@@ -1,11 +1,10 @@
 package kr.co.hanipaction.application.manager;
 
 import kr.co.hanipaction.application.common.model.ResultResponse;
-import kr.co.hanipaction.application.manager.model.OrderListReq;
-import kr.co.hanipaction.application.manager.model.ReviewInManagerRes;
-import kr.co.hanipaction.application.manager.model.ReviewListReq;
+import kr.co.hanipaction.application.manager.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,25 +20,29 @@ public class ManagerController {
     // 주문 전체 조회
     @GetMapping("/order")
     public ResponseEntity<ResultResponse<?>> getOrderList(@RequestBody OrderListReq req) {
-        return null;
+        PageResponse<OrderListRes> result = managerService.getOrderList(req);
+        return ResponseEntity.ok(ResultResponse.success(result));
     }
 
     // 주문 상세 조회
     @GetMapping("/order/{orderId}")
     public ResponseEntity<ResultResponse<?>> getOrder(@PathVariable Long orderId) {
-        return null;
+        OrderInManagerRes result = managerService.getOrder(orderId);
+        return ResponseEntity.ok(ResultResponse.success(result));
     }
 
     // 주문 취소
     @PostMapping("/order")
-    public ResponseEntity<ResultResponse<?>> cancelOrder() {
-        return null;
+    public ResponseEntity<ResultResponse<?>> cancelOrder(@RequestParam(name = "id") List<Long> ids) {
+        managerService.patchStatusInOrder(ids);
+        return ResponseEntity.ok(ResultResponse.success("주문 취소 완료"));
     }
 
     // 리뷰 전체 조회
     @GetMapping("/review")
     public ResponseEntity<ResultResponse<?>> getReviewList(@RequestBody ReviewListReq req) {
-        return null;
+        PageResponse<ReviewListRes> result = managerService.getReviewList(req);
+        return ResponseEntity.ok(ResultResponse.success(result));
     }
 
     // 리뷰 상세 조회
