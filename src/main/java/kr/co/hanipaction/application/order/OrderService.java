@@ -7,6 +7,9 @@ import kr.co.hanipaction.application.order.newmodel.OrderDetailGetRes;
 import kr.co.hanipaction.application.order.newmodel.OrderGetDto;
 import kr.co.hanipaction.application.order.newmodel.OrderGetRes;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
+import kr.co.hanipaction.application.sse.SseService;
+import kr.co.hanipaction.application.sse.model.OrderMenuOptionDto;
+import kr.co.hanipaction.application.sse.model.OrderNotification;
 import kr.co.hanipaction.configuration.enumcode.model.StatusType;
 import kr.co.hanipaction.entity.*;
 import kr.co.hanipaction.openfeign.menu.MenuClient;
@@ -40,17 +43,19 @@ public class OrderService {
     private final StoreClient storeClient;
     private final UserClient userClient;
     private final MenuClient menuClient;
+    private final SseService sseService;
 
 
 
     @Transactional
     public Orders saveOrder(OrderPostDto dto, long loginUserId) {
 
+        List<OrderMenuDto> menuDto = new ArrayList<>();
         List<Cart> userId = cartRepository.findByUserId(loginUserId);
 
         List<Long> userIdList = Collections.singletonList(loginUserId);
         ResultResponse<Map<String, UserGetRes>> userRes = userClient.getUserList(userIdList);
-                if (userRes == null || userRes.getResultData() == null) {
+        if (userRes == null || userRes.getResultData() == null) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "유저 정보를 가져올 수 없습니다.");
         }
 
@@ -107,14 +112,46 @@ public class OrderService {
 
             ordersMenu.setOptions(ordersMenuOptions);
             orders.setStoreName(cart.getStoreName());
-           orderMenuRepository.save(ordersMenu);
+            orderMenuRepository.save(ordersMenu);
 
 
-           orderMenuOptionRepository.saveAll(ordersMenuOptions);
+            orderMenuOptionRepository.saveAll(ordersMenuOptions);
+
+            // DTO 변환
+            List<OrderMenuOptionDto> optionDto = ordersMenuOptions.stream()
+                    .map(o -> OrderMenuOptionDto.builder()
+                            .optionId(o.getOptionId())
+                            .optionName(o.getOptionName())
+                            .parentId(o.getParentId())
+                            .optionPrice(o.getOptionPrice())
+                            .build())
+                    .toList();
+
+            menuDto.add(OrderMenuDto.builder()
+                    .orderId(orders.getId())
+                    .menuId(ordersMenu.getMenuId())
+                    .quantity(ordersMenu.getQuantity())
+                    .menuName(ordersMenu.getMenuName())
+                    .amount(ordersMenu.getAmount())
+                    .option(optionDto)
+                    .build());
         }
 
+        // sse 전송
         // 총 주문금액 orders에 넣기  배달료 여기서 포함
         orders.setAmount(totalAmount + orders.getMinDeliveryFee());
+
+        sseService.sendOrder(
+                orders.getStoreId(),
+                OrderNotification.builder()
+                        .orderId(orders.getId())
+                        .storeId(orders.getStoreId())
+                        .userId(orders.getUserId())
+                        .status(orders.getStatus())
+                        .amount(orders.getAmount())
+                        .menus(menuDto)
+                        .build()
+        );
 
         // 카트 비우기
         cartRepository.deleteAll(userId);
@@ -172,7 +209,7 @@ public class OrderService {
 
 
 
-//
+    //
 //
 //
 //  주문내역 리스트 조회용
@@ -218,12 +255,12 @@ public class OrderService {
                 order.getMenuItems().add(menuRes);
             }
 
-            }
+        }
 
 
 
 
-            return orders;
+        return orders;
     }
 
     private List<OrdersMenuOption> convertToOptionTreeList(List<OrdersMenuOption> menuOptions) {
@@ -437,9 +474,9 @@ public class OrderService {
                 menuItemRes.setOptions(options);
 
                 order.getMenuItems().add(menuItemRes);
-                }
+            }
         }
-                return orders;
+        return orders;
 
 
     }
