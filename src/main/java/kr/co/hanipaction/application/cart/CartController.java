@@ -5,6 +5,7 @@ import kr.co.hanipaction.application.cart.model.CartPostReq;
 import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.configuration.model.SignedUser;
 
+import kr.co.hanipaction.configuration.model.UserPrincipal;
 import kr.co.hanipaction.entity.Cart;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +29,8 @@ public class CartController {
 //
 //    POST 완료
     @PostMapping
-    public ResultResponse<Cart> save(@AuthenticationPrincipal SignedUser signedUser, @RequestBody CartPostReq req) {
-        long userId=signedUser.signedUserId;
+    public ResultResponse<Cart> save(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody CartPostReq req) {
+        long userId=userPrincipal.getSignedUserId();
         Cart result = cartService.save(req,userId); // 파라미터 추가하고, 유저프린서펄로 넣어주기
         return new ResultResponse<>(200,"메뉴 한개 담기 성공",result);
     }
@@ -39,8 +40,8 @@ public class CartController {
 //
 //    PATCH 인 척 하는 POST 기존 pk 삭제
     @PostMapping("/{cartId}")
-    public ResultResponse<Cart> modify(@PathVariable long cartId,@AuthenticationPrincipal SignedUser signedUser, @RequestBody CartPostReq req) {
-        long userId=signedUser.signedUserId;
+    public ResultResponse<Cart> modify(@PathVariable long cartId,@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody CartPostReq req) {
+        long userId=userPrincipal.getSignedUserId();
         Cart result = cartService.modify(cartId,req,userId);
 
         return new ResultResponse<>(200,"메뉴 한개 수정 성공",result);
@@ -51,8 +52,8 @@ public class CartController {
 //
 //    List GET 완료
     @GetMapping
-    public ResultResponse<List<CartListGetRes>> findAll(@AuthenticationPrincipal SignedUser signedUser) {
-        long userId=signedUser.signedUserId;
+    public ResultResponse<List<CartListGetRes>> findAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        long userId= userPrincipal.getSignedUserId();
         List<CartListGetRes> result = cartService.findAll(userId);
 
         return new ResultResponse<>(200,"카트 리스트 조회 성공",result);
@@ -63,8 +64,8 @@ public class CartController {
 //
 //  1개 GET 완료
     @GetMapping("/{cartId}")
-    public ResultResponse<CartListGetRes> findById(@PathVariable long cartId, @AuthenticationPrincipal SignedUser signedUser) {
-        long userId=signedUser.signedUserId;
+    public ResultResponse<CartListGetRes> findById(@PathVariable long cartId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        long userId= userPrincipal.getSignedUserId();
         CartListGetRes result = cartService.getCartById(userId,cartId);
 
         return new ResultResponse<>(200,"장바구니 메뉴 1개 조회 성공",result);
@@ -75,8 +76,8 @@ public class CartController {
 //
 //    1개 DELETE 완료
     @DeleteMapping("/{cartId}")
-    public ResultResponse<?> deleteOneByCartId(@PathVariable long cartId, @AuthenticationPrincipal SignedUser signedUser) {
-        long userId=signedUser.signedUserId;
+    public ResultResponse<?> deleteOneByCartId(@PathVariable long cartId, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        long userId= userPrincipal.getSignedUserId();
         cartService.delete(cartId,userId);
 
         return new ResultResponse<>(200,"메뉴가 삭제되었습니다.", null);
@@ -87,8 +88,8 @@ public class CartController {
 //
 //    전체 DELETE 완료
     @DeleteMapping
-    public ResultResponse<?> deleteAllByCartId(@AuthenticationPrincipal SignedUser signedUser) {
-        long userId=signedUser.signedUserId;
+    public ResultResponse<?> deleteAllByCartId(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        long userId= userPrincipal.getSignedUserId();
         cartService.deleteAll(userId);
 
         return new ResultResponse<>(200,"메뉴 전체가 삭제되었습니다.", null);

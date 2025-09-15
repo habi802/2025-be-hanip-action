@@ -2,9 +2,7 @@ package kr.co.hanipaction.application.order;
 
 import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.order.model.*;
-import kr.co.hanipaction.application.order.newmodel.OrderDetailGetRes;
-import kr.co.hanipaction.application.order.newmodel.OrderGetDto;
-import kr.co.hanipaction.application.order.newmodel.OrderGetRes;
+import kr.co.hanipaction.application.order.newmodel.*;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
 import kr.co.hanipaction.configuration.model.SignedUser;
 import kr.co.hanipaction.configuration.model.UserPrincipal;
@@ -31,37 +29,37 @@ public class OrderController {
 //
 //    POST 완료
     @PostMapping("/order")
-    public ResultResponse<Orders> saveOrder(@AuthenticationPrincipal SignedUser signedUser, @RequestBody OrderPostDto dto) {
+    public ResultResponse<Orders> saveOrder(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody OrderPostDto dto) {
         log.info("req: {}", dto);
-        long userId= signedUser.signedUserId;
+        long userId= userPrincipal.getSignedUserId();
         Orders result = orderService.saveOrder(dto, userId);
         return new ResultResponse<>(200,"주문 완료",result);
     }
 
 
-    @GetMapping("/order/owner/{storeId}")
-    public ResultResponse<List<OrderGetDetailRes>> findOrder(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable int storeId) {
-//        Integer logginedMemberId = (Integer) HttpUtils.getSessionValue(httpReq, UserConstants.LOGGED_IN_USER_ID);
-        List<OrderGetDetailRes> result;
-        if(userPrincipal.getSignedUserId() != 0){
-            result = orderService.findByStoreId(storeId);
-            return new ResultResponse<>(200,"주문 완료",result);
-        }
-//        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        return null;
-    }
-
-    @GetMapping("/order/owner")
-    public ResultResponse<List<OrderGetDetailRes>> getOrderListByStoreId(@AuthenticationPrincipal UserPrincipal userPrincipal, @ModelAttribute OrderDateGetReq req) {
-//        Integer logginedMemberId = (Integer) HttpUtils.getSessionValue(httpReq, UserConstants.LOGGED_IN_USER_ID);
-        List<OrderGetDetailRes> result;
-        if(userPrincipal.getSignedUserId() != 0){
-            result = orderService.findByStoreIdAndDate(req);
-            return new ResultResponse<>(200,"주문 완료",result);
-        }
-//        return new ResultResponse<>("주문 완료",result);
-    return null;
-    }
+//    @GetMapping("/order/owner/{storeId}")
+//    public ResultResponse<List<OrderGetDetailRes>> findOrder(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable int storeId) {
+////        Integer logginedMemberId = (Integer) HttpUtils.getSessionValue(httpReq, UserConstants.LOGGED_IN_USER_ID);
+//        List<OrderGetDetailRes> result;
+//        if(userPrincipal.getSignedUserId() != 0){
+//            result = orderService.findByStoreId(storeId);
+//            return new ResultResponse<>(200,"주문 완료",result);
+//        }
+////        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+//        return null;
+//    }
+//
+//    @GetMapping("/order/owner")
+//    public ResultResponse<List<OrderGetDetailRes>> getOrderListByStoreId(@AuthenticationPrincipal UserPrincipal userPrincipal, @ModelAttribute OrderDateGetReq req) {
+////        Integer logginedMemberId = (Integer) HttpUtils.getSessionValue(httpReq, UserConstants.LOGGED_IN_USER_ID);
+//        List<OrderGetDetailRes> result;
+//        if(userPrincipal.getSignedUserId() != 0){
+//            result = orderService.findByStoreIdAndDate(req);
+//            return new ResultResponse<>(200,"주문 완료",result);
+//        }
+////        return new ResultResponse<>("주문 완료",result);
+//    return null;
+//    }
 
 
 
@@ -71,8 +69,8 @@ public class OrderController {
 //
 //    주문 내역 전체 조회 [유저 기준]
     @GetMapping("/order")
-    public ResultResponse<List<OrderGetRes>> getOrderList(@AuthenticationPrincipal SignedUser signedUser, @ModelAttribute OrderGetReq req) {
-        long userId = signedUser.signedUserId;
+    public ResultResponse<List<OrderGetRes>> getOrderList(@AuthenticationPrincipal UserPrincipal userPrincipal, @ModelAttribute OrderGetReq req) {
+        long userId = userPrincipal.getSignedUserId();
 
         OrderGetDto ordergetDto = OrderGetDto.builder()
                 .startIdx((req.getPage()-1) * req.getRowPerPage())
@@ -92,8 +90,8 @@ public class OrderController {
 //
 //    가게 ORDERED만 조회
     @GetMapping("/order/status/ordered/{storeId}")
-    public ResultResponse<List<OrderDetailGetRes>> getOrdered(@AuthenticationPrincipal SignedUser signedUser, @PathVariable long storeId) {
-        long userId = signedUser.signedUserId;
+    public ResultResponse<List<OrderDetailGetRes>> getOrdered(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long storeId) {
+        long userId = userPrincipal.getSignedUserId();
 
         List<OrderDetailGetRes> result = orderService.findOrders(userId,storeId);
 
@@ -105,8 +103,8 @@ public class OrderController {
 //
 //  가게 PREPARING만 조회
     @GetMapping("/order/status/preparing/{storeId}")
-    public ResultResponse<List<OrderDetailGetRes>> getPreparing(@AuthenticationPrincipal SignedUser signedUser, @PathVariable long storeId) {
-        long userId = signedUser.signedUserId;
+    public ResultResponse<List<OrderDetailGetRes>> getPreparing(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long storeId) {
+        long userId = userPrincipal.getSignedUserId();
 
         List<OrderDetailGetRes> result = orderService.findPreparing(userId,storeId);
 
@@ -119,8 +117,8 @@ public class OrderController {
 //
 //  가게 Delivered 관련 조회
     @GetMapping("/order/status/delivered/{storeId}")
-    public ResultResponse<List<OrderDetailGetRes>> getDelivered(@AuthenticationPrincipal SignedUser signedUser, @PathVariable long storeId) {
-        long userId = signedUser.signedUserId;
+    public ResultResponse<List<OrderDetailGetRes>> getDelivered(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long storeId) {
+        long userId = userPrincipal.getSignedUserId();
 
         List<OrderDetailGetRes> result = orderService.findDelivered(userId,storeId);
 
@@ -135,8 +133,8 @@ public class OrderController {
 //
 //    주문 삭제 처리 패치로 숨기기 [ 유저용 ]
     @PatchMapping("/order/{orderId}")
-    public ResponseEntity<ResultResponse<String>> DeleteOrder(@AuthenticationPrincipal SignedUser signedUser,@PathVariable long orderId) {
-        long userId = signedUser.signedUserId;
+    public ResponseEntity<ResultResponse<String>> DeleteOrder(@AuthenticationPrincipal UserPrincipal userPrincipal,@PathVariable long orderId) {
+        long userId = userPrincipal.getSignedUserId();
         try {
              orderService.orderDeleted(userId,orderId);
             return ResponseEntity.ok(new ResultResponse<>(200, "주문이 삭제되었습니다.", "Success"));
@@ -153,8 +151,8 @@ public class OrderController {
 //
 //    주문 상태 변경 : 음식준비중
     @PatchMapping("/order/status/preparing/{orderId}")
-    public ResponseEntity<ResultResponse<String>> statusPreparing(@AuthenticationPrincipal SignedUser signedUser,@PathVariable long orderId) {
-        long userId = signedUser.signedUserId;
+    public ResponseEntity<ResultResponse<String>> statusPreparing(@AuthenticationPrincipal UserPrincipal userPrincipal,@PathVariable long orderId) {
+        long userId = userPrincipal.getSignedUserId();
         try {
             orderService.statusPreparing(userId,orderId);
             return ResponseEntity.ok(new ResultResponse<>(200, "배달 상태가 변경 되었습니다.", "Success"));
@@ -170,8 +168,8 @@ public class OrderController {
 //
 //    주문 상태 변경 : 배달중
     @PatchMapping("/order/status/delivered/{orderId}")
-    public ResponseEntity<ResultResponse<String>> statusDelivered(@AuthenticationPrincipal SignedUser signedUser,@PathVariable long orderId) {
-        long userId = signedUser.signedUserId;
+    public ResponseEntity<ResultResponse<String>> statusDelivered(@AuthenticationPrincipal UserPrincipal userPrincipal,@PathVariable long orderId) {
+        long userId = userPrincipal.getSignedUserId();
         try {
             orderService.statusDelevered(userId,orderId);
             return ResponseEntity.ok(new ResultResponse<>(200, "배달 상태가 변경 되었습니다.", "Success"));
@@ -188,8 +186,8 @@ public class OrderController {
 //
 //    주문 상태 변경 : 배달 완료
     @PatchMapping("/order/status/completed/{orderId}")
-    public ResponseEntity<ResultResponse<String>> statusCompleted(@AuthenticationPrincipal SignedUser signedUser,@PathVariable long orderId) {
-        long userId = signedUser.signedUserId;
+    public ResponseEntity<ResultResponse<String>> statusCompleted(@AuthenticationPrincipal UserPrincipal userPrincipal,@PathVariable long orderId) {
+        long userId = userPrincipal.getSignedUserId();
         try {
             orderService.statusCompleted(userId,orderId);
             return ResponseEntity.ok(new ResultResponse<>(200, "배달 상태가 변경 되었습니다.", "Success"));
@@ -205,8 +203,8 @@ public class OrderController {
 //
 //    주문 상태 변경 : 주문 취소
     @PatchMapping("/order/status/canceled/{orderId}")
-    public ResponseEntity<ResultResponse<String>> statusCanceled(@AuthenticationPrincipal SignedUser signedUser,@PathVariable long orderId) {
-        long userId = signedUser.signedUserId;
+    public ResponseEntity<ResultResponse<String>> statusCanceled(@AuthenticationPrincipal UserPrincipal userPrincipal,@PathVariable long orderId) {
+        long userId = userPrincipal.getSignedUserId();
         try {
             orderService.statusCanceled(userId,orderId);
             return ResponseEntity.ok(new ResultResponse<>(200, "주문을 취소하였습니다.", "Success"));
@@ -224,14 +222,23 @@ public class OrderController {
 //
 //  유저 주문 상세 조회 완료 - > 사장도 주문 조회시 pk로 조회하기
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<ResultResponse<OrderDetailGetRes>>  getOrderDetail(@AuthenticationPrincipal SignedUser signedUser,@PathVariable long orderId) {
-        long userId = signedUser.signedUserId;
+    public ResponseEntity<ResultResponse<OrderDetailGetRes>>  getOrderDetail(@AuthenticationPrincipal UserPrincipal userPrincipal,@PathVariable long orderId) {
+        long userId = userPrincipal.getSignedUserId();
 
         OrderDetailGetRes result = orderService.getOrderOne(userId,orderId);
 
         return ResponseEntity.ok(new ResultResponse<>(200, "주문 상세 조회 성공",result));
     }
 
+//    음식 준비중인 주문들 조회
+    @GetMapping("/order/dr")
+    public ResponseEntity<ResultResponse> getDrOrderList(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        long userId = userPrincipal.getSignedUserId();
+        
+        List<DrOrderGetRes> result = orderService.findDrOrderList(userId);
+        
+        return ResponseEntity.ok(new ResultResponse<>(200, "조리중인 음식 리스트 조회 완료",result));
+    }
 
 
 

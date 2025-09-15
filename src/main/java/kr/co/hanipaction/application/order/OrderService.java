@@ -3,9 +3,7 @@ package kr.co.hanipaction.application.order;
 import kr.co.hanipaction.application.cart.CartRepository;
 import kr.co.hanipaction.application.order.model.*;
 import kr.co.hanipaction.application.order.model.OrderGetDetailRes;
-import kr.co.hanipaction.application.order.newmodel.OrderDetailGetRes;
-import kr.co.hanipaction.application.order.newmodel.OrderGetDto;
-import kr.co.hanipaction.application.order.newmodel.OrderGetRes;
+import kr.co.hanipaction.application.order.newmodel.*;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
 import kr.co.hanipaction.application.sse.SseService;
 import kr.co.hanipaction.application.sse.model.OrderMenuOptionDto;
@@ -584,6 +582,11 @@ public class OrderService {
 //
 //
 //
+    public List<DrOrderGetRes> findDrOrderList(long userId){
+        List<DrOrderGetRes> orderList = orderMapper.findDrOrderList(userId);
+
+        return orderList;
+    }
 
 
 }
