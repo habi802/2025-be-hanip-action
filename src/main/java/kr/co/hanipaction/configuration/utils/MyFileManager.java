@@ -1,4 +1,4 @@
-package kr.co.hanipaction.configuration.utill;
+package kr.co.hanipaction.configuration.utils;
 
 import kr.co.hanipaction.application.common.util.MyFileUtils;
 import kr.co.hanipaction.configuration.constants.ConstFile;

@@ -2,7 +2,6 @@ package kr.co.hanipaction.application.contact;
 
 
 import jakarta.validation.Valid;
-import jakarta.ws.rs.client.ResponseProcessingException;
 import kr.co.hanipaction.configuration.model.ResultResponse;
 import kr.co.hanipaction.application.contact.model.*;
 
@@ -29,7 +28,7 @@ public class ContactController {
     //문의 글 등록
     @PostMapping
     public ResultResponse<?> save(@AuthenticationPrincipal SignedUser signedUser, @Valid @RequestPart ContactPostReq req, @RequestPart(name = "pic") List<MultipartFile> pics){
-        long userId=signedUser.signedUserId;
+        long userId= signedUser.signedUserId;
 
         ContactPostRes result = contactService.save(userId,req,pics);
 

@@ -4,13 +4,11 @@ import feign.Client;
 import feign.Logger;
 import feign.RequestInterceptor;
 import feign.httpclient.ApacheHttpClient;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.HttpHeaders;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 // API 이용시 필요
 @Configuration
@@ -25,17 +23,13 @@ public class FeignConfiguration {
         return new ApacheHttpClient(); // Apache HttpClient 사용
     }
 
+    // FeignClient 로 Action 의 API를 호출할 때 헤더를 통해 토큰을 전달함
     @Bean
     public RequestInterceptor requestInterceptor() {
-        return requestTemplate -> {
-            // 현재 HttpServletRequest에서 Authorization 헤더 가져오기
-            RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
-            if (attrs instanceof ServletRequestAttributes servletRequestAttrs) {
-                HttpServletRequest req = servletRequestAttrs.getRequest();
-                String authHeader = req.getHeader("signedUser");
-                if (authHeader != null) {
-                    requestTemplate.header("signedUser", authHeader);
-                }
+        return template -> {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getCredentials() instanceof String token) {
+                template.header(HttpHeaders.AUTHORIZATION, "Bearer " + token);
             }
         };
     }

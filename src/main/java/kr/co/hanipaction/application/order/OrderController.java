@@ -1,27 +1,20 @@
 package kr.co.hanipaction.application.order;
 
-import jakarta.servlet.http.HttpServletRequest;
 import kr.co.hanipaction.application.common.model.ResultResponse;
-import kr.co.hanipaction.application.common.util.HttpUtils;
 import kr.co.hanipaction.application.order.model.*;
 import kr.co.hanipaction.application.order.newmodel.OrderGetDto;
 import kr.co.hanipaction.application.order.newmodel.OrderGetRes;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
-import kr.co.hanipaction.application.user.etc.UserConstants;
 import kr.co.hanipaction.configuration.model.SignedUser;
 import kr.co.hanipaction.configuration.model.UserPrincipal;
 import kr.co.hanipaction.entity.Orders;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Property;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -37,9 +30,9 @@ public class OrderController {
 //
 //    POST 완료
     @PostMapping("/order")
-    public ResultResponse<Orders> saveOrder(@AuthenticationPrincipal SignedUser signedUser , @RequestBody OrderPostDto dto) {
+    public ResultResponse<Orders> saveOrder(@AuthenticationPrincipal SignedUser signedUser, @RequestBody OrderPostDto dto) {
         log.info("req: {}", dto);
-        long userId=signedUser.signedUserId;
+        long userId= signedUser.signedUserId;
         Orders result = orderService.saveOrder(dto, userId);
         return new ResultResponse<>(200,"주문 완료",result);
     }
