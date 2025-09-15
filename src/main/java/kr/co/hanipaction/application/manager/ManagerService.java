@@ -142,7 +142,7 @@ public class ManagerService {
         Specification<Review> spec = ReviewSpecification.hasStartDate(req.getStartDate())
                                                         .and(ReviewSpecification.hasEndDate(req.getEndDate()))
                                                         .and(ReviewSpecification.hasUserIds(userIds))
-                                                        .and(ReviewSpecification.hasOrderIds(orderIds))
+                                                        .and(ReviewSpecification.hasOrderIds(storeIds, orderIds))
                                                         .and(ReviewSpecification.hasComment(req.getComment()))
                                                         .and(ReviewSpecification.hasOwnerComment(req.getOwnerComment()))
                                                         .and(ReviewSpecification.hasIsHide(req.getIsHide()));

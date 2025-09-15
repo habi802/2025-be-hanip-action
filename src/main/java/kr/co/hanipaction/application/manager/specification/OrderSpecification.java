@@ -30,8 +30,8 @@ public class OrderSpecification {
                 return null;
             }
 
-            LocalDateTime endDateTime = LocalDate.parse(endDate).atStartOfDay();
-            return cb.greaterThanOrEqualTo(root.get("createdAt"), endDateTime);
+            LocalDateTime endDateTime = LocalDate.parse(endDate).atTime(23, 59, 59);
+            return cb.lessThanOrEqualTo(root.get("createdAt"), endDateTime);
         };
     }
 
