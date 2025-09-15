@@ -8,4 +8,11 @@ import lombok.ToString;
 @Builder
 @ToString
 public class ReviewListRes {
+    private String createdAt;
+    private long reviewId;
+    private String userName;
+    private String storeName;
+    private String comment;
+    private int ownerComment;
+    private int isHide;
 }

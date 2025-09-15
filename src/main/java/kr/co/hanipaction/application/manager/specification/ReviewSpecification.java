@@ -1,5 +1,8 @@
 package kr.co.hanipaction.application.manager.specification;
 
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.entity.Review;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -27,8 +30,8 @@ public class ReviewSpecification {
                 return null;
             }
 
-            LocalDateTime endDateTime = LocalDate.parse(endDate).atStartOfDay();
-            return cb.greaterThanOrEqualTo(root.get("createdAt"), endDateTime);
+            LocalDateTime endDateTime = LocalDate.parse(endDate).atTime(23, 59, 59);
+            return cb.lessThanOrEqualTo(root.get("createdAt"), endDateTime);
         };
     }
 
@@ -44,13 +47,13 @@ public class ReviewSpecification {
     }
 
     // 상호명
-    public static Specification<Review> hasOrderIds(List<Long> orderIds) {
+    public static Specification<Review> hasOrderIds(List<Long> storeIds, List<Long> orderIds) {
         return (root, query, cb) -> {
-            if (orderIds == null || orderIds.isEmpty()) {
+            if ((orderIds == null || orderIds.isEmpty()) && (storeIds == null || storeIds.isEmpty())) {
                 return null;
             }
 
-            return root.get("orderId").in(orderIds);
+            return root.get("orderId").get("id").in(orderIds);
         };
     }
 
