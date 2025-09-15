@@ -41,7 +41,8 @@ public class ManagerController {
     // 리뷰 전체 조회
     @GetMapping("/review")
     public ResponseEntity<ResultResponse<?>> getReviewList(@RequestBody ReviewListReq req) {
-        return null;
+        PageResponse<ReviewListRes> result = managerService.getReviewList(req);
+        return ResponseEntity.ok(ResultResponse.success(result));
     }
 
     // 리뷰 상세 조회

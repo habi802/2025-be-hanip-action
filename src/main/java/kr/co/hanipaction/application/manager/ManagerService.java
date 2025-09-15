@@ -28,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,7 +77,7 @@ public class ManagerService {
             ResponseEntity<ResultResponse<StoreInManagerRes>> storeRes = storeClient.getStoreNameInManager(order.getStoreId());
 
             return OrderListRes.builder()
-                               //.createdAt()
+                               .createdAt(order.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                                .orderId(order.getId())
                                .userName(userRes.getBody().getResultData())
                                .storeName(storeRes.getBody().getResultData().getName())
@@ -124,16 +125,49 @@ public class ManagerService {
 
     // 리뷰 전체 조회
     public PageResponse<ReviewListRes> getReviewList(ReviewListReq req) {
+        ResponseEntity<ResultResponse<Page<UserListRes>>> userListRes = userClient.getUserIdsInManager(UserListReq.builder().name(req.getUserName())
+                                                                                                                            .pageNumber(0)
+                                                                                                                            .pageSize(-1)
+                                                                                                                            .build());
+        List<Long> userIds = userListRes.getBody().getResultData().getContent().stream().map(UserListRes::getUserId).toList();
+
+        ResponseEntity<ResultResponse<Page<StoreListRes>>> storeListRes = storeClient.getStoreIdsInManager(StoreListReq.builder().name(req.getStoreName())
+                                                                                                                                 .pageNumber(0)
+                                                                                                                                 .pageSize(-1)
+                                                                                                                                 .build());
+        List<Long> storeIds = storeListRes.getBody().getResultData().getContent().stream().map(StoreListRes::getStoreId).toList();
+        List<Long> orderIds = orderRepository.findAllByStoreIdIn(storeIds).stream().map(Orders::getId).toList();
+
         // 검색 조건 적용
         Specification<Review> spec = ReviewSpecification.hasStartDate(req.getStartDate())
-                                                        .and(ReviewSpecification.hasEndDate(req.getEndDate()));
+                                                        .and(ReviewSpecification.hasEndDate(req.getEndDate()))
+                                                        .and(ReviewSpecification.hasUserIds(userIds))
+                                                        .and(ReviewSpecification.hasOrderIds(orderIds))
+                                                        .and(ReviewSpecification.hasComment(req.getComment()))
+                                                        .and(ReviewSpecification.hasOwnerComment(req.getOwnerComment()))
+                                                        .and(ReviewSpecification.hasIsHide(req.getIsHide()));
 
         // 페이징 및 페이지 사이즈 적용
         Pageable pageable = PageRequest.of(req.getPageNumber(), req.getPageSize());
 
+        Page<Review> page = reviewRepository.findAll(spec, pageable);
+        List<ReviewListRes> result = page.stream().map(review -> {
+            ResponseEntity<ResultResponse<String>> userRes = userClient.getUserNameInManager(review.getUserId());
+            ResponseEntity<ResultResponse<StoreInManagerRes>> storeRes = storeClient.getStoreNameInManager(review.getOrderId().getStoreId());
 
+            return ReviewListRes.builder()
+                                .createdAt(review.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                                .reviewId(review.getId())
+                                .userName(userRes.getBody().getResultData())
+                                .storeName(storeRes.getBody().getResultData().getName())
+                                .comment(review.getComment())
+                                .ownerComment(review.getOwnerComment() != null && review.getOwnerComment() != "" ? 1 : 0)
+                                .isHide(review.getIsHide())
+                                .build();
 
-        return null;
+        }).toList();
+
+        return new PageResponse<>(result);
     }
 
     // 리뷰 상세 조회
@@ -147,10 +181,13 @@ public class ManagerService {
             images.add(image.getReviewImageIds().getPic());
         }
 
+        ResponseEntity<ResultResponse<String>> userRes = userClient.getUserNameInManager(review.getUserId());
+        ResponseEntity<ResultResponse<StoreInManagerRes>> storeRes = storeClient.getStoreNameInManager(review.getOrderId().getStoreId());
+
         return ReviewInManagerRes.builder()
                                  .reviewId(reviewId)
-                                 //.storeName()
-                                 //.userName()
+                                 .userName(userRes.getBody().getResultData())
+                                 .storeName(storeRes.getBody().getResultData().getName())
                                  .images(images)
                                  .comment(review.getComment())
                                  .ownerComment(review.getOwnerComment())
