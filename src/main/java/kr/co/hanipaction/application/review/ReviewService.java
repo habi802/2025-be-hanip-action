@@ -4,7 +4,7 @@ import kr.co.hanipaction.application.common.util.MyFileUtils;
 import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.application.review.model.*;
 import kr.co.hanipaction.application.common.model.ResultResponse;
-import kr.co.hanipaction.configuration.utill.MyFileManager;
+import kr.co.hanipaction.configuration.utils.MyFileManager;
 import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.entity.Review;
 import kr.co.hanipaction.openfeign.store.StoreClient;
@@ -22,7 +22,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j

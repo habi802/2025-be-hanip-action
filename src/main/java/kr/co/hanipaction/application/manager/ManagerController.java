@@ -20,7 +20,7 @@ public class ManagerController {
     // 주문 전체 조회
     @GetMapping("/order")
     public ResponseEntity<ResultResponse<?>> getOrderList(@RequestBody OrderListReq req) {
-        Page<OrderListRes> result = managerService.getOrderList(req);
+        PageResponse<OrderListRes> result = managerService.getOrderList(req);
         return ResponseEntity.ok(ResultResponse.success(result));
     }
 
@@ -33,14 +33,16 @@ public class ManagerController {
 
     // 주문 취소
     @PostMapping("/order")
-    public ResponseEntity<ResultResponse<?>> cancelOrder() {
-        return null;
+    public ResponseEntity<ResultResponse<?>> cancelOrder(@RequestParam(name = "id") List<Long> ids) {
+        managerService.patchStatusInOrder(ids);
+        return ResponseEntity.ok(ResultResponse.success("주문 취소 완료"));
     }
 
     // 리뷰 전체 조회
     @GetMapping("/review")
     public ResponseEntity<ResultResponse<?>> getReviewList(@RequestBody ReviewListReq req) {
-        return null;
+        PageResponse<ReviewListRes> result = managerService.getReviewList(req);
+        return ResponseEntity.ok(ResultResponse.success(result));
     }
 
     // 리뷰 상세 조회

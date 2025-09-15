@@ -9,5 +9,6 @@ import lombok.ToString;
 @ToString
 public class StoreListReq {
     private String name;
-    private int pageSize = -1;
+    private int pageNumber;
+    private int pageSize;
 }
