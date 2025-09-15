@@ -7,6 +7,7 @@ import kr.co.hanipaction.application.manager.specification.ReviewSpecification;
 import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.application.review.ReviewRepository;
 import kr.co.hanipaction.application.review.ReviewService;
+import kr.co.hanipaction.configuration.enumcode.model.StatusType;
 import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.entity.Review;
 import kr.co.hanipaction.entity.ReviewImage;
@@ -110,8 +111,15 @@ public class ManagerService {
     }
 
     // 주문 취소
-    public void cancelOrder() {
+    @Transactional
+    public void patchStatusInOrder(List<Long> ids) {
+        List<Orders> orders = orderRepository.findAllById(ids);
 
+        for (Orders order : orders) {
+            // 카카오페이 주문 취소에 대한 코드 필요(tid, 결제금액이 필요함)
+
+            order.setStatus(StatusType.CANCELED);
+        }
     }
 
     // 리뷰 전체 조회

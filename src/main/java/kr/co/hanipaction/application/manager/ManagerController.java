@@ -33,8 +33,9 @@ public class ManagerController {
 
     // 주문 취소
     @PostMapping("/order")
-    public ResponseEntity<ResultResponse<?>> cancelOrder() {
-        return null;
+    public ResponseEntity<ResultResponse<?>> cancelOrder(@RequestParam(name = "id") List<Long> ids) {
+        managerService.patchStatusInOrder(ids);
+        return ResponseEntity.ok(ResultResponse.success("주문 취소 완료"));
     }
 
     // 리뷰 전체 조회
