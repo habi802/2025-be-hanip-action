@@ -125,10 +125,10 @@
         AND o.store_id = #{storeId}
     </select>
 
-
+<!-- 배달원이 조회할 것 메뉴랭스는 특정 메뉴 외 더 시킨 것 ' 치킨 메뉴 외 2건 ' -->
     <select id="findDrOrderList">
         SELECT o.id AS order_id, o.store_id, o.store_name, o.address AS userAddress, o.address_detail AS user_address_detail, om.menu_name, o.amount,o.store_request,
-        (SELECT COUNT(o.id)) AS menu_length
+        (SELECT COUNT(o.id)-1) AS menu_length
         FROM orders o
         LEFT JOIN orders_menu om
         ON o.id = om.order_id

@@ -7,6 +7,7 @@ import kr.co.hanipaction.configuration.model.SignedUser;
 import kr.co.hanipaction.configuration.model.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,40 +19,52 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FavoriteController {
     private final FavoriteService favoriteService;
-
-    // 찜 등록
+//
+//
+//
+// 찜 등록
     @PostMapping
-    public ResultResponse<Integer> save(@RequestBody FavoritePostReq req, @AuthenticationPrincipal SignedUser signedUser) {
-        long userId = signedUser.signedUserId;
+    public ResponseEntity<ResultResponse<Integer>> save(@RequestBody FavoritePostReq req, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        long userId = userPrincipal.getSignedUserId();
         log.info("signed userId: {}", userId);
 
-        if (userId == 0) {
-            return ResultResponse.success(null);
-        }
-
         int result = favoriteService.save(userId,req);
-        return ResultResponse.success(result);
+        return ResponseEntity.ok(new ResultResponse<>(200, "해당 가게를 찜했습니다", result));
     }
-
-    // 자신의 찜 목록 조회
+//
+//
+//
+// 자신의 찜 목록 조회
     @GetMapping
     public ResultResponse<List<FavoriteGetRes>> findAll(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        return ResultResponse.success(favoriteService.findAll(userPrincipal.getSignedUserId()));
+        long userId = userPrincipal.getSignedUserId();
+
+        return ResultResponse.success(favoriteService.findAll(userId));
     }
 
-    // ?
+//
+//
+//
+// 내가 해당 가게를 찜했는지 확인
     @GetMapping("/{store_id}")
-    public ResultResponse<Integer> find(@PathVariable("store_id") Long storeId) {
-        return ResultResponse.success(favoriteService.find(storeId));
+    public ResponseEntity<ResultResponse<Integer>> find(@PathVariable("store_id") Long storeId) {
+        ResultResponse.success(favoriteService.find(storeId));
+        
+        return ResponseEntity.ok(new ResultResponse<>(200, "해당 가게를 찜하고 있습니다", 1));
     }
 
-    // 찜 삭제
+//
+//
+//
+// 찜 삭제
     @DeleteMapping("/{store_id}")
-    public ResultResponse<Integer> delete(@AuthenticationPrincipal SignedUser signedUser, @PathVariable("store_id") Long storeId) {
-        favoriteService.delete(signedUser.signedUserId, storeId);
-
-        return ResultResponse.success(1);
+    public ResponseEntity<ResultResponse<Integer>> delete(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable("store_id") Long storeId) {
+         favoriteService.delete(userPrincipal.getSignedUserId(), storeId);
+         
+        return ResponseEntity.ok(new ResultResponse<>(200, "해당 가게 찜삭제 성공", 1));
     }
+
+
 
     // 유저 좋아요 유무 (서버 API)
     @GetMapping("/count")

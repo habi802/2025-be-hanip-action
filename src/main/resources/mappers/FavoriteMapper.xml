@@ -8,23 +8,15 @@
         store_id = #{storeId}
     </insert>
 
+
+<!--    2차 수정  // 유저 자신의 찜목록 조회 -->
     <select id="findAllByUserId">
-        SELECT f.store_id, s.name, s.image_path,
-            COUNT(DISTINCT CONCAT(f.user_id, '_', f.store_id)) AS favorites,
-            IFNULL(AVG(r.rating), 0) AS rating,
-            COUNT(r.id) AS reviews
+        SELECT *
         FROM favorites f
-        JOIN stores s
-        ON f.store_id = s.id
-        LEFT JOIN orders o
-        ON o.store_id = s.id
-        LEFT JOIN reviews r
-        ON r.order_id = o.id
         WHERE f.user_id = #{userId}
-        GROUP BY f.store_id
-        ORDER BY f.store_id
     </select>
 
+<!--    자기 자신이 해당 스토어를 찜햇는지 안 했는지 확인-->
     <select id="findByStoreIdAndUserId">
         SELECT user_id
         FROM favorites
