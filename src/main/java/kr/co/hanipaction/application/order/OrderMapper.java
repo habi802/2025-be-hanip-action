@@ -5,6 +5,8 @@ import kr.co.hanipaction.application.order.newmodel.OrderDetailGetRes;
 import kr.co.hanipaction.application.order.newmodel.OrderGetDto;
 import kr.co.hanipaction.application.order.newmodel.OrderGetRes;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.ResultMap;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 import java.util.Set;
@@ -23,6 +25,8 @@ public interface OrderMapper {
 //    신규 맵퍼용
     List<OrderGetRes> findOrders(OrderGetDto dto);
     List<OrderDetailGetRes> findOrdered(long storeId);
+
+
     List<OrderDetailGetRes> findPreParing(long storeId);
     List<OrderDetailGetRes> findDelivered(long storeId);
 }

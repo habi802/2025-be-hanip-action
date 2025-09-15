@@ -7,4 +7,5 @@ import lombok.ToString;
 @ToString
 public class SignedUser {
     public final Long signedUserId;
+
 }

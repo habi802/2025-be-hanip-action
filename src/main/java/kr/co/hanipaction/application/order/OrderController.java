@@ -1,8 +1,6 @@
 package kr.co.hanipaction.application.order;
 
-import jakarta.servlet.http.HttpServletRequest;
 import kr.co.hanipaction.application.common.model.ResultResponse;
-import kr.co.hanipaction.application.common.util.HttpUtils;
 import kr.co.hanipaction.application.order.model.*;
 import kr.co.hanipaction.application.order.newmodel.OrderDetailGetRes;
 import kr.co.hanipaction.application.order.newmodel.OrderGetDto;
@@ -14,10 +12,7 @@ import kr.co.hanipaction.configuration.model.UserPrincipal;
 import kr.co.hanipaction.entity.Orders;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Property;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;

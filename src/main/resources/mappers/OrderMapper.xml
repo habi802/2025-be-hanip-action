@@ -90,10 +90,10 @@
         ON o.id = om.order_id
         <where>
         o.is_deleted = 0
-        <if test="storeName !=null">
+        <if test="storeName != null">
         AND o.store_name LIKE CONCAT('%', #{storeName}, '%')
         </if>
-        <if test="menuName !=null">
+        <if test="menuName != null">
         AND om.menu_name LIKE CONCAT('%', #{menuName}, '%')
         </if>
         </where>
