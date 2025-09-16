@@ -59,4 +59,11 @@ public class ManagerController {
         managerService.patchIsHideInReview(ids, isHide);
         return ResponseEntity.ok(ResultResponse.success("리뷰 수정 완료"));
     }
+
+    // 주문 건 수(총 주문 건 수, 취소된 건 수) 통계
+    @GetMapping("/order/stats")
+    public ResponseEntity<ResultResponse<?>> getOrderStats(@ModelAttribute OrderStatsReq req) {
+        List<OrderStatsRes> result = managerService.getOrderStats(req);
+        return ResponseEntity.ok(ResultResponse.success(result));
+    }
 }
