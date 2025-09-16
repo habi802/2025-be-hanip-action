@@ -1,10 +1,15 @@
 package kr.co.hanipaction.application.favorite;
 
+import jakarta.transaction.Transactional;
+import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.favorite.model.FavoriteGetDto;
 import kr.co.hanipaction.application.favorite.model.FavoriteGetRes;
 import kr.co.hanipaction.application.favorite.model.FavoritePostReq;
+import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.entity.Favorites;
+import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.openfeign.store.StoreClient;
+import kr.co.hanipaction.openfeign.store.model.StoreGetRes;
 import kr.co.hanipaction.openfeign.store.model.StorePatchReq;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +25,7 @@ public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
 
     private final StoreClient storeClient;
+    private final OrderRepository orderRepository;
 
     // 총 찜 수를 계산한 후, Store의 총 찜 수 컬럼을 수정할 수 있게 Action으로 전달
     private void patchSumFavorite(Long storeId) {
@@ -37,6 +43,7 @@ public class FavoriteService {
     }
 
     // 찜 등록
+    @Transactional
     public int save(Long signedUserId, FavoritePostReq req) {
         // req에서 userId와 storeId를 가져와서 Favorite 엔티티 객체 생성
         Favorites favorites = Favorites.builder()
@@ -53,11 +60,31 @@ public class FavoriteService {
     }
 
     // 자신의 찜 목록 조회
+    @Transactional
     public List<FavoriteGetRes> findAll(Long userId) {
-        return favoriteMapper.findAllByUserId(userId);
+        List<FavoriteGetRes> favorite = favoriteMapper.findAllByUserId(userId);
+
+        for (FavoriteGetRes favoriteGetRes :favorite) {
+
+
+            ResultResponse<StoreGetRes> storeRes = storeClient.findStore(favoriteGetRes.getStoreId());
+            StoreGetRes store =  storeRes.getResultData();
+
+            favoriteGetRes.setFavorites(store.getFavorites());
+            favoriteGetRes.setStoreId(store.getId());
+            favoriteGetRes.setImagePath(store.getImagePath());
+            favoriteGetRes.setRating(store.getRating());
+            favoriteGetRes.setName(store.getName());
+        }
+
+
+
+//        return favoriteMapper.findAllByUserId(userId);
+    return  favorite;
     }
 
     // ?
+    @Transactional
     public Integer find(Long storeId) {
         FavoriteGetDto dto = FavoriteGetDto.builder()
                 .storeId(storeId)
@@ -66,6 +93,7 @@ public class FavoriteService {
     }
 
     // 찜 삭제
+    @Transactional
     public void delete(Long userId, Long storeId) {
         favoriteMapper.deleteByUserIdAndStoreId(userId, storeId);
 
@@ -74,6 +102,7 @@ public class FavoriteService {
     }
 
     // 유저 좋아요 유무
+    @Transactional
     public boolean getStoreFavorites(Long storeId, Long userId) {
         boolean favorite = favoriteMapper.findIsFavoriteByStoreIdAndUserId(storeId, userId);
         return favorite;
