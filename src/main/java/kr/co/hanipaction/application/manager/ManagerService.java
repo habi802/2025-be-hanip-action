@@ -4,6 +4,7 @@ import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.manager.model.*;
 import kr.co.hanipaction.application.manager.specification.OrderSpecification;
 import kr.co.hanipaction.application.manager.specification.ReviewSpecification;
+import kr.co.hanipaction.application.order.OrderMapper;
 import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.application.review.ReviewRepository;
 import kr.co.hanipaction.application.review.ReviewService;
@@ -28,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +41,7 @@ public class ManagerService {
     private final UserClient userClient;
     private final StoreClient storeClient;
     private final OrderRepository orderRepository;
+    private final OrderMapper orderMapper;
     private final ReviewRepository reviewRepository;
     private final ReviewService reviewService;
 
@@ -206,5 +209,70 @@ public class ManagerService {
             // 평균 별점 계산
             reviewService.patchAverageRating(review.getId());
         }
+    }
+
+    // 3개의 기간을 리스트에 넣는 메소드
+    public List<String> addPeriodList(String type, String date) {
+        List<String> periods = new ArrayList<>(3);
+        switch (type) {
+            case "YEAR":
+                int year = Integer.parseInt(date);
+                for (int i = 2; i >= 0; i--) {
+                    periods.add(String.valueOf(year - i));
+                }
+                break;
+            case "MONTH":
+                LocalDate month = LocalDate.parse(date + "-01");
+                for (int i = 2; i >= 0; i--) {
+                    periods.add(month.minusMonths(i).toString());
+                }
+                break;
+            case "WEEK":
+                LocalDate week = LocalDate.parse(date);
+                for (int i = 2; i >= 0; i--) {
+                    periods.add(week.minusWeeks(i).toString());
+                }
+                break;
+            case "DAY":
+                LocalDate day = LocalDate.parse(date);
+                for (int i = 2; i >= 0; i--) {
+                    periods.add(day.minusDays(i).toString());
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("잘못된 날짜 타입을 입력하였습니다.");
+        }
+
+        return periods;
+    }
+
+    // 주문 건 수(총 주문 건 수, 취소된 건 수) 통계
+    public List<OrderStatsRes> getOrderStats(OrderStatsReq req) {
+        String type = req.getType().toUpperCase();
+
+        // 3개의 기간이 들어가는 리스트를 만들고, 그 리스트에 선택한 날짜의 이전 2개 항목, 마지막으로 선택한 날짜를 넣는 과정(예를 들어, ?type=year&date=2025 이면 2023, 2024, 2025)
+        List<String> periods = addPeriodList(type, req.getDate());
+
+        OrderStatsDto dto = OrderStatsDto.builder()
+                                         .type(type)
+                                         .periods(periods)
+                                         .build();
+
+        return orderMapper.findStatsByDate(dto);
+    }
+
+    // 매출액 통계
+    public List<OrderAmountStatsRes> getAmountStats(OrderAmountStatsReq req) {
+        String type = req.getType().toUpperCase();
+
+        // 3개의 기간이 들어가는 리스트를 만들고, 그 리스트에 선택한 날짜의 이전 2개 항목, 마지막으로 선택한 날짜를 넣는 과정(예를 들어, ?type=year&date=2025 이면 2023, 2024, 2025)
+        List<String> periods = addPeriodList(type, req.getDate());
+
+        OrderAmountStatsDto dto = OrderAmountStatsDto.builder()
+                                                    .type(type)
+                                                    .periods(periods)
+                                                    .build();
+
+        return orderMapper.findAmountStatsByDate(dto);
     }
 }

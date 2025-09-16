@@ -135,4 +135,146 @@
         WHERE o.`status`= 2
         GROUP BY o.id
     </select>
+
+    <!-- 주문 건 수 통계 -->
+    <select id="findStatsByDate">
+        <choose>
+            <!-- 연간(2년 전, 1년 전, 올해) -->
+            <when test="type == 'YEAR'">
+                WITH years AS (
+                <foreach collection="periods" item="period" separator=" UNION ALL ">
+                    SELECT #{period} AS year
+                </foreach>
+                )
+                SELECT y.year AS period,
+                       COUNT(o.id) AS total,
+                       COUNT(CASE WHEN o.status = '05' THEN 1 END) AS cancelled
+                FROM years y
+                LEFT JOIN orders o
+                ON YEAR(o.created_at) = y.year
+                GROUP BY y.year
+                ORDER BY y.year ASC
+            </when>
+
+            <!-- 월간(2달 전, 1달 전, 이번 달) -->
+            <when test="type == 'MONTH'">
+                WITH months AS (
+                <foreach collection="periods" item="period" separator=" UNION ALL ">
+                    SELECT #{period} AS month
+                </foreach>
+                )
+                SELECT DATE_FORMAT(m.month, '%Y-%m') AS period,
+                       COUNT(o.id) AS total,
+                       COUNT(CASE WHEN o.status = '05' THEN 1 END) AS cancelled
+                FROM months m
+                LEFT JOIN orders o
+                ON DATE_FORMAT(o.created_at, '%Y-%m-01') = m.month
+                GROUP BY m.month
+                ORDER BY m.month ASC
+            </when>
+
+            <!-- 주간(2주 전, 1주 전, 이번 주) -->
+            <when test="type == 'WEEK'">
+                WITH weeks AS (
+                <foreach collection="periods" item="period" separator=" UNION ALL ">
+                    SELECT #{period} AS week_start
+                </foreach>
+                )
+                SELECT DATE_FORMAT(w.week_start, '%x-W%v') AS period,
+                       COUNT(o.id) AS total,
+                       COUNT(CASE WHEN o.status = '05' THEN 1 END) AS cancelled
+                FROM weeks w
+                LEFT JOIN orders o
+                ON DATE(DATE_SUB(o.created_at, INTERVAL WEEKDAY(o.created_at) DAY)) = w.week_start
+                GROUP BY w.week_start
+                ORDER BY w.week_start ASC
+            </when>
+
+            <!-- 일간(2일 전, 1일 전, 오늘) -->
+            <otherwise>
+                WITH days AS (
+                <foreach collection="periods" item="period" separator=" UNION ALL ">
+                    SELECT #{period} AS day
+                </foreach>
+                )
+                SELECT d.day AS period,
+                       COUNT(o.id) AS total,
+                       COUNT(CASE WHEN o.status = '05' THEN 1 END) AS cancelled
+                FROM days d
+                LEFT JOIN orders o
+                ON DATE(o.created_at) = d.day
+                GROUP BY d.day
+                ORDER BY d.day ASC
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 매출액 통계 -->
+    <select id="findAmountStatsByDate">
+        <choose>
+            <!-- 연간(2년 전, 1년 전, 올해) -->
+            <when test="type == 'YEAR'">
+                WITH years AS (
+                <foreach collection="periods" item="period" separator=" UNION ALL ">
+                    SELECT #{period} AS year
+                </foreach>
+                )
+                SELECT y.year AS period,
+                       SUM(CASE WHEN o.status != '05' THEN o.amount ELSE 0 END) AS totalAmount
+                FROM years y
+                LEFT JOIN orders o
+                ON YEAR(o.created_at) = y.year
+                GROUP BY y.year
+                ORDER BY y.year ASC
+            </when>
+
+            <!-- 월간(2달 전, 1달 전, 이번 달) -->
+            <when test="type == 'MONTH'">
+                WITH months AS (
+                <foreach collection="periods" item="period" separator=" UNION ALL ">
+                    SELECT #{period} AS month
+                </foreach>
+                )
+                SELECT DATE_FORMAT(m.month, '%Y-%m') AS period,
+                       SUM(CASE WHEN o.status != '05' THEN o.amount ELSE 0 END) AS totalAmount
+                FROM months m
+                LEFT JOIN orders o
+                ON DATE_FORMAT(o.created_at, '%Y-%m-01') = m.month
+                GROUP BY m.month
+                ORDER BY m.month ASC
+            </when>
+
+            <!-- 주간(2주 전, 1주 전, 이번 주) -->
+            <when test="type == 'WEEK'">
+                WITH weeks AS (
+                <foreach collection="periods" item="period" separator=" UNION ALL ">
+                    SELECT #{period} AS week_start
+                </foreach>
+                )
+                SELECT DATE_FORMAT(w.week_start, '%x-W%v') AS period,
+                       SUM(CASE WHEN o.status != '05' THEN o.amount ELSE 0 END) AS totalAmount
+                FROM weeks w
+                LEFT JOIN orders o
+                ON DATE(DATE_SUB(o.created_at, INTERVAL WEEKDAY(o.created_at) DAY)) = w.week_start
+                GROUP BY w.week_start
+                ORDER BY w.week_start ASC
+            </when>
+
+            <!-- 일간(2일 전, 1일 전, 오늘) -->
+            <otherwise>
+                WITH days AS (
+                <foreach collection="periods" item="period" separator=" UNION ALL ">
+                    SELECT #{period} AS day
+                </foreach>
+                )
+                SELECT d.day AS period,
+                       SUM(CASE WHEN o.status != '05' THEN o.amount ELSE 0 END) AS totalAmount
+                FROM days d
+                LEFT JOIN orders o
+                ON DATE(o.created_at) = d.day
+                GROUP BY d.day
+                ORDER BY d.day ASC
+            </otherwise>
+        </choose>
+    </select>
 </mapper>
