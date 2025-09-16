@@ -42,6 +42,7 @@ public class OrderService {
     private final UserClient userClient;
     private final MenuClient menuClient;
     private final SseService sseService;
+    private final PaymentRepository paymentRepository;
 
 
 
@@ -77,10 +78,14 @@ public class OrderService {
         //카트 돈 합계
         int totalAmount = 0;
 
+        // 1개 오더당 메뉴 총 갯수
+        int totalQuantity = 0;
+
         for (Cart cart : userId) {
             OrdersMenu ordersMenu = new OrdersMenu();
             ordersMenu.setMenuId(cart.getMenuId());
             ordersMenu.setQuantity(cart.getQuantity());
+            totalQuantity += cart.getQuantity();
             ordersMenu.setMenuName(cart.getMenuName());
             ordersMenu.setMenuImg(cart.getImgPath());
             ordersMenu.setStoreId(cart.getStoreId());
@@ -153,6 +158,27 @@ public class OrderService {
 
         // 카트 비우기
         cartRepository.deleteAll(userId);
+
+        //메뉴 갯수 n건....
+        String itemName;
+
+        // 첫 메뉴 이름..
+        String firstMenuName = menuDto.get(0).getMenuName();
+
+        Payment payment = new Payment();
+        payment.setOrderId(orders);
+        if (menuDto.size() > 1) {
+            int otherItemsCount = menuDto.size() - 1;
+            itemName = firstMenuName + " 외 " + otherItemsCount + "개";
+        } else {
+            itemName = firstMenuName;
+        }
+        payment.setItemName(itemName);
+        payment.setTotalAmount(orders.getAmount());
+        payment.setTaxFreeAmount(0);
+        payment.setQuantity(totalQuantity);
+
+        paymentRepository.save(payment);
 
         return orders;
     }
@@ -299,20 +325,11 @@ public class OrderService {
         Orders order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
 
-        StatusType status =StatusType.valueOfCode("02");
+        StatusType status =StatusType.valueOfCode("03");
         order.setStatus(status);
     }
     @Transactional
     public void statusDelevered(long userId,long orderId) {
-        Orders order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
-
-        StatusType status =StatusType.valueOfCode("03");
-        order.setStatus(status);
-
-    }
-    @Transactional
-    public void statusCompleted(long userId,long orderId) {
         Orders order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
 
@@ -321,11 +338,20 @@ public class OrderService {
 
     }
     @Transactional
-    public void statusCanceled(long userId,long orderId) {
+    public void statusCompleted(long userId,long orderId) {
         Orders order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
 
         StatusType status =StatusType.valueOfCode("05");
+        order.setStatus(status);
+
+    }
+    @Transactional
+    public void statusCanceled(long userId,long orderId) {
+        Orders order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
+
+        StatusType status =StatusType.valueOfCode("06");
         order.setStatus(status);
     }
 

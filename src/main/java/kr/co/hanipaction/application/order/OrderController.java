@@ -88,7 +88,7 @@ public class OrderController {
 //
 //
 //
-//    가게 ORDERED만 조회
+//    가게 PAID만 조회
     @GetMapping("/order/status/ordered/{storeId}")
     public ResultResponse<List<OrderDetailGetRes>> getOrdered(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long storeId) {
         long userId = userPrincipal.getSignedUserId();
