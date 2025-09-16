@@ -260,4 +260,19 @@ public class ManagerService {
 
         return orderMapper.findStatsByDate(dto);
     }
+
+    // 매출액 통계
+    public List<OrderAmountStatsRes> getAmountStats(OrderAmountStatsReq req) {
+        String type = req.getType().toUpperCase();
+
+        // 3개의 기간이 들어가는 리스트를 만들고, 그 리스트에 선택한 날짜의 이전 2개 항목, 마지막으로 선택한 날짜를 넣는 과정(예를 들어, ?type=year&date=2025 이면 2023, 2024, 2025)
+        List<String> periods = addPeriodList(type, req.getDate());
+
+        OrderAmountStatsDto dto = OrderAmountStatsDto.builder()
+                                                    .type(type)
+                                                    .periods(periods)
+                                                    .build();
+
+        return orderMapper.findAmountStatsByDate(dto);
+    }
 }

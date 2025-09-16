@@ -66,4 +66,11 @@ public class ManagerController {
         List<OrderStatsRes> result = managerService.getOrderStats(req);
         return ResponseEntity.ok(ResultResponse.success(result));
     }
+
+    // 매출액 통계
+    @GetMapping("/amount/stats")
+    public ResponseEntity<ResultResponse<?>> getAmountStats(@ModelAttribute OrderAmountStatsReq req) {
+        List<OrderAmountStatsRes> result = managerService.getAmountStats(req);
+        return ResponseEntity.ok(ResultResponse.success(result));
+    }
 }

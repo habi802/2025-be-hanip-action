@@ -1,5 +1,7 @@
 package kr.co.hanipaction.application.order;
 
+import kr.co.hanipaction.application.manager.model.OrderAmountStatsDto;
+import kr.co.hanipaction.application.manager.model.OrderAmountStatsRes;
 import kr.co.hanipaction.application.manager.model.OrderStatsDto;
 import kr.co.hanipaction.application.manager.model.OrderStatsRes;
 import kr.co.hanipaction.application.order.model.*;
@@ -36,4 +38,5 @@ public interface OrderMapper {
     List<DrOrderGetRes> findDrOrderList(long userId);
 
     List<OrderStatsRes> findStatsByDate(OrderStatsDto dto); // 주문 건 수(총 주문 건 수, 취소된 건 수) 통계
+    List<OrderAmountStatsRes> findAmountStatsByDate(OrderAmountStatsDto dto); // 매출액 통계
 }
