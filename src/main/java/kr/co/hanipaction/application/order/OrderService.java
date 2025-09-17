@@ -320,6 +320,16 @@ public class OrderService {
 
         order.setIsDeleted(1);
     }
+
+    @Transactional
+    public void statusPaid(long userId,long orderId) {
+        Orders order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없습니다."));
+
+        StatusType status =StatusType.valueOfCode("02");
+        order.setStatus(status);
+    }
+
     @Transactional
     public void statusPreparing(long userId,long orderId) {
         Orders order = orderRepository.findById(orderId)

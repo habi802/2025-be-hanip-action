@@ -11,10 +11,7 @@ import java.util.Arrays;
 @Getter
 @RequiredArgsConstructor
 public enum OrdersType implements EnumMapperType {
-    CARD("01","카드"),
-    BANK("02","뱅크"),
-    ON_SITE("03","오프라인결제"),
-    KAKAO_PAY("04","카카오뱅크"),;
+    KAKAO_PAY("01","카카오뱅크"),;
 
     private final String code;
     private final String value;

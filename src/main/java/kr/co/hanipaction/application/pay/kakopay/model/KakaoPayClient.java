@@ -19,6 +19,7 @@ public interface KakaoPayClient {
     @PostMapping("/approve")
     KakaoPayApproveRes approve(@RequestBody KakaoPayApproveReq req);
 
-
+    @PostMapping("/cancel")
+    KakaoPayCancelRes cancel(@RequestBody KakaoPayCancelReq req);
 
 }

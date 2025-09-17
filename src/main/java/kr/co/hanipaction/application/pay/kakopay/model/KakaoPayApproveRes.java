@@ -18,7 +18,6 @@ public class KakaoPayApproveRes {
     private String partnerUserId;
     @JsonProperty("payment_method_type")
     private String paymentMethodType; // 결제수단
-
     private KakaoPayAmountJson amount;
     private String item_name;
     private String item_code;
