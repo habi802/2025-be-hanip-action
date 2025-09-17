@@ -11,6 +11,7 @@ import org.hibernate.annotations.Comment;
 import java.util.ArrayList;
 import java.util.List;
 
+import static kr.co.hanipaction.configuration.enumcode.model.OrdersType.KAKAO_PAY;
 import static kr.co.hanipaction.configuration.enumcode.model.StatusType.ORDERED;
 
 @Entity
@@ -85,6 +86,9 @@ public class Orders extends UpdatedAt {
         }
         if (this.status == null) {
             this.status = ORDERED;
+        }
+        if(this.payment==null) {
+            this.payment = KAKAO_PAY;
         }
     }
     @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
