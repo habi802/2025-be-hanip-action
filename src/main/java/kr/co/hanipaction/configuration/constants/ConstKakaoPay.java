@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "constants.pay.kakao.data")
 @RequiredArgsConstructor
 public class ConstKakaoPay {
-    public final String approvalUerl;
+    public final String approvalUrl;
     public final String authorizationName;
     public final String cancelUrl;
     public final String cid;

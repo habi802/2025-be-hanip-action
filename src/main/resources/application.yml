@@ -72,3 +72,14 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
   mapper-locations: mappers/**/*.xml
+
+logging:
+  level:
+    # Feign 자체
+    feign.Logger: DEBUG
+    # Feign 내부 HTTP
+    feign: DEBUG
+    # OpenFeign 전체
+    org.springframework.cloud.openfeign: DEBUG
+    # 패키지명 Feign Client
+    kr.co.hanipaction.application.pay.kakopay.model.KakaoPayClient: DEBUG

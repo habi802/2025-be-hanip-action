@@ -24,7 +24,6 @@ public class FeignConfiguration {
     }
 
     // FeignClient 로 Action 의 API를 호출할 때 헤더를 통해 토큰을 전달함
-    @Bean
     public RequestInterceptor requestInterceptor() {
         return template -> {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
