@@ -15,6 +15,7 @@ import kr.co.hanipaction.openfeign.menu.model.MenuGetReq;
 import kr.co.hanipaction.openfeign.menu.model.MenuGetRes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
 
@@ -89,4 +90,16 @@ public class NaverPayService {
 
         return reserveRes;
     }
+
+    @Transactional
+    public NaverPayApplyRes apply(long userId, @RequestBody String paymentId){
+        Map<String, String> form = new HashMap<>();
+        form.put("paymentId", paymentId);
+
+
+        NaverPayApplyRes res = naverPayClient.apply(form);
+
+        return res;
+    }
+
 }
