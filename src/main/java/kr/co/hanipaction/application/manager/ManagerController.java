@@ -18,7 +18,7 @@ public class ManagerController {
     private final ManagerService managerService;
 
     // 주문 전체 조회
-    @GetMapping("/order")
+    @PostMapping("/order")
     public ResponseEntity<ResultResponse<?>> getOrderList(@RequestBody OrderListReq req) {
         PageResponse<OrderListRes> result = managerService.getOrderList(req);
         return ResponseEntity.ok(ResultResponse.success(result));
@@ -39,7 +39,7 @@ public class ManagerController {
     }
 
     // 리뷰 전체 조회
-    @GetMapping("/review")
+    @PostMapping("/review")
     public ResponseEntity<ResultResponse<?>> getReviewList(@RequestBody ReviewListReq req) {
         PageResponse<ReviewListRes> result = managerService.getReviewList(req);
         return ResponseEntity.ok(ResultResponse.success(result));
