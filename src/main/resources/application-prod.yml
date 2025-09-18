@@ -1,0 +1,98 @@
+eureka:
+  client:
+    enabled: false
+
+server:
+  port: 8082
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+spring:
+  application:
+    name: hanip-action
+  cloud:
+    kubernetes:
+      discovery:
+        enabled: true
+      reload:
+        enabled: true
+        strategy: refresh
+  datasource:
+    url: jdbc:log4jdbc:mariadb://112.222.157.157:5011/final_action
+    username: green1
+    password: spring502
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+  jackson:
+    default-property-inclusion: non_null
+  jpa:
+    database: mysql
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+        format_sql: true
+        order_updates: true
+
+constants:
+  file:
+    directory: home/download/images
+  open-feign:
+    actor: hanip-actor
+
+  jwt:
+    issuer: green502@green.com
+    bearer-format: JWT
+
+    claim-key: signedUser
+    secret-key: EvenTheDarkestNightWillEndAndTheSunWillRiseAgain2025!
+
+    access-token-cookie-name: access-token
+    access-token-cookie-path: /
+    access-token-cookie-validity-seconds: 900
+    access-token-validity-milliseconds: 900_000
+
+    refresh-token-cookie-name: refresh-token
+    refresh-token-cookie-path: hanip-actor/api/user/reissue
+    refresh-token-cookie-validity-seconds: 1_296_000
+    refresh-token-validity-milliseconds: 1_296_000_000
+  pay:
+    kakao:
+      base-url: https://open-api.kakaopay.com/online/v1/payment
+      data:
+        approval-url: http://localhost:5173/pay/approval
+        authorization-name: Authorization
+        cancel-url: http://localhost:5173/pay/cancel
+        cid: TC0ONETIME #테스트용 가맹점 코드
+        fail-url: http://localhost:5173/pay/fail
+        kakao-pay-info-session-name: kakao-pay-info
+        secret-key: DEV466852A4CD3DA43DBD5B51699A80D4874DD67
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: mappers/**/*.xml
+
+logging:
+  level:
+    # Feign 자체
+    feign.Logger: DEBUG
+    # Feign 내부 HTTP
+    feign: DEBUG
+    # OpenFeign 전체
+    org.springframework.cloud.openfeign: DEBUG
+    # 패키지명 Feign Client
+    kr.co.hanipaction.application.pay.kakopay.model.KakaoPayClient: DEBUG
