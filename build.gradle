@@ -53,6 +53,9 @@ dependencies {
 
     // Spring Cloud Feign 의존성
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    // 네이버 페이용 의존성
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'io.github.cdimascio:java-dotenv:5.2.2'
 }
 
 dependencyManagement {
