@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
         ,configuration = {KakaoPayClientConfig.class}
 )
 public interface KakaoPayClient {
-    @PostMapping("/ready")
+    @PostMapping( "/ready")
     KakaoPayReadyRes ready(@RequestBody KakaoPayReadyReq req);
 
     @PostMapping("/approve")
