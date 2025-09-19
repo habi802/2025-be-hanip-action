@@ -74,7 +74,7 @@ constants:
         client-id: HN3GGCMDdTgGUfl0kFCo
         client-secret: ftZjkkRNMR
         chain-id: NFlxNnUza3lTNzV
-        return-url: http://localhost:5173/pay/return
+        return-url: http://localhost:5173/hanip/order-test # 나중에 바꿔야함.
 
 mybatis:
   configuration:
@@ -87,6 +87,7 @@ logging:
     feign.Logger: DEBUG
     # Feign 내부 HTTP
     feign: DEBUG
+    kr.co.hanipaction.application.pay.naverpay: DEBUG
     # OpenFeign 전체
     org.springframework.cloud.openfeign: DEBUG
     # 패키지명 Feign Client

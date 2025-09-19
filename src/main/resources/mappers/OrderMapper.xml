@@ -287,7 +287,8 @@
         JOIN orders_menu om
         ON o.id = om.order_id
         WHERE o.user_id = #{userId}
-        GROUP BY menu_id
+        AND o.id = #{orderId}
+        GROUP BY om.id
     </select>
 
 

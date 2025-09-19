@@ -1,29 +1,45 @@
 package kr.co.hanipaction.configuration.feignclient;
 
 import feign.RequestInterceptor;
-import kr.co.hanipaction.application.pay.naverpay.model.NaverPayClient;
+import feign.codec.Encoder;
+import feign.form.spring.SpringFormEncoder;
 import kr.co.hanipaction.configuration.constants.ConstNaverPay;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
+import org.springframework.cloud.openfeign.support.SpringEncoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.beans.factory.ObjectFactory;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class NaverPayClientConfig {
     private final ConstNaverPay constNaverPay;
-    String idemKey = UUID.randomUUID().toString();
+
 
     @Bean
     public RequestInterceptor naverPayRequestInterceptor() {
-        return requestTemplate -> requestTemplate.header("X-Naver-Client-Id",constNaverPay.clientId)
-                .header("X-NaverPay-Chain-Id",constNaverPay.chainId)
-                .header("X-Naver-Client-Secret",constNaverPay.clientSecret)
-                .header("Content-Type","application/x-www-form-urlencoded")
-                .header("X-NaverPay-Idempotency-Key",idemKey);
+        return requestTemplate -> {
+            String idemKey = UUID.randomUUID().toString();
+
+            requestTemplate.header("X-Naver-Client-Id", constNaverPay.clientId)
+                .header("X-NaverPay-Chain-Id", constNaverPay.chainId)
+                .header("X-Naver-Client-Secret", constNaverPay.clientSecret)
+                .header("X-NaverPay-Idempotency-Key", idemKey);
+        // URL에 따라 다른 Content-Type 적용
+        if (requestTemplate.url().contains("/apply/payment")) {
+            requestTemplate.header("Content-Type", "application/x-www-form-urlencoded");
+        }
+
+    };
+
+
+//    @Bean
+//    public Encoder feignFormEncoder(ObjectFactory<HttpMessageConverters> messageConverters) {
+//        return new SpringFormEncoder(new SpringEncoder(messageConverters));
+//    }
 
     }
-
-
 }

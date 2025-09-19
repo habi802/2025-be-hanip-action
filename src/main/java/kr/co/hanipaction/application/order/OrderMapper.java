@@ -43,5 +43,5 @@ public interface OrderMapper {
     List<OrderAmountStatsRes> findAmountStatsByDate(OrderAmountStatsDto dto); // 매출액 통계
 
     // 네이버 페이 아이템 리스트용
-    List<NaverPayOrderItemReq> naverPay(long userId);
+    List<NaverPayOrderItemReq> naverPay(long userId,long orderId);
 }

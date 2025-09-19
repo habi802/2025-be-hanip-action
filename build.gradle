@@ -56,6 +56,8 @@ dependencies {
     // 네이버 페이용 의존성
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'io.github.cdimascio:java-dotenv:5.2.2'
+    // 인코더
+    implementation 'io.github.openfeign.form:feign-form-spring:3.8.0'
 }
 
 dependencyManagement {
