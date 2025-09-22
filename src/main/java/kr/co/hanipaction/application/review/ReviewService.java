@@ -4,6 +4,7 @@ import kr.co.hanipaction.application.common.util.MyFileUtils;
 import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.application.review.model.*;
 import kr.co.hanipaction.application.common.model.ResultResponse;
+import kr.co.hanipaction.application.review.model.newModal.ReviewGetByStroeIdOwner;
 import kr.co.hanipaction.configuration.utils.MyFileManager;
 import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.entity.Review;
@@ -220,5 +221,12 @@ public class ReviewService {
 
     public ReviewGetPics getPics(long orderId) {
         return reviewMapper.findByOrderIdPics(orderId);
+    }
+
+    // 사장 답변 리뷰 조회
+    public List<ReviewGetByStroeIdOwner> getOwnerComment(long storeId) {
+
+
+        return reviewMapper.ownerComment(storeId);
     }
 }

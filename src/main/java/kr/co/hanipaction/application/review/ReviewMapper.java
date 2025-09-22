@@ -1,6 +1,7 @@
 package kr.co.hanipaction.application.review;
 
 import kr.co.hanipaction.application.review.model.*;
+import kr.co.hanipaction.application.review.model.newModal.ReviewGetByStroeIdOwner;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -17,5 +18,8 @@ public interface ReviewMapper {
     int delete(ReviewDeleteDto req);
     int modify(ReviewPutReq req);
     ReviewGetPics findByOrderIdPics(long orderId);
+
+    // 신규 맵퍼
+    List<ReviewGetByStroeIdOwner> ownerComment(long storeId);
 
 }

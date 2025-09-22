@@ -20,6 +20,6 @@ public class ReviewGetRes {
     private int menuCount;
     private String comment;
     private String ownerComment;
-    private String created;
+    private String createdAt;
     private List<String> pic;
 }
