@@ -277,4 +277,20 @@
             </otherwise>
         </choose>
     </select>
+
+
+<!--    네이버페이용 -->
+
+    <select id="naverPay">
+        SELECT om.quantity AS menu_quantity, om.amount AS menu_price, o.amount AS total_price, om.menu_name, om.menu_id, o.user_id
+        FROM orders o
+        JOIN orders_menu om
+        ON o.id = om.order_id
+        WHERE o.user_id = #{userId}
+        AND o.id = #{orderId}
+        GROUP BY om.id
+    </select>
+
+
+
 </mapper>

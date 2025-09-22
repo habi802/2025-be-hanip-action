@@ -9,6 +9,8 @@ import kr.co.hanipaction.application.order.newmodel.DrOrderGetRes;
 import kr.co.hanipaction.application.order.newmodel.OrderDetailGetRes;
 import kr.co.hanipaction.application.order.newmodel.OrderGetDto;
 import kr.co.hanipaction.application.order.newmodel.OrderGetRes;
+import kr.co.hanipaction.application.pay.naverpay.model.NaverPayOrderItemReq;
+import kr.co.hanipaction.application.pay.naverpay.model.NaverProductItem;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.Select;
@@ -39,4 +41,7 @@ public interface OrderMapper {
 
     List<OrderStatsRes> findStatsByDate(OrderStatsDto dto); // 주문 건 수(총 주문 건 수, 취소된 건 수) 통계
     List<OrderAmountStatsRes> findAmountStatsByDate(OrderAmountStatsDto dto); // 매출액 통계
+
+    // 네이버 페이 아이템 리스트용
+    List<NaverPayOrderItemReq> naverPay(long userId,long orderId);
 }
