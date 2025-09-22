@@ -52,5 +52,20 @@ public class NaverPayController {
 
         return ResponseEntity.ok(new ResultResponse<>(200,"네이버페이 cid 확인 완료 ",result));
     }
+
+    @PostMapping("/naverPay/cancel/{orderId}")
+    public ResponseEntity<ResultResponse<?>> cancel(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long orderId){
+        long  userId = userPrincipal.getSignedUserId();
+
+        NaverPayCancelRes result = naverPayService.cancel(userId,orderId);
+
+        if(result !=null){
+            payService.statusCancelled(userId,orderId);
+            orderService.statusCanceled(userId,orderId);
+        }
+
+
+        return ResponseEntity.ok(new ResultResponse<>(200,"네이버페이 결제 취소 완료 ",result));
+    }
     
 }

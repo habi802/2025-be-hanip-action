@@ -28,18 +28,18 @@ public class NaverPayClientConfig {
                 .header("X-NaverPay-Chain-Id", constNaverPay.chainId)
                 .header("X-Naver-Client-Secret", constNaverPay.clientSecret)
                 .header("X-NaverPay-Idempotency-Key", idemKey);
-        // URL에 따라 다른 Content-Type 적용
-        if (requestTemplate.url().contains("/apply/payment")) {
+//         URL에 따라 다른 Content-Type 적용
+        if (requestTemplate.url().contains("/v2/apply/payment")||requestTemplate.url().contains("/v1/cancel")) {
+            requestTemplate.headers().remove("Content-Type");
             requestTemplate.header("Content-Type", "application/x-www-form-urlencoded");
         }
 
     };
 
+    }
 
-//    @Bean
-//    public Encoder feignFormEncoder(ObjectFactory<HttpMessageConverters> messageConverters) {
-//        return new SpringFormEncoder(new SpringEncoder(messageConverters));
-//    }
-
+    @Bean
+    public Encoder feignFormEncoder(ObjectFactory<HttpMessageConverters> converters) {
+        return new SpringFormEncoder(new SpringEncoder(converters));
     }
 }
