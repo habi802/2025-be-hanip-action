@@ -71,7 +71,7 @@ public class ManagerService {
                                                        .and(OrderSpecification.hasStatus(req.getStatus()));
 
         // 페이징 및 페이지 사이즈 적용
-        Pageable pageable = PageRequest.of(req.getPageNumber(), req.getPageSize());
+        Pageable pageable = req.getPageSize() == -1 ? Pageable.unpaged() : PageRequest.of(req.getPageNumber() - 1, req.getPageSize());
 
         Page<Orders> page = orderRepository.findAll(spec, pageable);
         List<OrderListRes> result = page.stream().map(order -> {
@@ -91,7 +91,7 @@ public class ManagerService {
                                .build();
         }).toList();
 
-        return new PageResponse<>(result);
+        return new PageResponse<>(result, page.getTotalElements(), page.getTotalPages(), page.getSize(), page.getNumber() + 1);
     }
 
     // 주문 상세 조회
@@ -103,6 +103,7 @@ public class ManagerService {
         ResponseEntity<ResultResponse<StoreInManagerRes>> storeRes = storeClient.getStoreNameInManager(order.getStoreId());
 
         return OrderInManagerRes.builder()
+                                .createdAt(order.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                                 .orderId(orderId)
                                 .userName(userRes.getBody().getResultData())
                                 .storeName(storeRes.getBody().getResultData().getName())
@@ -151,7 +152,7 @@ public class ManagerService {
                                                         .and(ReviewSpecification.hasIsHide(req.getIsHide()));
 
         // 페이징 및 페이지 사이즈 적용
-        Pageable pageable = PageRequest.of(req.getPageNumber(), req.getPageSize());
+        Pageable pageable = req.getPageSize() == -1 ? Pageable.unpaged() : PageRequest.of(req.getPageNumber() - 1, req.getPageSize());
 
         Page<Review> page = reviewRepository.findAll(spec, pageable);
         List<ReviewListRes> result = page.stream().map(review -> {
@@ -170,7 +171,7 @@ public class ManagerService {
 
         }).toList();
 
-        return new PageResponse<>(result);
+        return new PageResponse<>(result, page.getTotalElements(), page.getTotalPages(), page.getSize(), page.getNumber() + 1);
     }
 
     // 리뷰 상세 조회
@@ -188,6 +189,7 @@ public class ManagerService {
         ResponseEntity<ResultResponse<StoreInManagerRes>> storeRes = storeClient.getStoreNameInManager(review.getOrderId().getStoreId());
 
         return ReviewInManagerRes.builder()
+                                 .createdAt(review.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                                  .reviewId(reviewId)
                                  .userName(userRes.getBody().getResultData())
                                  .storeName(storeRes.getBody().getResultData().getName())
