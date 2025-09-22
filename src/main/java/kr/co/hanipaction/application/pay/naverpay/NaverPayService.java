@@ -127,4 +127,18 @@ public class NaverPayService {
         return res;
     }
 
+    @Transactional
+    public Integer saveCid(long userId, long orderId, NaverGetCid req){
+        Orders orderIds =orderRepository.findById(orderId).orElseThrow(()->new RuntimeException("주문 정보를 찾을 수 없습니다."));
+
+        Optional<Payment> payment = paymentRepository.findByOrderId(orderIds);
+
+        Payment payRes = payment.get();
+
+        payRes.setTid(req.getPaymentId());
+
+
+        return 1;
+    }
+
 }

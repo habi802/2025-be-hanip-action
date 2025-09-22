@@ -4,10 +4,7 @@ package kr.co.hanipaction.application.pay.naverpay;
 import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.order.OrderService;
 import kr.co.hanipaction.application.pay.PayService;
-import kr.co.hanipaction.application.pay.naverpay.model.NaverPayApplyReq;
-import kr.co.hanipaction.application.pay.naverpay.model.NaverPayApplyRes;
-import kr.co.hanipaction.application.pay.naverpay.model.NaverPayFrontDto;
-import kr.co.hanipaction.application.pay.naverpay.model.NaverPayReserveRes;
+import kr.co.hanipaction.application.pay.naverpay.model.*;
 import kr.co.hanipaction.configuration.model.UserPrincipal;
 import kr.co.hanipaction.entity.Payment;
 import lombok.RequiredArgsConstructor;
@@ -46,4 +43,14 @@ public class NaverPayController {
 
         return ResponseEntity.ok(new ResultResponse<>(200,"네이버페이 결제승인 완료 ",result));
     }
+    
+    @PostMapping("/naverPay/cid/{orderId}")
+    public ResponseEntity<ResultResponse<?>> getCid(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long orderId, @RequestBody NaverGetCid req){
+        long  userId = userPrincipal.getSignedUserId();
+        
+        int result = naverPayService.saveCid(userId,orderId,req);
+
+        return ResponseEntity.ok(new ResultResponse<>(200,"네이버페이 cid 확인 완료 ",result));
+    }
+    
 }
