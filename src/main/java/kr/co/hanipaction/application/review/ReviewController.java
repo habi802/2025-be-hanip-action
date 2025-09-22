@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import kr.co.hanipaction.application.review.model.*;
 import kr.co.hanipaction.configuration.model.ResultResponse;
 import kr.co.hanipaction.configuration.model.SignedUser;
+import kr.co.hanipaction.configuration.model.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,8 +28,8 @@ public class ReviewController {
     @PostMapping
     public ResultResponse<?> save(@RequestPart(name = "pic", required = false) List<MultipartFile> pics,
                                   @Valid @RequestPart ReviewPostReq req,
-                                  @AuthenticationPrincipal SignedUser signedUser) {
-        long userId = signedUser.signedUserId;
+                                  @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        long userId = userPrincipal.getSignedUserId();
 
         ReviewPostRes result = reviewService.save(pics,req,userId);
 
@@ -45,9 +46,9 @@ public class ReviewController {
     @PutMapping
     public ResultResponse<?> modify(@RequestPart(name = "pic", required = false) List<MultipartFile> pics,
                                     @Valid @RequestPart ReviewPutReq req,
-                                    @AuthenticationPrincipal SignedUser signedUser) {
+                                    @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
-        long userId = signedUser.signedUserId;
+        long userId = userPrincipal.getSignedUserId();
         int result = reviewService.modify(pics,req,userId);
 
         if(result == 0){
@@ -95,4 +96,15 @@ public class ReviewController {
         List<ReviewGetRatingRes> result = reviewService.findByStoreIdAllReview(storeId);
         return ResponseEntity.ok(new ResultResponse<>("별점 조회 완료 ", result));
     }
+
+    // 사장이 리뷰에 코멘트 달기
+    @PostMapping("store-owner-review/{reviewId}")
+    public ResponseEntity<ResultResponse<ReviewPatchDto>> findByReviewId(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long reviewId, @RequestBody ReviewPatchReq req) {
+        long userId = userPrincipal.getSignedUserId();
+
+        ReviewPatchDto  result = reviewService.updateOwnerComment(userId,reviewId,req);
+
+        return ResponseEntity.ok(new ResultResponse<>("코멘트 답변 완료", result));
+    }
+
 }
