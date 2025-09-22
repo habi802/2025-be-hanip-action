@@ -127,6 +127,44 @@ public class NaverPayService {
         return res;
     }
 
+    public NaverPayCancelRes cancel(long userId,long orderId){
+        
+        Orders orderIds = orderRepository.findById(orderId).orElseThrow(()->new RuntimeException("주문을 찾을 수 없습니다"));
+
+        Optional<Payment> payment = paymentRepository.findByOrderId(orderIds);
+
+        Payment payRes = payment.get();
+
+        NaverPayCancelReq cancelReq = new NaverPayCancelReq();
+        cancelReq.setPaymentId(payRes.getTid());
+        cancelReq.setCancelAmount(payRes.getTotalAmount());
+        cancelReq.setCancelReason("사용자 선택 취소");
+        cancelReq.setCancelRequester("2");
+        cancelReq.setTaxScopeAmount(payRes.getTotalAmount());
+        cancelReq.setTaxExScopeAmount(0);
+
+
+        String cancleAmount = String.valueOf(payRes.getTotalAmount());
+
+        String paymentId = String.valueOf(payRes.getTid());
+
+//        MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
+//        form.add("paymentId", paymentId);
+//        form.add("cancelAmount",cancleAmount);
+//        form.add("cancelRequester","2");
+//        form.add("cancelReason","사용자 선택 취소");
+//        form.add("testCancelAmount","testCancel");
+//        form.add("taxScopeAmount",cancleAmount);
+//        form.add("taxExScopeAmount",cancleAmount);
+        System.out.println("DEBUG: 요청 전송 직전 form 내용: " + cancelReq);
+        NaverPayCancelRes cancelRes = naverPayClient.cancel(cancelReq);
+        
+
+        return cancelRes;
+    }
+
+
+
     @Transactional
     public Integer saveCid(long userId, long orderId, NaverGetCid req){
         Orders orderIds =orderRepository.findById(orderId).orElseThrow(()->new RuntimeException("주문 정보를 찾을 수 없습니다."));
@@ -140,5 +178,8 @@ public class NaverPayService {
 
         return 1;
     }
+
+//    @Transactional
+//    public
 
 }

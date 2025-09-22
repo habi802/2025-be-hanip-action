@@ -92,3 +92,4 @@ logging:
     org.springframework.cloud.openfeign: DEBUG
     # 패키지명 Feign Client
     kr.co.hanipaction.application.pay.kakopay.model.KakaoPayClient: DEBUG
+    kr.co.hanipaction.application.pay.naverpay.model.NaverPayClient: DEBUG

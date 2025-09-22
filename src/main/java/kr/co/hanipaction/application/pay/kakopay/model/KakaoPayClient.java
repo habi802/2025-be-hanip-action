@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.RequestBody;
         ,configuration = {KakaoPayClientConfig.class}
 )
 public interface KakaoPayClient {
-    @PostMapping( "/ready")
+    @PostMapping( value = "/ready", consumes = "application/json; charset=UTF-8")
     KakaoPayReadyRes ready(@RequestBody KakaoPayReadyReq req);
 
-    @PostMapping("/approve")
+    @PostMapping(value = "/approve",consumes = "application/json; charset=UTF-8")
     KakaoPayApproveRes approve(@RequestBody KakaoPayApproveReq req);
 
-    @PostMapping("/cancel")
+    @PostMapping(value = "/cancel",consumes = "application/json; charset=UTF-8")
     KakaoPayCancelRes cancel(@RequestBody KakaoPayCancelReq req);
 
 }

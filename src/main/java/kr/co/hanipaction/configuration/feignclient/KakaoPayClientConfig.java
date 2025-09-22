@@ -16,9 +16,9 @@ public class KakaoPayClientConfig {
     public RequestInterceptor kakaoPayRequestInterceptor() {
         return requestTemplate -> {requestTemplate.header(constKakaoPay.authorizationName, String.format("SECRET_KEY %s", constKakaoPay.secretKey));
         // URL에 따라 다른 헤더 추가 아오
-        if (requestTemplate.url().contains("/ready")||requestTemplate.url().contains("/approve")||requestTemplate.url().contains("/cancel")) {
-            requestTemplate.header("Content-Type", "application/json; charset=UTF-8");
-        }
+//        if (requestTemplate.url().contains("/ready")||requestTemplate.url().contains("/approve")||requestTemplate.url().contains("/cancel")) {
+//            requestTemplate.header("Content-Type", "application/json; charset=UTF-8");
+//        }
 
 
     };
