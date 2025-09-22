@@ -22,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -165,18 +166,21 @@ public class ReviewService {
 //    }
 
     // 리뷰에 사장 답변 추가
-    public Integer updateOwnerComment(ReviewPatchReq req, long storeId) {
+    @Transactional
+    public ReviewPatchDto updateOwnerComment(long userId,long reviewId, ReviewPatchReq req) {
         ReviewPatchDto dto = ReviewPatchDto.builder()
-                .reviewId(req.getReviewId())
-                .storeId(storeId)
+                .ownerComment(req.getOwnerComment())
                 .build();
-        Integer checkReviewId = reviewMapper.findByReviewIdAndStoreId(dto);
 
-        if (checkReviewId == null) {
-            return null;
+        Optional<Review> reviewDto = reviewRepository.findById(reviewId);
+        if(reviewDto.isPresent()) {
+            Review review = reviewDto.get();
+            review.setOwnerComment(req.getOwnerComment());
+            dto.setUserComment(review.getComment());
+            dto.setReviewId(reviewId);
         }
 
-        return reviewMapper.updateOwnerComment(req);
+        return dto;
     }
 
     // 리뷰 수정

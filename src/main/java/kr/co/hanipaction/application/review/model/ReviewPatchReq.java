@@ -6,6 +6,5 @@ import lombok.ToString;
 
 @Getter
 public class ReviewPatchReq {
-    private int reviewId;
     private String ownerComment;
 }

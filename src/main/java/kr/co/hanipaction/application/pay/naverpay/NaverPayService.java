@@ -8,6 +8,7 @@ import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.application.order.PaymentRepository;
 import kr.co.hanipaction.application.pay.naverpay.model.*;
 import kr.co.hanipaction.configuration.constants.ConstNaverPay;
+import kr.co.hanipaction.configuration.enumcode.model.OrdersType;
 import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.entity.Payment;
 import kr.co.hanipaction.openfeign.menu.MenuClient;
@@ -39,6 +40,12 @@ public class NaverPayService {
         Optional<Orders> order = orderRepository.findById(orderId);
 
         Orders orderRes = order.get();
+
+        OrdersType ordersType = OrdersType.NAVER_PAY;
+
+            orderRes.setPayment(ordersType);
+
+
 
 
         Optional<Payment> payment = paymentRepository.findByOrderId(orders);
@@ -103,8 +110,6 @@ public class NaverPayService {
         frontDto.setReturnUrl(reserveReq.getReturnUrl());
         frontDto.setProductItems(reserveReq.getProductItems());
 
-        NaverPayApplyReq apply =  new NaverPayApplyReq();
-
 
         return frontDto;
 
@@ -120,6 +125,20 @@ public class NaverPayService {
 
         NaverPayApplyRes res = naverPayClient.apply(form);
         return res;
+    }
+
+    @Transactional
+    public Integer saveCid(long userId, long orderId, NaverGetCid req){
+        Orders orderIds =orderRepository.findById(orderId).orElseThrow(()->new RuntimeException("주문 정보를 찾을 수 없습니다."));
+
+        Optional<Payment> payment = paymentRepository.findByOrderId(orderIds);
+
+        Payment payRes = payment.get();
+
+        payRes.setTid(req.getPaymentId());
+
+
+        return 1;
     }
 
 }

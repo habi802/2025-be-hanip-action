@@ -68,7 +68,6 @@ public class OrderService {
                 .storeId(dto.getStoreId())
                 .postcode(dto.getPostcode())
                 .address(dto.getAddress())
-                .payment(dto.getPayment())
                 .status(dto.getStatus())
                 .userPhone(userInfo.getUserTel())
                 .storeRequest(dto.getStoreRequest())
@@ -169,7 +168,7 @@ public class OrderService {
         payment.setOrderId(orders);
         if (menuDto.size() > 1) {
             int otherItemsCount = menuDto.size() - 1;
-            itemName = firstMenuName + " 외 " + otherItemsCount + "개";
+            itemName = firstMenuName + " 외 " + (totalQuantity - 1) + "개";
         } else {
             itemName = firstMenuName;
         }
