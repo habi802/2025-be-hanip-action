@@ -8,6 +8,7 @@ import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.application.order.PaymentRepository;
 import kr.co.hanipaction.application.pay.naverpay.model.*;
 import kr.co.hanipaction.configuration.constants.ConstNaverPay;
+import kr.co.hanipaction.configuration.enumcode.model.OrdersType;
 import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.entity.Payment;
 import kr.co.hanipaction.openfeign.menu.MenuClient;
@@ -39,6 +40,12 @@ public class NaverPayService {
         Optional<Orders> order = orderRepository.findById(orderId);
 
         Orders orderRes = order.get();
+
+        OrdersType ordersType = OrdersType.NAVER_PAY;
+
+            orderRes.setPayment(ordersType);
+
+
 
 
         Optional<Payment> payment = paymentRepository.findByOrderId(orders);
@@ -102,8 +109,6 @@ public class NaverPayService {
         frontDto.setTaxExScopeAmount(reserveReq.getTaxExScopeAmount());
         frontDto.setReturnUrl(reserveReq.getReturnUrl());
         frontDto.setProductItems(reserveReq.getProductItems());
-
-        NaverPayApplyReq apply =  new NaverPayApplyReq();
 
 
         return frontDto;

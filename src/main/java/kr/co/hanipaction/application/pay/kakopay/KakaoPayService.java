@@ -4,9 +4,11 @@ import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.application.order.PaymentRepository;
 import kr.co.hanipaction.application.pay.kakopay.model.*;
 import kr.co.hanipaction.configuration.constants.ConstKakaoPay;
+import kr.co.hanipaction.configuration.enumcode.model.OrdersType;
 import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.entity.Payment;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.query.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,7 +28,15 @@ public class KakaoPayService {
     public KakaoPayReadyRes ready(long userId,long orderId) {
 
         Orders orders = orderRepository.findById(orderId).get();
+        Optional<Orders> ordersRes = orderRepository.findById(orderId);
 
+        OrdersType ordersType = OrdersType.KAKAO_PAY;
+
+        if(ordersRes.isPresent()){
+            Orders orderDate = ordersRes.get();
+            orderDate.setPayment(ordersType);
+        }
+        
         Optional<Payment> payment = paymentRepository.findByOrderId(orders);
         Payment payDb = payment.get();
 
