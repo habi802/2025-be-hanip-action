@@ -16,9 +16,12 @@ import java.util.stream.Collectors;
 @Setter
 public class CartListGetRes {
     private long id;
+    private long storeId;
+    private String storeName;
     private Long menuId;
     private String name;
     private long price;
+    private int quantity;
     private String comment;
     private String imagePath;
     private List<Option> options;
