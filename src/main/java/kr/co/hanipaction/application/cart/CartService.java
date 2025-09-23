@@ -1,5 +1,6 @@
 package kr.co.hanipaction.application.cart;
 
+import jakarta.transaction.Transactional;
 import kr.co.hanipaction.application.cart.model.*;
 import kr.co.hanipaction.entity.Cart;
 import kr.co.hanipaction.entity.CartMenuOption;
@@ -210,6 +211,28 @@ public class CartService {
 
     public void deleteAll(long userId) {
     cartRepository.deleteAll();
+    }
+
+
+    @Transactional
+    public Cart plusQuantity(long userId,long cartId) {
+        Optional<Cart> cartOptional = cartRepository.findById(cartId);
+
+            Cart cart = cartOptional.get();
+            cart.setQuantity(cart.getQuantity() + 1);
+
+
+        return cart;
+    }
+
+    @Transactional
+    public Cart minusQuantity(long userId,long cartId) {
+        Optional<Cart> cartOptional = cartRepository.findById(cartId);
+
+        Cart cart = cartOptional.get();
+        cart.setQuantity(cart.getQuantity() - 1);
+
+        return cart;
     }
 
 }

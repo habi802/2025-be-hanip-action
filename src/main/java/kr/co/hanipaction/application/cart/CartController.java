@@ -95,5 +95,20 @@ public class CartController {
         return new ResultResponse<>(200,"메뉴 전체가 삭제되었습니다.", null);
     }
 
+    @PatchMapping("/plus/{cartId}")
+    public ResultResponse<?> plus(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long cartId) {
+    long userId= userPrincipal.getSignedUserId();
+    cartService.plusQuantity(userId,cartId);
+
+    return new ResultResponse<>(200,"갯수 증가 성공",null);
+    }
+
+    @PatchMapping("/minus/{cartId}")
+    public ResultResponse<?> minus(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long cartId) {
+        long userId= userPrincipal.getSignedUserId();
+        cartService.minusQuantity(userId,cartId);
+        
+        return new ResultResponse<>(200,"갯수 감소 성공",null);
+    }
 
 }
