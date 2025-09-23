@@ -101,4 +101,14 @@
         ORDER BY r.id DESC;
     </select>
 
+<!--    사장님이 댓글 단 리뷰-->
+    <select id="ownerComment">
+        SELECT r.id AS reivew_id, o.id AS order_id,r.owner_comment
+        FROM review r
+        LEFT JOIN orders o
+        ON r.order_id = o.id
+        WHERE owner_comment IS NOT NULL
+        AND store_id =#{storeId}
+    </select>
+
 </mapper>

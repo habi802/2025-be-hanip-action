@@ -3,6 +3,7 @@ package kr.co.hanipaction.application.review;
 import jakarta.validation.Valid;
 
 import kr.co.hanipaction.application.review.model.*;
+import kr.co.hanipaction.application.review.model.newModal.ReviewGetByStroeIdOwner;
 import kr.co.hanipaction.configuration.model.ResultResponse;
 import kr.co.hanipaction.configuration.model.SignedUser;
 import kr.co.hanipaction.configuration.model.UserPrincipal;
@@ -105,6 +106,17 @@ public class ReviewController {
         ReviewPatchDto  result = reviewService.updateOwnerComment(userId,reviewId,req);
 
         return ResponseEntity.ok(new ResultResponse<>("코멘트 답변 완료", result));
+    }
+//    
+//    
+//    
+//    사장님 리뷰 답변단 리스트 조회
+    @GetMapping("/owner/comment/{storeId}")
+    public ResponseEntity<ResultResponse<List<ReviewGetByStroeIdOwner>>> findOwnerCommentList(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long storeId) {
+        
+        List<ReviewGetByStroeIdOwner> result = reviewService.getOwnerComment(storeId);
+
+        return ResponseEntity.ok(new ResultResponse<>("오너 코멘트 리스트 조회", result));
     }
 
 }
