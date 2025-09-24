@@ -241,5 +241,11 @@ public class OrderController {
     }
 
 
+    // 배달원용 - 배달중인 주문 중 가장 최근 주문 데이터 하나 가져옴
+    @GetMapping("/order/rider")
+    public ResponseEntity<ResultResponse<?>> getOrderInRider() {
+        OrderRiderGetRes result = orderService.getOrderInRider();
 
+        return ResponseEntity.ok(ResultResponse.success(result));
+    }
 }
