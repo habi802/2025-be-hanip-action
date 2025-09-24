@@ -70,7 +70,7 @@ public class CartService {
             }
 
         }
-        int totalAmount =  (menuPrice + totalOptionPrice) * req.getQuantity();
+        int totalAmount =  (menuPrice + totalOptionPrice);
 
         List<MenuGetRes> menuList = menuRes.getResultData();
 
