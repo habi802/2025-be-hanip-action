@@ -10,6 +10,7 @@ import lombok.ToString;
 @ToString
 public class OrderRiderGetRes {
     private long id;
+    private String storeName;
     private String menu;
     private String address;
     private int amount;
