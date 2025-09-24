@@ -27,6 +27,7 @@ public class CartService {
     private final StoreClient storeClient;
     private final CartRepository cartRepository;
     private final CartMenuOptionRepository cartMenuOptionRepository;
+    private final CartMapper cartMapper;
 
     public Cart save(CartPostReq req, long userId) {
 
@@ -234,5 +235,21 @@ public class CartService {
 
         return cart;
     }
+
+    @Transactional
+    public CartGetOptionRes check(Long cartId, Long userId) {
+        List<CartMenuOptionItem> items = cartMapper.getByOptions(userId, cartId);
+
+        CartGetOptionRes dto = new CartGetOptionRes();
+        if (!items.isEmpty()) {
+            dto.setMenuId(items.get(0).getMenuId());
+            dto.setOptionId(items.stream()
+                    .map(CartMenuOptionItem::getOptionId)
+                    .collect(Collectors.toList()));
+            dto.setQuantity(items.get(0).getQuantity());
+        }
+        return dto;
+    }
+
 
 }
