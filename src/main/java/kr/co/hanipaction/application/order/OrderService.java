@@ -623,5 +623,21 @@ public class OrderService {
         return orderList;
     }
 
+    // 배달원용 - 배달중인 주문 중 가장 최근 주문 데이터 하나 가져옴
+    public OrderRiderGetRes getOrderInRider() {
+        Orders order = orderRepository.findFirstByStatusOrderByCreatedAt(StatusType.DELIVERED);
+        if (order == null) {
+            return null;
+        }
+        List<OrdersMenu> orderMenu = orderMenuRepository.findByOrders_Id(order.getId());
 
+        return OrderRiderGetRes.builder()
+                .id(order.getId())
+                .menu(orderMenu.get(0).getMenuName() + (orderMenu.size() > 2 ? " 외 " + (orderMenu.size() - 1) + " 건" : ""))
+                .address(String.format("%s, %s, %s", order.getPostcode(), order.getAddress(), order.getAddressDetail()))
+                .amount(order.getAmount())
+                .riderRequest(order.getRiderRequest())
+                .status(order.getStatus())
+                .build();
+    }
 }
