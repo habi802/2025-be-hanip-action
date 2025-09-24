@@ -12,4 +12,6 @@ public interface CartMapper {
     int updateQuantityByCartIdAndUserId(CartPatchDto dto);
     int deleteByCartId(CartDeleteReq req);
     int deleteByAllUserId(long userId);
+
+    List<CartMenuOptionItem> getByOptions(long userId,long cartId);
 }

@@ -1,5 +1,6 @@
 package kr.co.hanipaction.application.cart;
 
+import kr.co.hanipaction.application.cart.model.CartGetOptionRes;
 import kr.co.hanipaction.application.cart.model.CartListGetRes;
 import kr.co.hanipaction.application.cart.model.CartPostReq;
 import kr.co.hanipaction.application.common.model.ResultResponse;
@@ -109,6 +110,15 @@ public class CartController {
         cartService.minusQuantity(userId,cartId);
         
         return new ResultResponse<>(200,"갯수 감소 성공",null);
+    }
+
+    @GetMapping("/options/{cartId}")
+    public ResultResponse<CartGetOptionRes> getOption(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long cartId) {
+        long userId= userPrincipal.getSignedUserId();
+
+        CartGetOptionRes result = cartService.check(cartId,userId);
+
+        return new ResultResponse<>(200,"옵션 조회 성공",result);
     }
 
 }

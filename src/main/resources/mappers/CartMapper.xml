@@ -40,4 +40,14 @@
         FROM carts
         WHERE user_id = #{userId}
     </delete>
+
+<!--    주문 수정용 카트 옵션 조회 -->
+    <select id="getByOptions">
+        SELECT cm.cart_id , c.menu_id, cm.option_id, c.quantity
+        FROM cart c
+        LEFT JOIN cart_menu_option cm
+        ON c.id = cm.cart_id
+        WHERE cm.cart_id = #{cartId}
+        AND c.user_id = #{userId}
+    </select>
 </mapper>
