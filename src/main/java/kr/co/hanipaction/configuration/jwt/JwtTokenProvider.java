@@ -8,6 +8,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import kr.co.hanipaction.configuration.constants.ConstJwt;
 import kr.co.hanipaction.configuration.model.JwtUser;
+import kr.co.hanipaction.configuration.model.UserPrincipal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
