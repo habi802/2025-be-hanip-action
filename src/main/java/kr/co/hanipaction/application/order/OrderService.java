@@ -434,7 +434,7 @@ public class OrderService {
         orderDetailRes.setAddress(order.getAddress());
         orderDetailRes.setAddressDetail(order.getAddressDetail());
         orderDetailRes.setStoreRequest(order.getStoreRequest());
-        orderDetailRes.setCreateAt(order.getCreatedAt());
+        orderDetailRes.setCreatedAt(order.getCreatedAt());
         orderDetailRes.setPayment(order.getPayment().toString());
         orderDetailRes.setAmount(order.getAmount());
         orderDetailRes.setMinDeliveryFee(store.getMinDeliveryFee());
@@ -506,7 +506,8 @@ public class OrderService {
 
         for(OrderDetailGetRes order: orders){
             order.setOrderId(order.getOrderId());
-            order.setCreateAt(order.getCreateAt());
+            order.setCreatedAt(order.getCreatedAt());
+            order.setUpdatedAt(order.getUpdatedAt());
             order.setAddress(order.getAddress());
             order.setAddressDetail(order.getAddressDetail());
             order.setMenuName(order.getMenuName());
@@ -557,7 +558,7 @@ public class OrderService {
 
         for(OrderDetailGetRes order: orders){
             order.setOrderId(order.getOrderId());
-            order.setCreateAt(order.getCreateAt());
+            order.setCreatedAt(order.getCreatedAt());
             order.setAddress(order.getAddress());
             order.setAddressDetail(order.getAddressDetail());
             order.setMenuName(order.getMenuName());
@@ -608,7 +609,7 @@ public class OrderService {
 
         for(OrderDetailGetRes order: orders){
             order.setOrderId(order.getOrderId());
-            order.setCreateAt(order.getCreateAt());
+            order.setCreatedAt(order.getCreatedAt());
             order.setAddress(order.getAddress());
             order.setAddressDetail(order.getAddressDetail());
             order.setMenuName(order.getMenuName());

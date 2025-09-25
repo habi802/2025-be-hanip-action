@@ -108,6 +108,7 @@
         FROM orders o
         WHERE o.`status` = '02'
         AND o.store_id = #{storeId}
+        ORDER BY o.created_at DESC;
     </select>
 <!--    사장용 음식 조리대기 조회-->
     <select id="findPreParing">
@@ -115,6 +116,7 @@
         FROM orders o
         WHERE o.`status` = '03'
         AND o.store_id = #{storeId}
+        ORDER BY o.created_at DESC;
     </select>
 <!--    배달중과 배달 완료 조회 / 프론트에서 보여지는 화면은 createAt이용해서 하루마다 초기화 해야할듯-->
     <select id="findDelivered">
@@ -123,6 +125,7 @@
         WHERE o.`status` = '04'
         OR o.`status` = '05'
         AND o.store_id = #{storeId}
+        ORDER BY o.created_at DESC;
     </select>
 
 <!-- 배달원이 조회할 것 메뉴랭스는 특정 메뉴 외 더 시킨 것 ' 치킨 메뉴 외 2건 ' -->
