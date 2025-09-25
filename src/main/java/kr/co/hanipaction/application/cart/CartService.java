@@ -82,6 +82,7 @@ public class CartService {
         Cart cart = Cart.builder()
                 .menuId(req.getMenuId())
                 .menuName(menu.getName())
+                .price(menu.getPrice())
                 .userId(userId)
                 .amount(totalAmount)
                 .quantity(req.getQuantity())

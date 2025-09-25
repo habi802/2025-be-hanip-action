@@ -86,6 +86,8 @@ public class NaverPayService {
 
         ObjectMapper mapper = new ObjectMapper();
 
+        String dynamicReturnUrl = "http://localhost:5173/hanip/stores/" + orders.getStoreId() + "/order";
+
         NaverPayReserveReq reserveReq = new NaverPayReserveReq();
         reserveReq.setMerchantPayKey(newOrderId);
         reserveReq.setProductName(orderRes.getStoreName());
@@ -93,10 +95,11 @@ public class NaverPayService {
         reserveReq.setTotalPayAmount(payRes.getTotalAmount());
         reserveReq.setTaxScopeAmount(payRes.getTotalAmount());
         reserveReq.setTaxExScopeAmount(0);
-        reserveReq.setReturnUrl(constNaverPay.returnUrl);
+        reserveReq.setReturnUrl(dynamicReturnUrl);
         reserveReq.setProductItems(productList);
 
         NaverPayReserveRes reserveRes = naverPayClient.reserve(reserveReq);
+
 
         NaverPayFrontDto frontDto = new NaverPayFrontDto();
         Map<String, Object> bodyMap = (Map<String, Object>) reserveRes.getBody();
@@ -107,7 +110,7 @@ public class NaverPayService {
         frontDto.setTotalPayAmount(reserveReq.getTotalPayAmount());
         frontDto.setTaxScopeAmount(reserveReq.getTaxScopeAmount());
         frontDto.setTaxExScopeAmount(reserveReq.getTaxExScopeAmount());
-        frontDto.setReturnUrl(reserveReq.getReturnUrl());
+        frontDto.setReturnUrl(dynamicReturnUrl);
         frontDto.setProductItems(reserveReq.getProductItems());
 
 
