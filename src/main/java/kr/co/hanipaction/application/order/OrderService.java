@@ -417,7 +417,9 @@ public class OrderService {
         orderDetailRes.setMinDeliveryFee(store.getMinDeliveryFee());
 
         for (OrdersMenu menu : order.getItems()) {
+            Optional<OrdersMenu> orderMenus =orderMenuRepository.findById(menu.getId());
 
+            OrdersMenu menuInfo = orderMenus.get();
 
             MenuGetReq menuGetReq = new MenuGetReq();
             menuGetReq.setMenuIds(Collections.singletonList(menu.getMenuId()));
@@ -431,6 +433,7 @@ public class OrderService {
             menuItemRes.setMenuId(menu.getMenuId());
             menuItemRes.setName(menu.getMenuName());
             menuItemRes.setPrice(menuOne.getPrice());
+            menuItemRes.setQuantity(menuInfo.getQuantity());
             menuItemRes.setImagePath(menu.getMenuImg());
 
             List<OrderDetailGetRes.OrderMenuOptionRes> options = convertToOptionTree(menu.getOptions());

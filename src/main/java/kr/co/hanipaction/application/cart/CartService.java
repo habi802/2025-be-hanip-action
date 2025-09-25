@@ -82,6 +82,7 @@ public class CartService {
         Cart cart = Cart.builder()
                 .menuId(req.getMenuId())
                 .menuName(menu.getName())
+                .price(menu.getPrice())
                 .userId(userId)
                 .amount(totalAmount)
                 .quantity(req.getQuantity())
@@ -219,9 +220,13 @@ public class CartService {
     public Cart plusQuantity(long userId,long cartId) {
         Optional<Cart> cartOptional = cartRepository.findById(cartId);
 
-            Cart cart = cartOptional.get();
-            cart.setQuantity(cart.getQuantity() + 1);
 
+            Cart cart = cartOptional.get();
+        int menuAmount = cart.getAmount() / cart.getQuantity();
+        int modifyQuantity = cart.getQuantity() + 1;
+
+            cart.setQuantity(modifyQuantity);
+            cart.setAmount(menuAmount * modifyQuantity );
 
         return cart;
     }
@@ -231,7 +236,12 @@ public class CartService {
         Optional<Cart> cartOptional = cartRepository.findById(cartId);
 
         Cart cart = cartOptional.get();
-        cart.setQuantity(cart.getQuantity() - 1);
+
+        int menuAmount = cart.getAmount() / cart.getQuantity();
+        int modifyQuantity = cart.getQuantity() -1;
+
+        cart.setQuantity(modifyQuantity);
+        cart.setAmount(menuAmount * modifyQuantity );
 
         return cart;
     }

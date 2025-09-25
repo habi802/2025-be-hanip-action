@@ -36,6 +36,7 @@ public  class OrderDetailGetRes {
         private String name;
         private long price;
         private String imagePath;
+        private long quantity;
         private List<OrderMenuOptionRes> options = new ArrayList<>();
     }
 
