@@ -54,6 +54,10 @@ public class Cart extends UpdatedAt {
     @Comment("이미지 경로")
     private String imgPath;
 
+    @Column (nullable = false)
+    @Comment("메뉴 가격")
+    private int price;
+
     @OneToMany(mappedBy = "menuId", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<CartMenuOption> options = new ArrayList<>();
