@@ -32,6 +32,8 @@ public class WebSecurityConfiguration {
                         .requestMatchers("/api/hanip-manager/action/**").hasRole(EnumUserRole.MANAGER.name())
 
                         .requestMatchers("/api/order/rider").permitAll()
+
+                        .anyRequest().permitAll()
                 )
                 .addFilterBefore(userHeaderAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(e -> e.authenticationEntryPoint(tokenAuthenticationEntryPoint))
