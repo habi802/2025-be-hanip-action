@@ -3,6 +3,7 @@ package kr.co.hanipaction.application.order.newmodel;
 import kr.co.hanipaction.entity.OrdersMenu;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@ToString
 public  class OrderDetailGetRes {
     private long orderId;
     private long storeId;
@@ -22,7 +24,8 @@ public  class OrderDetailGetRes {
     private String address;
     private String addressDetail;
     private String storeRequest;
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private String payment;
     private int amount;
     private int minDeliveryFee;
