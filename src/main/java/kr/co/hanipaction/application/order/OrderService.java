@@ -203,17 +203,17 @@ public class OrderService {
         return orderMapper.hideByOrderId(orderId);
     }
 
-    public List<OrderGetDetailRes> findByStoreId(long storeId) {
-        List<OrderGetDetailRes> results = orderMapper.findOrderByStoreId(storeId);
+//    public List<OrderGetDetailRes> findByStoreId(long storeId) {
+//        List<OrderGetDetailRes> results = orderMapper.findOrderByStoreId(storeId);
+//
+//        for (OrderGetDetailRes order : results) {
+//            List<OrderMenuDto> menus = orderMenusMapper.findAllByOrderId(order.getId());
+//            order.setMenus(menus);
+//        }
+//        return results;
+//    }
 
-        for (OrderGetDetailRes order : results) {
-            List<OrderMenuDto> menus = orderMenusMapper.findAllByOrderId(order.getId());
-            order.setMenus(menus);
-        }
-        return results;
-    }
-
-    public List<OrderGetDetailRes> findByStoreIdAndDate(OrderDateGetReq req) {
+//    public List<OrderGetDetailRes> findByStoreIdAndDate(OrderDateGetReq req) {
 //        Calendar calendar = Calendar.getInstance();
 //        calendar.setTime(req.getEndDate());
 //        calendar.set(Calendar.HOUR_OF_DAY, 23);
@@ -221,14 +221,14 @@ public class OrderService {
 //        calendar.set(Calendar.SECOND, 59);
 //        calendar.set(Calendar.MILLISECOND, 999);
 //        req.setEndDate(calendar.getTime());
-        List<OrderGetDetailRes> results = orderMapper.findByStoreIdAndDate(req);
-
-        for (OrderGetDetailRes order : results) {
-            List<OrderMenuDto> menus = orderMenusMapper.findAllByOrderId(order.getId());
-            order.setMenus(menus);
-        }
-        return results;
-    }
+//        List<OrderGetDetailRes> results = orderMapper.findByStoreIdAndDate(req);
+//
+//        for (OrderGetDetailRes order : results) {
+//            List<OrderMenuDto> menus = orderMenusMapper.findAllByOrderId(order.getId());
+//            order.setMenus(menus);
+//        }
+//        return results;
+//    }
 
 
 
@@ -254,7 +254,9 @@ public class OrderService {
             order.setRating(storeRes.getRating());
             order.setFavorites(storeRes.getFavorites());
             order.setMinAmount(storeRes.getMinAmount());
-            order.setCreateAt(orderRes.getCreatedAt());
+            order.setCreatedAt(orderRes.getCreatedAt());
+            order.setTotalPrice(orderRes.getAmount());
+//            order.setStatus(orderRes.getStatus());
 
             List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(order.getOrderId());
 
@@ -284,6 +286,61 @@ public class OrderService {
 
         return orders;
     }
+
+
+    // 수정 페이지네이션
+    public List<OrderGetRes> orderInfoListFix(OrderGetDto dto){
+        List<OrderGetRes> orders = orderMapper.findOrders(dto);
+
+        List<OrderGetRes> orderList = new ArrayList<>(orders.size());
+
+        for (OrderGetRes order : orders) {
+
+            ResultResponse<StoreGetRes> storeId = storeClient.findStore(order.getStoreId());
+            StoreGetRes storeRes = storeId.getResultData();
+            Orders orderRes = orderRepository.findById(order.getOrderId()).orElse(null);
+
+
+            order.setOrderId(orderRes.getId());
+            order.setStoreId(storeRes.getId());
+            order.setStorePic(storeRes.getImagePath());
+            order.setRating(storeRes.getRating());
+            order.setFavorites(storeRes.getFavorites());
+            order.setMinAmount(storeRes.getMinAmount());
+            order.setCreatedAt(orderRes.getCreatedAt());
+
+
+            List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(order.getOrderId());
+
+            for (OrdersMenu orderMenu : orderMenus) {
+                OrdersMenu menuRes = new OrdersMenu();
+                menuRes.setId(orderMenu.getId());
+                menuRes.setMenuId(orderMenu.getMenuId());
+                menuRes.setStoreId(orderMenu.getStoreId());
+                menuRes.setMenuName(orderMenu.getMenuName());
+                menuRes.setMenuImg(orderMenu.getMenuImg());
+                menuRes.setAmount(orderMenu.getAmount());
+                menuRes.setQuantity(orderMenu.getQuantity());
+
+
+                List<OrdersMenuOption> menuOptions = orderMenuOptionRepository.findByOrdersItemId(orderMenu.getId());
+
+                List<OrdersMenuOption> rootOptions = convertToOptionTreeList(menuOptions);
+
+                menuRes.setOptions(rootOptions);
+
+                order.getMenuItems().add(menuRes);
+            }
+
+
+        }
+
+
+
+        return orders;
+    }
+
+
 
     private List<OrdersMenuOption> convertToOptionTreeList(List<OrdersMenuOption> menuOptions) {
 
