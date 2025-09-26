@@ -143,17 +143,17 @@ public class OrderService {
         // 총 주문금액 orders에 넣기  배달료 여기서 포함
         orders.setAmount(totalAmount + orders.getMinDeliveryFee());
 
-        sseService.sendOrder(
-                orders.getStoreId(),
-                OrderNotification.builder()
-                        .orderId(orders.getId())
-                        .storeId(orders.getStoreId())
-                        .userId(orders.getUserId())
-                        .status(orders.getStatus())
-                        .amount(orders.getAmount())
-                        .menus(menuDto)
-                        .build()
-        );
+//        sseService.sendOrder(
+//                orders.getStoreId(),
+//                OrderNotification.builder()
+//                        .orderId(orders.getId())
+//                        .storeId(orders.getStoreId())
+//                        .userId(orders.getUserId())
+//                        .status(orders.getStatus())
+//                        .amount(orders.getAmount())
+//                        .menus(menuDto)
+//                        .build()
+//        );
 
         // 카트 비우기
         cartRepository.deleteAll(userId);
@@ -327,6 +327,18 @@ public class OrderService {
 
         StatusType status =StatusType.valueOfCode("02");
         order.setStatus(status);
+
+        // SSE
+        sseService.sendOrder(
+                order.getStoreId(),
+                OrderNotification.builder()
+                        .orderId(order.getId())
+                        .storeId(order.getStoreId())
+                        .userId(order.getUserId())
+                        .status(order.getStatus())
+                        .amount(order.getAmount())
+                        .build()
+        );
     }
 
     @Transactional
@@ -345,6 +357,17 @@ public class OrderService {
         StatusType status =StatusType.valueOfCode("04");
         order.setStatus(status);
 
+        // SSE
+        sseService.sendOrder(
+                order.getStoreId(),
+                OrderNotification.builder()
+                        .orderId(order.getId())
+                        .storeId(order.getStoreId())
+                        .userId(order.getUserId())
+                        .status(order.getStatus())
+                        .amount(order.getAmount())
+                        .build()
+        );
     }
     @Transactional
     public void statusCompleted(long userId,long orderId) {
@@ -362,6 +385,18 @@ public class OrderService {
 
         StatusType status =StatusType.valueOfCode("06");
         order.setStatus(status);
+
+        // SSE
+        sseService.sendOrder(
+                order.getStoreId(),
+                OrderNotification.builder()
+                        .orderId(order.getId())
+                        .storeId(order.getStoreId())
+                        .userId(order.getUserId())
+                        .status(order.getStatus())
+                        .amount(order.getAmount())
+                        .build()
+        );
     }
 
 
