@@ -73,14 +73,18 @@ public class OrderController {
         long userId = userPrincipal.getSignedUserId();
 
         OrderGetDto ordergetDto = OrderGetDto.builder()
+                .userId(userId)
                 .startIdx((req.getPage()-1) * req.getRowPerPage())
                 .size(req.getRowPerPage())
                 .menuName(req.getMenuName())
                 .storeName(req.getStoreName())
+                .periodType(req.getPeriodType())
+                .endDate(req.getEndDate())
+                .startDate(req.getStartDate())
                 .build();
 
 
-        List<OrderGetRes> result = orderService.orderInfoList(userId,ordergetDto);
+        List<OrderGetRes> result = orderService.orderInfoListFix(ordergetDto);
         return new ResultResponse<>(200,"조회 성공", result);
     }
 

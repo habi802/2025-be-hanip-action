@@ -10,6 +10,6 @@ import java.util.List;
 @Mapper
 public interface OrderMenusMapper {
     int SaveQuantity(OrderMenuPostDto req);
-    List<OrderMenuDto> findAllByOrderId(int orderId);
+    List<OrderMenuDto> findAllByOrderId(int orderId, int userId);
     List<OrderGetListReq> findAllByOrderIdFromUser(int orderId);
 }
