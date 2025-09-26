@@ -282,7 +282,6 @@ public class OrderService {
 
 
 
-
         return orders;
     }
 
@@ -348,18 +347,6 @@ public class OrderService {
 
         StatusType status =StatusType.valueOfCode("03");
         order.setStatus(status);
-
-        // SSE
-        sseService.sendOrder(
-                order.getStoreId(),
-                OrderNotification.builder()
-                        .orderId(order.getId())
-                        .storeId(order.getStoreId())
-                        .userId(order.getUserId())
-                        .status(order.getStatus())
-                        .amount(order.getAmount())
-                        .build()
-        );
     }
     @Transactional
     public void statusDelevered(long userId,long orderId) {
@@ -389,17 +376,6 @@ public class OrderService {
         StatusType status =StatusType.valueOfCode("05");
         order.setStatus(status);
 
-        // SSE
-        sseService.sendOrder(
-                order.getStoreId(),
-                OrderNotification.builder()
-                        .orderId(order.getId())
-                        .storeId(order.getStoreId())
-                        .userId(order.getUserId())
-                        .status(order.getStatus())
-                        .amount(order.getAmount())
-                        .build()
-        );
     }
     @Transactional
     public void statusCanceled(long userId,long orderId) {
@@ -530,7 +506,6 @@ public class OrderService {
         for(OrderDetailGetRes order: orders){
             order.setOrderId(order.getOrderId());
             order.setCreatedAt(order.getCreatedAt());
-            order.setUpdatedAt(order.getUpdatedAt());
             order.setAddress(order.getAddress());
             order.setAddressDetail(order.getAddressDetail());
             order.setMenuName(order.getMenuName());
@@ -692,11 +667,13 @@ public class OrderService {
             return null;
         }
         List<OrdersMenu> orderMenu = orderMenuRepository.findByOrders_Id(order.getId());
+        String storeAddress = storeClient.getStoreInRider(order.getStoreId()).getBody().getResultData();
 
         return OrderRiderGetRes.builder()
                                .id(order.getId())
                                .storeName(order.getStoreName())
                                .menu(orderMenu.get(0).getMenuName() + (orderMenu.size() > 2 ? " 외 " + (orderMenu.size() - 1) + " 건" : ""))
+                               .storeAddress(storeAddress)
                                .address(String.format("%s, %s, %s", order.getPostcode(), order.getAddress(), order.getAddressDetail()))
                                .amount(order.getAmount())
                                .riderRequest(order.getRiderRequest())

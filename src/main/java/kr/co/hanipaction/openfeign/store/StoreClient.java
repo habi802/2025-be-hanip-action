@@ -26,4 +26,7 @@ public interface StoreClient {
 
     @GetMapping("/api/hanip-manager/actor/store/{storeId}")
     ResponseEntity<ResultResponse<StoreInManagerRes>> getStoreNameInManager(@PathVariable Long storeId);
+
+    @GetMapping("/api/store/rider/{storeId}")
+    ResponseEntity<ResultResponse<String>> getStoreInRider(@PathVariable long storeId);
 }
