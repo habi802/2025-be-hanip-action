@@ -49,8 +49,8 @@ constants:
 
     access-token-cookie-name: access-token
     access-token-cookie-path: /
-    access-token-cookie-validity-seconds: 900
-    access-token-validity-milliseconds: 900_000
+    access-token-cookie-validity-seconds: 86_400
+    access-token-validity-milliseconds: 8_640_000
 
     refresh-token-cookie-name: refresh-token
     refresh-token-cookie-path: /api/user/reissue
