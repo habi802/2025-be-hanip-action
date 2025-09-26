@@ -348,6 +348,18 @@ public class OrderService {
 
         StatusType status =StatusType.valueOfCode("03");
         order.setStatus(status);
+
+        // SSE
+        sseService.sendOrder(
+                order.getStoreId(),
+                OrderNotification.builder()
+                        .orderId(order.getId())
+                        .storeId(order.getStoreId())
+                        .userId(order.getUserId())
+                        .status(order.getStatus())
+                        .amount(order.getAmount())
+                        .build()
+        );
     }
     @Transactional
     public void statusDelevered(long userId,long orderId) {
@@ -377,6 +389,17 @@ public class OrderService {
         StatusType status =StatusType.valueOfCode("05");
         order.setStatus(status);
 
+        // SSE
+        sseService.sendOrder(
+                order.getStoreId(),
+                OrderNotification.builder()
+                        .orderId(order.getId())
+                        .storeId(order.getStoreId())
+                        .userId(order.getUserId())
+                        .status(order.getStatus())
+                        .amount(order.getAmount())
+                        .build()
+        );
     }
     @Transactional
     public void statusCanceled(long userId,long orderId) {
