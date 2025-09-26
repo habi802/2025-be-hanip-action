@@ -22,6 +22,7 @@ public class CartListGetRes {
     private String name;
     private long price;
     private int quantity;
+    private int oneMenuPrice;
     private String comment;
     private String imagePath;
     private List<Option> options;

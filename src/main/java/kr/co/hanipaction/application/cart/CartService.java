@@ -72,6 +72,7 @@ public class CartService {
 
         }
         int totalAmount =  (menuPrice + totalOptionPrice) * req.getQuantity();
+        int menuAndOption = menuPrice + totalOptionPrice;
 
         List<MenuGetRes> menuList = menuRes.getResultData();
 
@@ -82,7 +83,7 @@ public class CartService {
         Cart cart = Cart.builder()
                 .menuId(req.getMenuId())
                 .menuName(menu.getName())
-                .price(menu.getPrice())
+                .price(menuAndOption)
                 .userId(userId)
                 .amount(totalAmount)
                 .quantity(req.getQuantity())
@@ -173,8 +174,20 @@ public class CartService {
 
         return CartListGetRes.fromEntity(cart);
     }
+//    자식 중복 선택 오류 해결
+    public CartListGetRes toDto(Cart cart) {
+        List<CartMenuOption> options = cart.getOptions(); 
 
-    private CartListGetRes toDto(Cart cart) {
+  
+        List<CartMenuOption> topLevelOptions = options.stream()
+                .filter(o -> o.getParentId() == null)
+                .toList();
+
+    
+        List<CartListGetRes.Option> optionDtos = topLevelOptions.stream()
+                .map(o -> buildOptionTree(o, options))
+                .toList();
+
         return CartListGetRes.builder()
                 .id(cart.getId())
                 .menuId(cart.getMenuId())
@@ -184,24 +197,29 @@ public class CartService {
                 .storeName(cart.getStoreName())
                 .quantity(cart.getQuantity())
                 .imagePath(cart.getImgPath())
-                .options(cart.getOptions().stream()
-                        .filter(o -> o.getParentId() == null)
-                        .map(this::toOptionDto)
-                        .distinct()
-                        .toList())
+                .oneMenuPrice(cart.getPrice())
+                .options(optionDtos)
                 .build();
     }
-    private CartListGetRes.Option toOptionDto(CartMenuOption option) {
+
+
+    private CartListGetRes.Option buildOptionTree(CartMenuOption parent, List<CartMenuOption> allOptions) {
+        List<CartMenuOption> children = allOptions.stream()
+                .filter(o -> parent.getOptionId().equals(o.getParentId()))
+                .toList();
+
+        List<CartListGetRes.Option> childDtos = children.stream()
+                .map(child -> buildOptionTree(child, allOptions)) // 재귀
+                .toList();
+
         return CartListGetRes.Option.builder()
-                .optionId(option.getOptionId())
-                .comment(option.getOptionName())
-                .price(option.getOptionPrice())
-                .children(option.getChildren().stream()
-                        .map(this::toOptionDto)
-                        .distinct()
-                        .toList())
+                .optionId(parent.getOptionId())
+                .comment(parent.getOptionName())
+                .price(parent.getOptionPrice())
+                .children(childDtos)
                 .build();
     }
+
 
     public void delete(long cartId, long userId) {
         Cart cart = cartRepository.findById(cartId)
