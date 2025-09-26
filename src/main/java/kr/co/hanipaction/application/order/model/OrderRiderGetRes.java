@@ -12,6 +12,7 @@ public class OrderRiderGetRes {
     private long id;
     private String storeName;
     private String menu;
+    private String storeAddress;
     private String address;
     private int amount;
     private String riderRequest;
