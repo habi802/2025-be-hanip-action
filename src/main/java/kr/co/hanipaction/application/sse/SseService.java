@@ -7,6 +7,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -16,15 +17,15 @@ public class SseService {
     private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     public SseEmitter subscribe(Long storeId) {
-        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+        SseEmitter emitter = new SseEmitter(0L);
         emitters.put(storeId, emitter);
 
         emitter.onCompletion(() -> emitters.remove(storeId));
         emitter.onTimeout(() -> emitters.remove(storeId));
 
         try {
-            // 연결 직후 성공 메시지 전송
             emitter.send(SseEmitter.event()
+                    .id(String.valueOf(System.currentTimeMillis()))
                     .name("connect")
                     .data("SSE 연결 성공: storeId=" + storeId));
         } catch (IOException e) {
@@ -39,10 +40,27 @@ public class SseService {
     public void sendOrder(Long storeId, Object data) {
         SseEmitter emitter = emitters.get(storeId);
         if (emitter != null) {
+            CompletableFuture.runAsync(() -> {
+                try {
+                    emitter.send(SseEmitter.event()
+                            .id(String.valueOf(System.currentTimeMillis()))
+                            .name("order")
+                            .data(data));
+                } catch (IOException e) {
+                    emitters.remove(storeId);
+                }
+            });
+        }
+    }
+
+    public void sendHeartbeat(Long storeId) {
+        SseEmitter emitter = emitters.get(storeId);
+        if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event()
-                        .name("order")
-                        .data(data));
+                        .id(String.valueOf(System.currentTimeMillis()))
+                        .name("ping")
+                        .data("heartbeat"));
             } catch (IOException e) {
                 emitters.remove(storeId);
             }
