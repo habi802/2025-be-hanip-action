@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.order.OrderMapper;
+import kr.co.hanipaction.application.order.OrderMenuRepository;
 import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.application.order.PaymentRepository;
 import kr.co.hanipaction.application.pay.naverpay.model.*;
 import kr.co.hanipaction.configuration.constants.ConstNaverPay;
 import kr.co.hanipaction.configuration.enumcode.model.OrdersType;
 import kr.co.hanipaction.entity.Orders;
+import kr.co.hanipaction.entity.OrdersMenu;
 import kr.co.hanipaction.entity.Payment;
 import kr.co.hanipaction.openfeign.menu.MenuClient;
 import kr.co.hanipaction.openfeign.menu.model.MenuGetReq;
@@ -31,6 +33,7 @@ public class NaverPayService {
     private final OrderMapper orderMapper;
     private final MenuClient menuClient;
     private final NaverPayClient naverPayClient;
+    private final OrderMenuRepository orderMenuRepository;
 
     @Transactional
     public NaverPayFrontDto reserve(long userId, long orderId){
@@ -44,9 +47,9 @@ public class NaverPayService {
         OrdersType ordersType = OrdersType.NAVER_PAY;
 
             orderRes.setPayment(ordersType);
+        List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(orderId);
 
-
-
+        String menuName = orderMenus.get(0).getMenuName();
 
         Optional<Payment> payment = paymentRepository.findByOrderId(orders);
 
@@ -90,7 +93,8 @@ public class NaverPayService {
 
         NaverPayReserveReq reserveReq = new NaverPayReserveReq();
         reserveReq.setMerchantPayKey(newOrderId);
-        reserveReq.setProductName(orderRes.getStoreName());
+        // 지금보니까 네이버 페이에서 이 프로덕트 대표 네임 1개랑 남은 아이템 + n건을 자동으로 해줌!
+        reserveReq.setProductName(menuName);
         reserveReq.setProductCount(payRes.getQuantity());
         reserveReq.setTotalPayAmount(payRes.getTotalAmount());
         reserveReq.setTaxScopeAmount(payRes.getTotalAmount());
