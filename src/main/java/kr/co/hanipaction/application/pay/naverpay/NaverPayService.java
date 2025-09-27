@@ -103,8 +103,6 @@ public class NaverPayService {
         reserveReq.setProductItems(productList);
 
         NaverPayReserveRes reserveRes = naverPayClient.reserve(reserveReq);
-
-
         NaverPayFrontDto frontDto = new NaverPayFrontDto();
         Map<String, Object> bodyMap = (Map<String, Object>) reserveRes.getBody();
         String reserveId = (String) bodyMap.get("reserveId");
