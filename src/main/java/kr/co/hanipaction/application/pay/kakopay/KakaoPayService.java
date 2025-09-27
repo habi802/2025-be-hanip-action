@@ -40,6 +40,8 @@ public class KakaoPayService {
         Optional<Payment> payment = paymentRepository.findByOrderId(orders);
         Payment payDb = payment.get();
 
+        String dynamicReturnUrl = "http://localhost:5173/hanip/stores/" + orders.getStoreId() + "/order" + "?orderId=" +  orderId;
+
         String newOrderId = String.valueOf(orderId);
         String newUserId = String.valueOf(userId);
 
@@ -51,7 +53,7 @@ public class KakaoPayService {
         req.setQuantity(payDb.getQuantity());
         req.setTotalAmount(payDb.getTotalAmount());
         req.setTaxFreeAmount(payDb.getTaxFreeAmount());
-        req.setApprovalUrl(constKakaoPay.approvalUrl);
+        req.setApprovalUrl(dynamicReturnUrl);
         req.setCancelUrl(constKakaoPay.cancelUrl);
         req.setFailUrl(constKakaoPay.failUrl);
 
