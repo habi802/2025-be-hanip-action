@@ -2,6 +2,7 @@ package kr.co.hanipaction.application.favorite;
 
 import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.favorite.model.FavoriteGetRes;
+import kr.co.hanipaction.application.favorite.model.FavoriteGetUser;
 import kr.co.hanipaction.application.favorite.model.FavoritePostReq;
 import kr.co.hanipaction.configuration.model.SignedUser;
 import kr.co.hanipaction.configuration.model.UserPrincipal;
@@ -47,10 +48,15 @@ public class FavoriteController {
 //
 // 내가 해당 가게를 찜했는지 확인
     @GetMapping("/{store_id}")
-    public ResponseEntity<ResultResponse<Integer>> find(@PathVariable("store_id") Long storeId) {
-        ResultResponse.success(favoriteService.find(storeId));
+    public ResponseEntity<ResultResponse<FavoriteGetUser>> find(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable("store_id") Long storeId) {
+        long userId = userPrincipal.getSignedUserId();
+
+
+
+
+        FavoriteGetUser result = favoriteService.find(userId,storeId);
         
-        return ResponseEntity.ok(new ResultResponse<>(200, "해당 가게를 찜하고 있습니다", 1));
+        return ResponseEntity.ok(new ResultResponse<>(200, "찜 조회 성공!", result));
     }
 
 //
