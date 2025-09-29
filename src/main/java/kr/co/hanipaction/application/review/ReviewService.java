@@ -261,6 +261,7 @@ public class ReviewService {
        reviews.setComment(reviews.getComment());
        reviews.setCreatedAt(reviews.getCreatedAt());
        reviews.setIsHide(reviews.getIsHide());
+       reviews.setOwnerComment(reviews.getOwnerComment());
 
 
        List<OrdersMenu> menuNames = orderMenuRepository.findByOrders_id(reviews.getOrderId());
