@@ -170,17 +170,9 @@
                 <when test="searchType == 'phone'">
                     AND o.user_phone LIKE CONCAT('%', #{keyword}, '%')
                 </when>
-                <otherwise>
-                    AND (
-                    o.address LIKE CONCAT('%', #{keyword}, '%')
-                    OR o.user_phone LIKE CONCAT('%', #{keyword}, '%')
-                    OR o.user_name LIKE CONCAT('%', #{keyword}, '%')
-                    )
-                </otherwise>
             </choose>
         </if>
         ORDER BY o.created_at DESC
-        LIMIT #{startIdx}, #{size}
     </select>
 
 <!-- 배달원이 조회할 것 메뉴랭스는 특정 메뉴 외 더 시킨 것 ' 치킨 메뉴 외 2건 ' -->

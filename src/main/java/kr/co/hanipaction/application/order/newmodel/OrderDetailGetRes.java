@@ -15,6 +15,7 @@ import java.util.List;
 public  class OrderDetailGetRes {
     private long orderId;
     private long storeId;
+    private long userId;
     private String storeName;
     private String storeImg;
     private String menuName;
