@@ -22,10 +22,12 @@ public interface StoreClient {
     ResultResponse<StoreGetRes> findStore(@PathVariable long storeId);
 
     @PostMapping("/api/hanip-manager/actor/store")
-    ResponseEntity<ResultResponse<Page<StoreListRes>>> getStoreIdsInManager(@RequestBody StoreListReq req);
+    ResponseEntity<ResultResponse<Page<StoreListRes>>> getStoreIdsInManager(@RequestHeader("Authorization") String token,
+                                                                            @RequestBody StoreListReq req);
 
     @GetMapping("/api/hanip-manager/actor/store/{storeId}")
-    ResponseEntity<ResultResponse<StoreInManagerRes>> getStoreNameInManager(@PathVariable Long storeId);
+    ResponseEntity<ResultResponse<StoreInManagerRes>> getStoreNameInManager(@RequestHeader("Authorization") String token,
+                                                                            @PathVariable Long storeId);
 
     @GetMapping("/api/store/rider/{storeId}")
     ResponseEntity<ResultResponse<String>> getStoreInRider(@PathVariable long storeId);

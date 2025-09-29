@@ -24,8 +24,10 @@ public interface UserClient {
     ResultResponse<Map<String, UserGetRes>> getUserList(@RequestParam(name="user_id") List<Long> userIdList);
 
     @PostMapping("/api/hanip-manager/actor/user")
-    ResponseEntity<ResultResponse<Page<UserListRes>>> getUserIdsInManager(@RequestBody UserListReq req);
+    ResponseEntity<ResultResponse<Page<UserListRes>>> getUserIdsInManager(@RequestHeader("Authorization") String token,
+                                                                          @RequestBody UserListReq req);
 
     @GetMapping("/api/hanip-manager/actor/user/{userId}")
-    ResponseEntity<ResultResponse<String>> getUserNameInManager(@PathVariable Long userId);
+    ResponseEntity<ResultResponse<String>> getUserNameInManager(@RequestHeader("Authorization") String token,
+                                                                @PathVariable Long userId);
 }
