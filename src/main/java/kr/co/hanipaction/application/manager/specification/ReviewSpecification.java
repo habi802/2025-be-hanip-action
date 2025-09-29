@@ -68,7 +68,7 @@ public class ReviewSpecification {
     // 사장 답변 등록 여부
     public static Specification<Review> hasOwnerComment(String ownerComment) {
         return (root, query, cb) -> {
-            if (ownerComment == null) {
+            if (ownerComment == null || ownerComment.isEmpty()) {
                 return null;
             }
 
