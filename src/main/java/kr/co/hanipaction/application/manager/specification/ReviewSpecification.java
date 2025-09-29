@@ -81,9 +81,9 @@ public class ReviewSpecification {
     }
 
     // 숨김 상태
-    public static Specification<Review> hasIsHide(Integer isHide) {
+    public static Specification<Review> hasIsHide(String isHide) {
         return (root, query, cb) -> {
-            if (isHide == null) {
+            if (isHide == null || isHide.isEmpty()) {
                 return null;
             }
 

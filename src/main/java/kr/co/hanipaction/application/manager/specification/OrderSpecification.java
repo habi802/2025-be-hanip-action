@@ -72,10 +72,10 @@ public class OrderSpecification {
         };
     }
 
-    // 결제 방식
+    // 결제 수단
     public static Specification<Orders> hasPayment(String payment) {
         return (root, query, cb) -> {
-            if (payment == null || payment.isEmpty()) {
+            if (payment == null || payment.isEmpty() || "00".equals(payment)) {
                 return null;
             }
 
@@ -85,20 +85,20 @@ public class OrderSpecification {
     }
 
     // 삭제 여부
-    public static Specification<Orders> hasIsDeleted(Integer isDeleted) {
+    public static Specification<Orders> hasIsDeleted(String isDeleted) {
         return (root, query, cb) -> {
-            if (isDeleted == null) {
+            if (isDeleted == null || isDeleted.isEmpty()) {
                 return null;
             }
 
-            return cb.equal(root.get("isDeleted"), isDeleted);
+            return cb.equal(root.get("isDeleted"), Integer.valueOf(isDeleted));
         };
     }
 
     // 주문 상태
     public static Specification<Orders> hasStatus(String status) {
         return (root, query, cb) -> {
-            if (status == null || status.isEmpty()) {
+            if (status == null || status.isEmpty() || "00".equals(status)) {
                 return null;
             }
 
@@ -106,6 +106,4 @@ public class OrderSpecification {
             return cb.equal(root.get("status"), statusType);
         };
     }
-
-    // 결제 상태
 }
