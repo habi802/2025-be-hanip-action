@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="kr.co.hanipaction.application.order.OrderMapper">
+
+
+
     <insert id="save" useGeneratedKeys="true" keyProperty="id" >
         INSERT INTO orders
         SET user_id = #{userId}
@@ -82,20 +86,27 @@
 <!---->
 <!-- 신규 추가 맵퍼-->
 
+
     <!-- 주문내역 인피니티, 페이지네이션용-->
     <select id="findOrders">
-        SELECT *
+        SELECT o.created_at, o.`status`,o.amount AS totalPrice, o.store_name, om.menu_name , o.store_id, o.id AS orderId
         FROM orders o
         JOIN orders_menu om
         ON o.id = om.order_id
         <where>
         o.is_deleted = 0
+        AND o.`status` !=  '01'
+            AND o.user_id = #{userId}
         <if test="storeName != null">
         AND o.store_name LIKE CONCAT('%', #{storeName}, '%')
         </if>
         <if test="menuName != null">
-        AND om.menu_name LIKE CONCAT('%', #{menuName}, '%')
+        AND om.menu_name LIKE  CONCAT('%', #{menuName}, '%')
         </if>
+            <if test="startDate != null and endDate != null">
+                AND o.created_at BETWEEN CONCAT(#{startDate}, ' 00:00:00')
+                AND CONCAT(#{endDate}, ' 23:59:59')
+            </if>
         </where>
         GROUP BY o.id
         ORDER By o.id DESC

@@ -1,7 +1,9 @@
 package kr.co.hanipaction.application.order.newmodel;
 
+import kr.co.hanipaction.configuration.enumcode.model.StatusType;
 import kr.co.hanipaction.entity.OrdersMenu;
 import lombok.*;
+import org.apache.ibatis.type.Alias;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -13,11 +15,14 @@ public class OrderGetRes {
     private Long orderId;
     private long storeId;
     private String storeName;
+    private String menuName;
     private String storePic;
     private Double rating;
     private int favorites;
     private int minAmount;
-    private LocalDateTime createAt;
+    private int totalPrice;
+    private String status;
+    private LocalDateTime createdAt;
     private List<OrdersMenu> menuItems = new ArrayList<>();
 
 
