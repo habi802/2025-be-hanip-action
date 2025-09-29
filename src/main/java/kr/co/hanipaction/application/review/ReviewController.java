@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 
 import kr.co.hanipaction.application.review.model.*;
 import kr.co.hanipaction.application.review.model.newModal.ReviewGetByStroeIdOwner;
+import kr.co.hanipaction.application.review.model.newModal.ReviewGetDto;
+import kr.co.hanipaction.application.review.model.newModal.ReviewGetReq;
 import kr.co.hanipaction.configuration.model.ResultResponse;
 import kr.co.hanipaction.configuration.model.SignedUser;
 import kr.co.hanipaction.configuration.model.UserPrincipal;
@@ -119,4 +121,24 @@ public class ReviewController {
         return ResponseEntity.ok(new ResultResponse<>("오너 코멘트 리스트 조회", result));
     }
 
+
+
+//    가게 모든 리뷰 조회
+    @GetMapping("/store-review/all/{storeId}")
+    public ResponseEntity<ResultResponse<List<ReviewGetRes>>> findStoreReviewAll(@PathVariable long storeId, ReviewGetReq req) {
+
+        ReviewGetDto reviewGetDto = ReviewGetDto.builder()
+                .storeId(storeId)
+                .startIdx((req.getPage()-1)*req.getRowPerPage())
+                .size(req.getRowPerPage())
+                .periodType(req.getPeriodType())
+                .endDate(req.getEndDate())
+                .startDate(req.getStartDate())
+                .build();
+
+        List<ReviewGetRes> result = reviewService.getReviews(reviewGetDto);
+
+        return ResponseEntity.ok(new ResultResponse<>("리뷰조회 완료", result));
+
+    }
 }

@@ -1,13 +1,14 @@
 package kr.co.hanipaction.application.review;
 
 import kr.co.hanipaction.application.common.util.MyFileUtils;
+import kr.co.hanipaction.application.order.OrderMenuRepository;
 import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.application.review.model.*;
 import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.review.model.newModal.ReviewGetByStroeIdOwner;
+import kr.co.hanipaction.application.review.model.newModal.ReviewGetDto;
 import kr.co.hanipaction.configuration.utils.MyFileManager;
-import kr.co.hanipaction.entity.Orders;
-import kr.co.hanipaction.entity.Review;
+import kr.co.hanipaction.entity.*;
 import kr.co.hanipaction.openfeign.store.StoreClient;
 import kr.co.hanipaction.openfeign.store.model.StorePatchReq;
 import kr.co.hanipaction.openfeign.user.UserClient;
@@ -20,10 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -35,6 +33,8 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final MyFileUtils myFileUtils;
     private final OrderRepository orderRepository;
+    private final OrderMenuRepository orderMenuRepository;
+    private final ReviewImgIdsRepository reviewImgRepository;
 
     private final UserClient userClient;
     private final StoreClient storeClient;
@@ -126,6 +126,11 @@ public class ReviewService {
 
     // 가게 리뷰 조회
     public List<ReviewGetRes> findAllByStoreId(long storeId) {
+
+
+
+
+
         return reviewMapper.findAllByStoreIdOrderByIdDesc(storeId);
     }
 
@@ -228,5 +233,54 @@ public class ReviewService {
 
 
         return reviewMapper.ownerComment(storeId);
+    }
+
+    // 가게에 따른 리뷰 전체 조회 악질조회
+    public List<ReviewGetRes> getReviews(ReviewGetDto dto) {
+
+
+    List<ReviewGetRes> reviewRes = reviewMapper.reviewGetByStoreId(dto);
+
+    for(ReviewGetRes reviews : reviewRes) {
+        List<Long> userIdList = Collections.singletonList(reviews.getUserId());
+        ResultResponse<Map<String, UserGetRes>> userRes = userClient.getUserList(userIdList);
+        if (userRes == null || userRes.getResultData() == null) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "유저 정보를 가져올 수 없습니다.");
+        }
+        String loginUserIdStr = String.valueOf(reviews.getUserId());
+        Map<String, UserGetRes> userMap = userRes.getResultData();
+        UserGetRes userInfo = userMap.get(loginUserIdStr);
+
+
+       reviews.setId(reviews.getId());
+       reviews.setUserName(userInfo.getUserNickName());
+       reviews.setUserPic(userInfo.getUserPic());
+       reviews.setStoreId(reviews.getStoreId());
+       reviews.setUserId(reviews.getUserId());
+       reviews.setRating(reviews.getRating());
+       reviews.setComment(reviews.getComment());
+       reviews.setCreatedAt(reviews.getCreatedAt());
+       reviews.setIsHide(reviews.getIsHide());
+
+
+       List<OrdersMenu> menuNames = orderMenuRepository.findByOrders_id(reviews.getOrderId());
+       List<String> menuList = new ArrayList<>(1);
+
+
+       List<ReviewImage> reviewImages =  reviewImgRepository.findByReviewId(reviews.getId());
+       List<String> imgList = new ArrayList<>(1);
+        for(OrdersMenu menu : menuNames) {
+           menuList.add(menu.getMenuName());
+       }
+            reviews.setMenuName(menuList);
+        for(ReviewImage reviewImage : reviewImages) {
+            imgList.add(reviewImage.getReviewImageIds().getPic());
+        }
+        reviews.setPic(imgList);
+
+
+    }
+  return reviewRes;
+
     }
 }
