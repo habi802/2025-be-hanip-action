@@ -487,6 +487,7 @@ public class OrderService {
         orderDetailRes.setStatus(order.getStatus().toString());
         orderDetailRes.setUserName(userInfo.getUserNickName());
         orderDetailRes.setUserPhone(order.getUserPhone());
+        orderDetailRes.setPostcode(order.getPostcode());
         orderDetailRes.setAddress(order.getAddress());
         orderDetailRes.setAddressDetail(order.getAddressDetail());
         orderDetailRes.setStoreRequest(order.getStoreRequest());
@@ -708,6 +709,131 @@ public class OrderService {
         return orders;
 
     }
+
+    public List<OrderDetailGetRes> findCompleted(long storeId) {
+        List<OrderDetailGetRes> orders= orderMapper.findCompleted(storeId);
+
+        for(OrderDetailGetRes order: orders){
+            order.setOrderId(order.getOrderId());
+            order.setCreatedAt(order.getCreatedAt());
+            order.setPostcode(order.getPostcode());
+            order.setAddress(order.getAddress());
+            order.setAddressDetail(order.getAddressDetail());
+            order.setMenuName(order.getMenuName());
+            order.setAmount(order.getAmount());
+
+            List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(order.getOrderId());
+
+            for (OrdersMenu orderMenu : orderMenus) {
+                OrdersMenu menuRes = new OrdersMenu();
+                menuRes.setId(orderMenu.getId());
+                menuRes.setMenuId(orderMenu.getMenuId());
+                menuRes.setStoreId(orderMenu.getStoreId());
+                menuRes.setMenuName(orderMenu.getMenuName());
+                menuRes.setMenuImg(orderMenu.getMenuImg());
+                menuRes.setAmount(orderMenu.getAmount());
+                menuRes.setQuantity(orderMenu.getQuantity());
+
+
+
+                MenuGetReq menuGetReq = new MenuGetReq();
+                menuGetReq.setMenuIds(Collections.singletonList(orderMenu.getMenuId()));
+                menuGetReq.setOptionIds(orderMenu.getOptions().stream().map(OrdersMenuOption::getOptionId).collect(Collectors.toList()));
+
+                ResultResponse<List<MenuGetRes>> menuRes2 = menuClient.getOrderMenu(menuGetReq);
+
+                MenuGetRes menuOne = menuRes2.getResultData().get(0);
+
+                OrderDetailGetRes.OrderMenuItemRes menuItemRes = new OrderDetailGetRes.OrderMenuItemRes();
+                menuItemRes.setMenuId(orderMenu.getMenuId());
+                menuItemRes.setName(orderMenu.getMenuName());
+                menuItemRes.setPrice(menuOne.getPrice());
+                menuItemRes.setImagePath(orderMenu.getMenuImg());
+
+                List<OrderDetailGetRes.OrderMenuOptionRes> options = convertToOptionTree(orderMenu.getOptions());
+
+                menuItemRes.setOptions(options);
+
+                order.getMenuItems().add(menuItemRes);
+            }
+        }
+        return orders;
+
+    }
+
+    public List<OrderDetailGetRes> findCanceled(long storeId) {
+        List<OrderDetailGetRes> orders= orderMapper.findCanceled(storeId);
+
+        for(OrderDetailGetRes order: orders){
+            order.setOrderId(order.getOrderId());
+            order.setCreatedAt(order.getCreatedAt());
+            order.setPostcode(order.getPostcode());
+            order.setAddress(order.getAddress());
+            order.setAddressDetail(order.getAddressDetail());
+            order.setMenuName(order.getMenuName());
+            order.setAmount(order.getAmount());
+
+            List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(order.getOrderId());
+
+            for (OrdersMenu orderMenu : orderMenus) {
+                OrdersMenu menuRes = new OrdersMenu();
+                menuRes.setId(orderMenu.getId());
+                menuRes.setMenuId(orderMenu.getMenuId());
+                menuRes.setStoreId(orderMenu.getStoreId());
+                menuRes.setMenuName(orderMenu.getMenuName());
+                menuRes.setMenuImg(orderMenu.getMenuImg());
+                menuRes.setAmount(orderMenu.getAmount());
+                menuRes.setQuantity(orderMenu.getQuantity());
+
+
+
+                MenuGetReq menuGetReq = new MenuGetReq();
+                menuGetReq.setMenuIds(Collections.singletonList(orderMenu.getMenuId()));
+                menuGetReq.setOptionIds(orderMenu.getOptions().stream().map(OrdersMenuOption::getOptionId).collect(Collectors.toList()));
+
+                ResultResponse<List<MenuGetRes>> menuRes2 = menuClient.getOrderMenu(menuGetReq);
+
+                MenuGetRes menuOne = menuRes2.getResultData().get(0);
+
+                OrderDetailGetRes.OrderMenuItemRes menuItemRes = new OrderDetailGetRes.OrderMenuItemRes();
+                menuItemRes.setMenuId(orderMenu.getMenuId());
+                menuItemRes.setName(orderMenu.getMenuName());
+                menuItemRes.setPrice(menuOne.getPrice());
+                menuItemRes.setImagePath(orderMenu.getMenuImg());
+
+                List<OrderDetailGetRes.OrderMenuOptionRes> options = convertToOptionTree(orderMenu.getOptions());
+
+                menuItemRes.setOptions(options);
+
+                order.getMenuItems().add(menuItemRes);
+            }
+        }
+        return orders;
+
+    }
+
+    // 페이징 + 검색
+    public List<OrderDetailGetRes> findSearchOrderByDate(OrderStatusDto dto) {
+        List<OrderDetailGetRes> orders = orderMapper.findOrderSearchByDate(dto);
+        for (OrderDetailGetRes order : orders) {
+            List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(order.getOrderId());
+
+            for (OrdersMenu orderMenu : orderMenus) {
+                OrderDetailGetRes.OrderMenuItemRes menuItemRes = new OrderDetailGetRes.OrderMenuItemRes();
+                menuItemRes.setMenuId(orderMenu.getMenuId());
+                menuItemRes.setName(orderMenu.getMenuName());
+                menuItemRes.setPrice(orderMenu.getAmount());
+                menuItemRes.setImagePath(orderMenu.getMenuImg());
+
+                List<OrderDetailGetRes.OrderMenuOptionRes> options = convertToOptionTree(orderMenu.getOptions());
+                menuItemRes.setOptions(options);
+
+                order.getMenuItems().add(menuItemRes);
+            }
+        }
+        return orders;
+    }
+
 //
 //
 //

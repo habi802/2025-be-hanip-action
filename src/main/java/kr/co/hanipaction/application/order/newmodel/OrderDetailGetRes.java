@@ -21,6 +21,7 @@ public  class OrderDetailGetRes {
     private String status;
     private String userPhone;
     private String userName;
+    private String postcode;
     private String address;
     private String addressDetail;
     private String storeRequest;

@@ -139,6 +139,50 @@
         ORDER BY o.created_at DESC;
     </select>
 
+    <select id="findCompleted">
+        SELECT *, o.id AS order_id
+        FROM orders o
+        WHERE o.`status` = '05'
+        AND o.store_id = #{storeId}
+        ORDER BY o.created_at DESC;
+    </select>
+
+    <select id="findCanceled">
+        SELECT *, o.id AS order_id
+        FROM orders o
+        WHERE o.`status` = '06'
+        AND o.store_id = #{storeId}
+        ORDER BY o.created_at DESC;
+    </select>
+
+    <select id="findOrderSearchByDate">
+        SELECT *, o.id AS order_id
+        FROM orders o
+        WHERE (o.`status` = '05' OR o.`status` = '06')
+        <if test="startDate != null and endDate != null">
+            AND o.created_at BETWEEN #{startDate} AND #{endDate}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'address'">
+                    AND o.address LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'phone'">
+                    AND o.user_phone LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <otherwise>
+                    AND (
+                    o.address LIKE CONCAT('%', #{keyword}, '%')
+                    OR o.user_phone LIKE CONCAT('%', #{keyword}, '%')
+                    OR o.user_name LIKE CONCAT('%', #{keyword}, '%')
+                    )
+                </otherwise>
+            </choose>
+        </if>
+        ORDER BY o.created_at DESC
+        LIMIT #{startIdx}, #{size}
+    </select>
+
 <!-- 배달원이 조회할 것 메뉴랭스는 특정 메뉴 외 더 시킨 것 ' 치킨 메뉴 외 2건 ' -->
     <select id="findDrOrderList">
         SELECT o.id AS order_id, o.store_id, o.store_name, o.address AS userAddress, o.address_detail AS user_address_detail, om.menu_name, o.amount,o.store_request,
