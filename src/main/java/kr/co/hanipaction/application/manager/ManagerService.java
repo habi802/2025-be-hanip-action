@@ -26,6 +26,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,19 +47,31 @@ public class ManagerService {
     private final ReviewRepository reviewRepository;
     private final ReviewService reviewService;
 
+    // Actor API 호출하기 위한 토큰
+    private String getToken() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getCredentials() instanceof String token) {
+            return "Bearer " + token;
+        }
+
+        return null;
+    }
+
     // 주문 전체 조회
     public PageResponse<OrderListRes> getOrderList(OrderListReq req) {
+        String token = getToken();
+
         // 주문자명, 상호명 같이 외부 api를 호출해야 하는 경우 입력한 주문자명 혹은 상호명을 가진 id 리스트를 검색 조건으로 사용
-        ResponseEntity<ResultResponse<Page<UserListRes>>> userListRes = userClient.getUserIdsInManager(UserListReq.builder().name(req.getUserName())
-                                                                                                                            .pageNumber(0)
-                                                                                                                            .pageSize(-1)
-                                                                                                                            .build());
+        ResponseEntity<ResultResponse<Page<UserListRes>>> userListRes = userClient.getUserIdsInManager(token, UserListReq.builder().name(req.getUserName())
+                                                                                                                                   .pageNumber(1)
+                                                                                                                                   .pageSize(-1)
+                                                                                                                                   .build());
         List<Long> userIds = userListRes.getBody().getResultData().getContent().stream().map(UserListRes::getUserId).toList();
 
-        ResponseEntity<ResultResponse<Page<StoreListRes>>> storeListRes = storeClient.getStoreIdsInManager(StoreListReq.builder().name(req.getStoreName())
-                                                                                                                                 .pageNumber(0)
-                                                                                                                                 .pageSize(-1)
-                                                                                                                                 .build());
+        ResponseEntity<ResultResponse<Page<StoreListRes>>> storeListRes = storeClient.getStoreIdsInManager(token, StoreListReq.builder().name(req.getStoreName())
+                                                                                                                                        .pageNumber(1)
+                                                                                                                                        .pageSize(-1)
+                                                                                                                                        .build());
         List<Long> storeIds = storeListRes.getBody().getResultData().getContent().stream().map(StoreListRes::getStoreId).toList();
 
         // 검색 조건 적용
@@ -76,17 +90,17 @@ public class ManagerService {
         Page<Orders> page = orderRepository.findAll(spec, pageable);
         List<OrderListRes> result = page.stream().map(order -> {
             // 작성자명, 상호명 가져오기 위해 외부 api 호출
-            ResponseEntity<ResultResponse<String>> userRes = userClient.getUserNameInManager(order.getUserId());
-            ResponseEntity<ResultResponse<StoreInManagerRes>> storeRes = storeClient.getStoreNameInManager(order.getStoreId());
+            ResponseEntity<ResultResponse<String>> userRes = userClient.getUserNameInManager(token, order.getUserId());
+            ResponseEntity<ResultResponse<StoreInManagerRes>> storeRes = storeClient.getStoreNameInManager(token, order.getStoreId());
 
             return OrderListRes.builder()
                                .createdAt(order.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                                .orderId(order.getId())
                                .userName(userRes.getBody().getResultData())
                                .storeName(storeRes.getBody().getResultData().getName())
-                               .address(String.format("%s, %s, %s", order.getPostcode(), order.getAddress(), order.getAddressDetail()))
-                               .payment(order.getPayment().getValue())
-                               .status(order.getStatus().getValue())
+                               .address(order.getPostcode() + order.getAddress() + (order.getAddressDetail() != null && !order.getAddressDetail().isEmpty() ? ", " + order.getAddressDetail() : ""))
+                               .payment(order.getPayment().getCode())
+                               .status(order.getStatus().getCode())
                                .isDeleted(order.getIsDeleted())
                                .build();
         }).toList();
@@ -96,21 +110,22 @@ public class ManagerService {
 
     // 주문 상세 조회
     public OrderInManagerRes getOrder(Long orderId) {
+        String token = getToken();
         Orders order = orderRepository.findById(orderId).orElse(null);
 
         // 작성자명, 상호명 가져오기 위해 외부 api 호출
-        ResponseEntity<ResultResponse<String>> userRes = userClient.getUserNameInManager(order.getUserId());
-        ResponseEntity<ResultResponse<StoreInManagerRes>> storeRes = storeClient.getStoreNameInManager(order.getStoreId());
+        ResponseEntity<ResultResponse<String>> userRes = userClient.getUserNameInManager(token, order.getUserId());
+        ResponseEntity<ResultResponse<StoreInManagerRes>> storeRes = storeClient.getStoreNameInManager(token, order.getStoreId());
 
         return OrderInManagerRes.builder()
                                 .createdAt(order.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                                 .orderId(orderId)
                                 .userName(userRes.getBody().getResultData())
                                 .storeName(storeRes.getBody().getResultData().getName())
-                                .address(String.format("%s, %s, %s", order.getPostcode(), order.getAddress(), order.getAddressDetail()))
+                                .address(order.getPostcode() + order.getAddress() + (order.getAddressDetail() != null && !order.getAddressDetail().isEmpty() ? ", " + order.getAddressDetail() : ""))
                                 .amount(order.getAmount())
-                                .payment(order.getPayment().getValue())
-                                .status(order.getStatus().getValue())
+                                .payment(order.getPayment().getCode())
+                                .status(order.getStatus().getCode())
                                 .isDeleted(order.getIsDeleted())
                                 .build();
     }
@@ -129,16 +144,18 @@ public class ManagerService {
 
     // 리뷰 전체 조회
     public PageResponse<ReviewListRes> getReviewList(ReviewListReq req) {
-        ResponseEntity<ResultResponse<Page<UserListRes>>> userListRes = userClient.getUserIdsInManager(UserListReq.builder().name(req.getUserName())
-                                                                                                                            .pageNumber(0)
-                                                                                                                            .pageSize(-1)
-                                                                                                                            .build());
+        String token = getToken();
+
+        ResponseEntity<ResultResponse<Page<UserListRes>>> userListRes = userClient.getUserIdsInManager(token, UserListReq.builder().name(req.getUserName())
+                                                                                                                                   .pageNumber(1)
+                                                                                                                                   .pageSize(-1)
+                                                                                                                                   .build());
         List<Long> userIds = userListRes.getBody().getResultData().getContent().stream().map(UserListRes::getUserId).toList();
 
-        ResponseEntity<ResultResponse<Page<StoreListRes>>> storeListRes = storeClient.getStoreIdsInManager(StoreListReq.builder().name(req.getStoreName())
-                                                                                                                                 .pageNumber(0)
-                                                                                                                                 .pageSize(-1)
-                                                                                                                                 .build());
+        ResponseEntity<ResultResponse<Page<StoreListRes>>> storeListRes = storeClient.getStoreIdsInManager(token, StoreListReq.builder().name(req.getStoreName())
+                                                                                                                                        .pageNumber(1)
+                                                                                                                                        .pageSize(-1)
+                                                                                                                                        .build());
         List<Long> storeIds = storeListRes.getBody().getResultData().getContent().stream().map(StoreListRes::getStoreId).toList();
         List<Long> orderIds = orderRepository.findAllByStoreIdIn(storeIds).stream().map(Orders::getId).toList();
 
@@ -146,7 +163,7 @@ public class ManagerService {
         Specification<Review> spec = ReviewSpecification.hasStartDate(req.getStartDate())
                                                         .and(ReviewSpecification.hasEndDate(req.getEndDate()))
                                                         .and(ReviewSpecification.hasUserIds(userIds))
-                                                        .and(ReviewSpecification.hasOrderIds(storeIds, orderIds))
+                                                        .and(ReviewSpecification.hasOrderIds(orderIds))
                                                         .and(ReviewSpecification.hasComment(req.getComment()))
                                                         .and(ReviewSpecification.hasOwnerComment(req.getOwnerComment()))
                                                         .and(ReviewSpecification.hasIsHide(req.getIsHide()));
@@ -156,8 +173,8 @@ public class ManagerService {
 
         Page<Review> page = reviewRepository.findAll(spec, pageable);
         List<ReviewListRes> result = page.stream().map(review -> {
-            ResponseEntity<ResultResponse<String>> userRes = userClient.getUserNameInManager(review.getUserId());
-            ResponseEntity<ResultResponse<StoreInManagerRes>> storeRes = storeClient.getStoreNameInManager(review.getOrderId().getStoreId());
+            ResponseEntity<ResultResponse<String>> userRes = userClient.getUserNameInManager(token, review.getUserId());
+            ResponseEntity<ResultResponse<StoreInManagerRes>> storeRes = storeClient.getStoreNameInManager(token, review.getOrderId().getStoreId());
 
             return ReviewListRes.builder()
                                 .createdAt(review.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
@@ -176,6 +193,7 @@ public class ManagerService {
 
     // 리뷰 상세 조회
     public ReviewInManagerRes getReview(Long reviewId) {
+        String token = getToken();
         Review review = reviewRepository.findById(reviewId).orElse(null);
 
         // 리뷰 이미지 가져오기
@@ -185,8 +203,8 @@ public class ManagerService {
             images.add(image.getReviewImageIds().getPic());
         }
 
-        ResponseEntity<ResultResponse<String>> userRes = userClient.getUserNameInManager(review.getUserId());
-        ResponseEntity<ResultResponse<StoreInManagerRes>> storeRes = storeClient.getStoreNameInManager(review.getOrderId().getStoreId());
+        ResponseEntity<ResultResponse<String>> userRes = userClient.getUserNameInManager(token, review.getUserId());
+        ResponseEntity<ResultResponse<StoreInManagerRes>> storeRes = storeClient.getStoreNameInManager(token, review.getOrderId().getStoreId());
 
         return ReviewInManagerRes.builder()
                                  .createdAt(review.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
