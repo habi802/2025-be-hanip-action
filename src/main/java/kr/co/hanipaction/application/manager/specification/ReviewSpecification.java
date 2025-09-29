@@ -1,8 +1,5 @@
 package kr.co.hanipaction.application.manager.specification;
 
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.entity.Review;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -38,7 +35,7 @@ public class ReviewSpecification {
     // 작성자명
     public static Specification<Review> hasUserIds(List<Long> userIds) {
         return (root, query, cb) -> {
-            if (userIds == null || userIds.isEmpty()) {
+            if (userIds == null) {
                 return null;
             }
 
@@ -47,9 +44,9 @@ public class ReviewSpecification {
     }
 
     // 상호명
-    public static Specification<Review> hasOrderIds(List<Long> storeIds, List<Long> orderIds) {
+    public static Specification<Review> hasOrderIds(List<Long> orderIds) {
         return (root, query, cb) -> {
-            if ((orderIds == null || orderIds.isEmpty()) && (storeIds == null || storeIds.isEmpty())) {
+            if (orderIds == null) {
                 return null;
             }
 

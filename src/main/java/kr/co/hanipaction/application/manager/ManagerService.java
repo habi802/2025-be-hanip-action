@@ -63,13 +63,13 @@ public class ManagerService {
 
         // 주문자명, 상호명 같이 외부 api를 호출해야 하는 경우 입력한 주문자명 혹은 상호명을 가진 id 리스트를 검색 조건으로 사용
         ResponseEntity<ResultResponse<Page<UserListRes>>> userListRes = userClient.getUserIdsInManager(token, UserListReq.builder().name(req.getUserName())
-                                                                                                                                   .pageNumber(0)
+                                                                                                                                   .pageNumber(1)
                                                                                                                                    .pageSize(-1)
                                                                                                                                    .build());
         List<Long> userIds = userListRes.getBody().getResultData().getContent().stream().map(UserListRes::getUserId).toList();
 
         ResponseEntity<ResultResponse<Page<StoreListRes>>> storeListRes = storeClient.getStoreIdsInManager(token, StoreListReq.builder().name(req.getStoreName())
-                                                                                                                                        .pageNumber(0)
+                                                                                                                                        .pageNumber(1)
                                                                                                                                         .pageSize(-1)
                                                                                                                                         .build());
         List<Long> storeIds = storeListRes.getBody().getResultData().getContent().stream().map(StoreListRes::getStoreId).toList();
@@ -98,7 +98,7 @@ public class ManagerService {
                                .orderId(order.getId())
                                .userName(userRes.getBody().getResultData())
                                .storeName(storeRes.getBody().getResultData().getName())
-                               .address(String.format("%s, %s, %s", order.getPostcode(), order.getAddress(), order.getAddressDetail()))
+                               .address(order.getPostcode() + order.getAddress() + (order.getAddressDetail() != null && !order.getAddressDetail().isEmpty() ? ", " + order.getAddressDetail() : ""))
                                .payment(order.getPayment().getValue())
                                .status(order.getStatus().getValue())
                                .isDeleted(order.getIsDeleted())
@@ -122,7 +122,7 @@ public class ManagerService {
                                 .orderId(orderId)
                                 .userName(userRes.getBody().getResultData())
                                 .storeName(storeRes.getBody().getResultData().getName())
-                                .address(String.format("%s, %s, %s", order.getPostcode(), order.getAddress(), order.getAddressDetail()))
+                                .address(order.getPostcode() + order.getAddress() + (order.getAddressDetail() != null && !order.getAddressDetail().isEmpty() ? ", " + order.getAddressDetail() : ""))
                                 .amount(order.getAmount())
                                 .payment(order.getPayment().getValue())
                                 .status(order.getStatus().getValue())
@@ -147,13 +147,13 @@ public class ManagerService {
         String token = getToken();
 
         ResponseEntity<ResultResponse<Page<UserListRes>>> userListRes = userClient.getUserIdsInManager(token, UserListReq.builder().name(req.getUserName())
-                                                                                                                                   .pageNumber(0)
+                                                                                                                                   .pageNumber(1)
                                                                                                                                    .pageSize(-1)
                                                                                                                                    .build());
         List<Long> userIds = userListRes.getBody().getResultData().getContent().stream().map(UserListRes::getUserId).toList();
 
         ResponseEntity<ResultResponse<Page<StoreListRes>>> storeListRes = storeClient.getStoreIdsInManager(token, StoreListReq.builder().name(req.getStoreName())
-                                                                                                                                        .pageNumber(0)
+                                                                                                                                        .pageNumber(1)
                                                                                                                                         .pageSize(-1)
                                                                                                                                         .build());
         List<Long> storeIds = storeListRes.getBody().getResultData().getContent().stream().map(StoreListRes::getStoreId).toList();
@@ -163,7 +163,7 @@ public class ManagerService {
         Specification<Review> spec = ReviewSpecification.hasStartDate(req.getStartDate())
                                                         .and(ReviewSpecification.hasEndDate(req.getEndDate()))
                                                         .and(ReviewSpecification.hasUserIds(userIds))
-                                                        .and(ReviewSpecification.hasOrderIds(storeIds, orderIds))
+                                                        .and(ReviewSpecification.hasOrderIds(orderIds))
                                                         .and(ReviewSpecification.hasComment(req.getComment()))
                                                         .and(ReviewSpecification.hasOwnerComment(req.getOwnerComment()))
                                                         .and(ReviewSpecification.hasIsHide(req.getIsHide()));
