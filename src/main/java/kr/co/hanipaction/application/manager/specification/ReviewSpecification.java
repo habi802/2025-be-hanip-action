@@ -66,13 +66,13 @@ public class ReviewSpecification {
     }
 
     // 사장 답변 등록 여부
-    public static Specification<Review> hasOwnerComment(Integer ownerComment) {
+    public static Specification<Review> hasOwnerComment(String ownerComment) {
         return (root, query, cb) -> {
             if (ownerComment == null) {
                 return null;
             }
 
-            if (ownerComment == 0) {
+            if (Integer.valueOf(ownerComment) == 0) {
                 return cb.or(cb.isNull(root.get("ownerComment")), cb.equal(root.get("ownerComment"), ""));
             } else {
                 return cb.and(cb.isNotNull(root.get("ownerComment")), cb.notEqual(root.get("ownerComment"), ""));
@@ -87,7 +87,7 @@ public class ReviewSpecification {
                 return null;
             }
 
-            return cb.equal(root.get("isHide"), isHide);
+            return cb.equal(root.get("isHide"), Integer.valueOf(isHide));
         };
     }
 }

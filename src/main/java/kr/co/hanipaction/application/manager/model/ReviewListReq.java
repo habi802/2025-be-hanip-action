@@ -12,7 +12,7 @@ public class ReviewListReq {
     private String storeName;
     private String isHide;
     private String comment;
-    private int ownerComment;
+    private String ownerComment;
     private int pageNumber;
     private int pageSize;
 }
