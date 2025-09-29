@@ -99,8 +99,8 @@ public class ManagerService {
                                .userName(userRes.getBody().getResultData())
                                .storeName(storeRes.getBody().getResultData().getName())
                                .address(order.getPostcode() + order.getAddress() + (order.getAddressDetail() != null && !order.getAddressDetail().isEmpty() ? ", " + order.getAddressDetail() : ""))
-                               .payment(order.getPayment().getValue())
-                               .status(order.getStatus().getValue())
+                               .payment(order.getPayment().getCode())
+                               .status(order.getStatus().getCode())
                                .isDeleted(order.getIsDeleted())
                                .build();
         }).toList();
@@ -124,8 +124,8 @@ public class ManagerService {
                                 .storeName(storeRes.getBody().getResultData().getName())
                                 .address(order.getPostcode() + order.getAddress() + (order.getAddressDetail() != null && !order.getAddressDetail().isEmpty() ? ", " + order.getAddressDetail() : ""))
                                 .amount(order.getAmount())
-                                .payment(order.getPayment().getValue())
-                                .status(order.getStatus().getValue())
+                                .payment(order.getPayment().getCode())
+                                .status(order.getStatus().getCode())
                                 .isDeleted(order.getIsDeleted())
                                 .build();
     }
