@@ -2,9 +2,7 @@ package kr.co.hanipaction.application.favorite;
 
 import jakarta.transaction.Transactional;
 import kr.co.hanipaction.application.common.model.ResultResponse;
-import kr.co.hanipaction.application.favorite.model.FavoriteGetDto;
-import kr.co.hanipaction.application.favorite.model.FavoriteGetRes;
-import kr.co.hanipaction.application.favorite.model.FavoritePostReq;
+import kr.co.hanipaction.application.favorite.model.*;
 import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.entity.Favorites;
 import kr.co.hanipaction.entity.Orders;
@@ -85,11 +83,25 @@ public class FavoriteService {
 
     // ?
     @Transactional
-    public Integer find(Long storeId) {
+    public FavoriteGetUser find(long userId,Long storeId) {
         FavoriteGetDto dto = FavoriteGetDto.builder()
+                .userId(userId)
                 .storeId(storeId)
                 .build();
-        return favoriteMapper.findByStoreIdAndUserId(dto);
+
+        FavoriteGetCheck on = favoriteMapper.findByStoreIdAndUserId(dto);
+        FavoriteGetUser info = new FavoriteGetUser();
+
+        if(on == null) {
+
+            info.setOn(0);
+        }else {
+
+            info.setOn(1);
+        }
+
+
+        return  info;
     }
 
     // 찜 삭제
