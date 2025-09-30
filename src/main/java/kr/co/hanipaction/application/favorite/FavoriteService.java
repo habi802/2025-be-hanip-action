@@ -67,7 +67,9 @@ public class FavoriteService {
 
             ResultResponse<StoreGetRes> storeRes = storeClient.findStore(favoriteGetRes.getStoreId());
             StoreGetRes store =  storeRes.getResultData();
-
+            favoriteGetRes.setMaxDeliveryFee(store.getMaxDeliveryFee());
+            favoriteGetRes.setMinAmount(store.getMinAmount());
+            favoriteGetRes.setMimDeliveryFee(store.getMinDeliveryFee());
             favoriteGetRes.setFavorites(store.getFavorites());
             favoriteGetRes.setStoreId(store.getId());
             favoriteGetRes.setImagePath(store.getImagePath());

@@ -9,6 +9,7 @@ import kr.co.hanipaction.application.sse.SseService;
 import kr.co.hanipaction.application.sse.model.OrderMenuOptionDto;
 import kr.co.hanipaction.application.sse.model.OrderNotification;
 import kr.co.hanipaction.configuration.enumcode.model.StatusType;
+import kr.co.hanipaction.configuration.model.UserPrincipal;
 import kr.co.hanipaction.entity.*;
 import kr.co.hanipaction.openfeign.menu.MenuClient;
 import kr.co.hanipaction.openfeign.menu.model.MenuGetReq;
@@ -20,6 +21,7 @@ import kr.co.hanipaction.openfeign.user.model.UserGetRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import kr.co.hanipaction.application.common.model.ResultResponse;
@@ -974,5 +976,21 @@ public class OrderService {
                                .riderRequest(order.getRiderRequest())
                                .status(order.getStatus())
                                .build();
+    }
+
+    @Transactional
+    public List<OrderGetByStoreIdRes> statisticsByStoreId(long userId ,OrderGetByStoreIdDto dto) {
+
+        List<OrderGetByStoreIdRes> res = orderMapper.getOrderByStoreId(dto);
+
+        for (OrderGetByStoreIdRes order : res) {
+            order.setStoreId(order.getStoreId());
+            order.setAmount(order.getAmount());
+            order.setStatus(order.getStatus());
+            order.setOrderId(order.getOrderId());
+            order.setCreatedAt(order.getCreatedAt());
+        }
+
+        return res;
     }
 }

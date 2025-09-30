@@ -86,6 +86,19 @@
 <!---->
 <!-- 신규 추가 맵퍼-->
 
+    <!--    가게 매출액 통계 -->
+    <select id="getOrderByStoreId">
+        SELECT id AS orderId,store_id,STATUS,amount, created_at
+        FROM orders
+        <where>
+            store_id =#{storeId}
+            <if test="startDate != null and endDate != null">
+                AND created_at BETWEEN CONCAT(#{startDate}, ' 00:00:00')
+                AND CONCAT(#{endDate}, ' 23:59:59')
+            </if>
+        </where>
+    </select>
+
 
     <!-- 주문내역 인피니티, 페이지네이션용-->
     <select id="findOrders">
