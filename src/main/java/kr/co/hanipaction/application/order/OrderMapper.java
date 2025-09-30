@@ -5,10 +5,8 @@ import kr.co.hanipaction.application.manager.model.OrderAmountStatsRes;
 import kr.co.hanipaction.application.manager.model.OrderStatsDto;
 import kr.co.hanipaction.application.manager.model.OrderStatsRes;
 import kr.co.hanipaction.application.order.model.*;
-import kr.co.hanipaction.application.order.newmodel.DrOrderGetRes;
-import kr.co.hanipaction.application.order.newmodel.OrderDetailGetRes;
-import kr.co.hanipaction.application.order.newmodel.OrderGetDto;
-import kr.co.hanipaction.application.order.newmodel.OrderGetRes;
+import kr.co.hanipaction.application.order.model.OrderPostDto;
+import kr.co.hanipaction.application.order.newmodel.*;
 import kr.co.hanipaction.application.pay.naverpay.model.NaverPayOrderItemReq;
 import kr.co.hanipaction.application.pay.naverpay.model.NaverProductItem;
 import org.apache.ibatis.annotations.Mapper;
@@ -32,6 +30,7 @@ public interface OrderMapper {
 //    신규 맵퍼용
     List<OrderGetRes> findOrders(OrderGetDto dto);
     List<OrderDetailGetRes> findOrdered(long storeId);
+    List<OrderGetByStoreIdRes> getOrderByStoreId(OrderGetByStoreIdDto dto);
 
 
     List<OrderDetailGetRes> findPreParing(long storeId);
