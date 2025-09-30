@@ -127,7 +127,7 @@
         FROM orders o
         WHERE o.`status` = '03'
         AND o.store_id = #{storeId}
-        ORDER BY o.created_at DESC;
+        ORDER BY o.updated_at DESC;
     </select>
 <!--    배달중과 배달 완료 조회 / 프론트에서 보여지는 화면은 createAt이용해서 하루마다 초기화 해야할듯-->
     <select id="findDelivered">
@@ -136,7 +136,8 @@
         WHERE o.`status` = '04'
         OR o.`status` = '05'
         AND o.store_id = #{storeId}
-        ORDER BY o.created_at DESC;
+        AND DATE(o.updated_at) = CURDATE()
+        ORDER BY o.updated_at DESC;
     </select>
 
     <select id="findCompleted">
@@ -144,7 +145,7 @@
         FROM orders o
         WHERE o.`status` = '05'
         AND o.store_id = #{storeId}
-        ORDER BY o.created_at DESC;
+        ORDER BY o.updated_at DESC;
     </select>
 
     <select id="findCanceled">
