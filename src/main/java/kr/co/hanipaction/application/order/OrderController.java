@@ -302,4 +302,24 @@ public class OrderController {
 
         return ResponseEntity.ok(ResultResponse.success(result));
     }
+
+//
+//
+//
+//    사장 통계용
+    @GetMapping("/order/statistics")
+    public ResponseEntity<ResultResponse<List<OrderGetByStoreIdRes>>> getOrderStatistics(@AuthenticationPrincipal UserPrincipal userPrincipal, OrderGetByStoreIdReq orderGetByStoreIdReq) {
+        long userId = userPrincipal.getSignedUserId();
+        
+        OrderGetByStoreIdDto dto = new OrderGetByStoreIdDto();
+        dto.setStoreId(orderGetByStoreIdReq.getStoreId());
+        dto.setStartDate(orderGetByStoreIdReq.getStartDate());
+        dto.setEndDate(orderGetByStoreIdReq.getEndDate());
+        dto.setPeriodType(orderGetByStoreIdReq.getPeriodType());
+        
+        List<OrderGetByStoreIdRes> result = orderService.statisticsByStoreId(userId,dto);
+
+        return ResponseEntity.ok(new ResultResponse<>(200, "통계조회 완료",result));
+    }
+
 }

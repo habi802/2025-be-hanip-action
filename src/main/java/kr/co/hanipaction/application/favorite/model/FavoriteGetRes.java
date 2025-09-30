@@ -14,4 +14,7 @@ public class FavoriteGetRes {
     private String imagePath;
     private int favorites;
     private Double rating;
+    private int minAmount;
+    private int mimDeliveryFee;
+    private int maxDeliveryFee;
 }
