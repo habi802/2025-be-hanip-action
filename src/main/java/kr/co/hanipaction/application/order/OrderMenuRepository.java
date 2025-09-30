@@ -10,6 +10,6 @@ import java.util.Optional;
 
 public interface OrderMenuRepository extends JpaRepository<OrdersMenu, Long> {
     List<OrdersMenu> findByOrders_Id(long orderId);
-//    Optional<OrdersMenu> findByOrderId(long orderId);
+    List<OrdersMenu> findByOrders_id(long orderId);
 
 }
