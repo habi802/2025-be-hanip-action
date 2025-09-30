@@ -404,6 +404,18 @@ public class OrderService {
 
         StatusType status =StatusType.valueOfCode("03");
         order.setStatus(status);
+
+        // SSE
+        sseService.sendOrder(
+                order.getStoreId(),
+                OrderNotification.builder()
+                        .orderId(order.getId())
+                        .storeId(order.getStoreId())
+                        .userId(order.getUserId())
+                        .status(order.getStatus())
+                        .amount(order.getAmount())
+                        .build()
+        );
     }
     @Transactional
     public void statusDelevered(long userId,long orderId) {
@@ -433,6 +445,17 @@ public class OrderService {
         StatusType status =StatusType.valueOfCode("05");
         order.setStatus(status);
 
+        // SSE
+        sseService.sendOrder(
+                order.getStoreId(),
+                OrderNotification.builder()
+                        .orderId(order.getId())
+                        .storeId(order.getStoreId())
+                        .userId(order.getUserId())
+                        .status(order.getStatus())
+                        .amount(order.getAmount())
+                        .build()
+        );
     }
     @Transactional
     public void statusCanceled(long userId,long orderId) {
@@ -487,6 +510,77 @@ public class OrderService {
         orderDetailRes.setStatus(order.getStatus().toString());
         orderDetailRes.setUserName(userInfo.getUserNickName());
         orderDetailRes.setUserPhone(order.getUserPhone());
+        orderDetailRes.setPostcode(order.getPostcode());
+        orderDetailRes.setAddress(order.getAddress());
+        orderDetailRes.setAddressDetail(order.getAddressDetail());
+        orderDetailRes.setStoreRequest(order.getStoreRequest());
+        orderDetailRes.setCreatedAt(order.getCreatedAt());
+        orderDetailRes.setPayment(order.getPayment().toString());
+        orderDetailRes.setAmount(order.getAmount());
+        orderDetailRes.setMinDeliveryFee(store.getMinDeliveryFee());
+
+        for (OrdersMenu menu : order.getItems()) {
+            Optional<OrdersMenu> orderMenus =orderMenuRepository.findById(menu.getId());
+
+            OrdersMenu menuInfo = orderMenus.get();
+
+            MenuGetReq menuGetReq = new MenuGetReq();
+            menuGetReq.setMenuIds(Collections.singletonList(menu.getMenuId()));
+            menuGetReq.setOptionIds(menu.getOptions().stream().map(OrdersMenuOption::getOptionId).collect(Collectors.toList()));
+
+            ResultResponse<List<MenuGetRes>> menuRes = menuClient.getOrderMenu(menuGetReq);
+
+            MenuGetRes menuOne = menuRes.getResultData().get(0);
+
+            OrderDetailGetRes.OrderMenuItemRes menuItemRes = new OrderDetailGetRes.OrderMenuItemRes();
+            menuItemRes.setMenuId(menu.getMenuId());
+            menuItemRes.setName(menu.getMenuName());
+            menuItemRes.setPrice(menuOne.getPrice());
+            menuItemRes.setQuantity(menuInfo.getQuantity());
+            menuItemRes.setImagePath(menu.getMenuImg());
+
+            List<OrderDetailGetRes.OrderMenuOptionRes> options = convertToOptionTree(menu.getOptions());
+            menuItemRes.setOptions(options);
+
+            orderDetailRes.getMenuItems().add(menuItemRes);
+        }
+
+        return orderDetailRes;
+
+
+    }
+
+    // 사장 전용 주문 상세 조회
+    @Transactional
+    public OrderDetailGetRes getOrderOneOwner(long userId, long orderId) {
+        Orders order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("주문 번호를 찾지 못했습니다."));
+
+
+        ResultResponse<StoreGetRes> storeRes = storeClient.findStore(order.getStoreId());
+        StoreGetRes store =  storeRes.getResultData();
+
+        Long orderUserId = order.getUserId();
+
+        List<Long> userIdList = Collections.singletonList(orderUserId);
+        ResultResponse<Map<String, UserGetRes>> userRes = userClient.getUserList(userIdList);
+
+        if (userRes == null || userRes.getResultData() == null) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "유저 정보를 가져올 수 없습니다.");
+        }
+
+        Map<String, UserGetRes> userMap = userRes.getResultData();
+        UserGetRes userInfo = userMap.get(String.valueOf(orderUserId));
+
+        OrderDetailGetRes orderDetailRes = new OrderDetailGetRes();
+        orderDetailRes.setOrderId(order.getId());
+        orderDetailRes.setStoreId(order.getStoreId());
+        orderDetailRes.setStoreName(order.getStoreName());
+        orderDetailRes.setStoreImg(store.getImagePath());
+        orderDetailRes.setStatus(order.getStatus().toString());
+        orderDetailRes.setUserName(userInfo.getUserNickName());
+        orderDetailRes.setUserPhone(order.getUserPhone());
+        orderDetailRes.setPostcode(order.getPostcode());
         orderDetailRes.setAddress(order.getAddress());
         orderDetailRes.setAddressDetail(order.getAddressDetail());
         orderDetailRes.setStoreRequest(order.getStoreRequest());
@@ -708,6 +802,150 @@ public class OrderService {
         return orders;
 
     }
+
+    public List<OrderDetailGetRes> findCompleted(long storeId) {
+        List<OrderDetailGetRes> orders= orderMapper.findCompleted(storeId);
+
+        for(OrderDetailGetRes order: orders){
+            order.setOrderId(order.getOrderId());
+            order.setCreatedAt(order.getCreatedAt());
+            order.setPostcode(order.getPostcode());
+            order.setAddress(order.getAddress());
+            order.setAddressDetail(order.getAddressDetail());
+            order.setMenuName(order.getMenuName());
+            order.setAmount(order.getAmount());
+
+            List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(order.getOrderId());
+
+            for (OrdersMenu orderMenu : orderMenus) {
+                OrdersMenu menuRes = new OrdersMenu();
+                menuRes.setId(orderMenu.getId());
+                menuRes.setMenuId(orderMenu.getMenuId());
+                menuRes.setStoreId(orderMenu.getStoreId());
+                menuRes.setMenuName(orderMenu.getMenuName());
+                menuRes.setMenuImg(orderMenu.getMenuImg());
+                menuRes.setAmount(orderMenu.getAmount());
+                menuRes.setQuantity(orderMenu.getQuantity());
+
+
+
+                MenuGetReq menuGetReq = new MenuGetReq();
+                menuGetReq.setMenuIds(Collections.singletonList(orderMenu.getMenuId()));
+                menuGetReq.setOptionIds(orderMenu.getOptions().stream().map(OrdersMenuOption::getOptionId).collect(Collectors.toList()));
+
+                ResultResponse<List<MenuGetRes>> menuRes2 = menuClient.getOrderMenu(menuGetReq);
+
+                MenuGetRes menuOne = menuRes2.getResultData().get(0);
+
+                OrderDetailGetRes.OrderMenuItemRes menuItemRes = new OrderDetailGetRes.OrderMenuItemRes();
+                menuItemRes.setMenuId(orderMenu.getMenuId());
+                menuItemRes.setName(orderMenu.getMenuName());
+                menuItemRes.setPrice(menuOne.getPrice());
+                menuItemRes.setImagePath(orderMenu.getMenuImg());
+
+                List<OrderDetailGetRes.OrderMenuOptionRes> options = convertToOptionTree(orderMenu.getOptions());
+
+                menuItemRes.setOptions(options);
+
+                order.getMenuItems().add(menuItemRes);
+            }
+        }
+        return orders;
+
+    }
+
+    public List<OrderDetailGetRes> findCanceled(long storeId) {
+        List<OrderDetailGetRes> orders= orderMapper.findCanceled(storeId);
+
+        for(OrderDetailGetRes order: orders){
+            order.setOrderId(order.getOrderId());
+            order.setCreatedAt(order.getCreatedAt());
+            order.setPostcode(order.getPostcode());
+            order.setAddress(order.getAddress());
+            order.setAddressDetail(order.getAddressDetail());
+            order.setMenuName(order.getMenuName());
+            order.setAmount(order.getAmount());
+
+            List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(order.getOrderId());
+
+            for (OrdersMenu orderMenu : orderMenus) {
+                OrdersMenu menuRes = new OrdersMenu();
+                menuRes.setId(orderMenu.getId());
+                menuRes.setMenuId(orderMenu.getMenuId());
+                menuRes.setStoreId(orderMenu.getStoreId());
+                menuRes.setMenuName(orderMenu.getMenuName());
+                menuRes.setMenuImg(orderMenu.getMenuImg());
+                menuRes.setAmount(orderMenu.getAmount());
+                menuRes.setQuantity(orderMenu.getQuantity());
+
+
+
+                MenuGetReq menuGetReq = new MenuGetReq();
+                menuGetReq.setMenuIds(Collections.singletonList(orderMenu.getMenuId()));
+                menuGetReq.setOptionIds(orderMenu.getOptions().stream().map(OrdersMenuOption::getOptionId).collect(Collectors.toList()));
+
+                ResultResponse<List<MenuGetRes>> menuRes2 = menuClient.getOrderMenu(menuGetReq);
+
+                MenuGetRes menuOne = menuRes2.getResultData().get(0);
+
+                OrderDetailGetRes.OrderMenuItemRes menuItemRes = new OrderDetailGetRes.OrderMenuItemRes();
+                menuItemRes.setMenuId(orderMenu.getMenuId());
+                menuItemRes.setName(orderMenu.getMenuName());
+                menuItemRes.setPrice(menuOne.getPrice());
+                menuItemRes.setImagePath(orderMenu.getMenuImg());
+
+                List<OrderDetailGetRes.OrderMenuOptionRes> options = convertToOptionTree(orderMenu.getOptions());
+
+                menuItemRes.setOptions(options);
+
+                order.getMenuItems().add(menuItemRes);
+            }
+        }
+        return orders;
+
+    }
+
+    // 페이징 + 검색
+    public List<OrderDetailGetRes> findSearchOrderByDate(OrderStatusDto dto) {
+        List<OrderDetailGetRes> orders = orderMapper.findOrderSearchByDate(dto);
+        List<OrderDetailGetRes> filtered = new ArrayList<>();
+
+        for (OrderDetailGetRes order : orders) {
+            ResultResponse<UserGetRes> userRes = userClient.findUserById(order.getUserId());
+            if (userRes != null && userRes.getResultData() != null) {
+                order.setUserName(userRes.getResultData().getUserNickName());
+            } else {
+                order.setUserName("");
+            }
+
+            boolean match = true;
+
+            // userName 검색
+            if ("userName".equals(dto.getSearchType()) && dto.getKeyword() != null) {
+                match = order.getUserName() != null &&
+                        order.getUserName().contains(dto.getKeyword());
+            }
+
+            // all 검색
+            if ("all".equals(dto.getSearchType()) && dto.getKeyword() != null) {
+                match = false;
+                if (order.getAddress() != null && order.getAddress().contains(dto.getKeyword())) match = true;
+                if (order.getUserPhone() != null && order.getUserPhone().contains(dto.getKeyword())) match = true;
+                if (order.getUserName() != null && order.getUserName().contains(dto.getKeyword())) match = true;
+            }
+
+            if (match) {
+                filtered.add(order);
+            }
+        }
+
+        // 페이징 처리
+        int fromIndex = Math.min(dto.getStartIdx(), filtered.size());
+        int toIndex = Math.min(fromIndex + dto.getSize(), filtered.size());
+
+        return filtered.subList(fromIndex, toIndex);
+    }
+
 //
 //
 //

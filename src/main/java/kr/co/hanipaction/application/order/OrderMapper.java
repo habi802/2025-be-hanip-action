@@ -36,6 +36,10 @@ public interface OrderMapper {
 
     List<OrderDetailGetRes> findPreParing(long storeId);
     List<OrderDetailGetRes> findDelivered(long storeId);
+    List<OrderDetailGetRes> findCompleted(long storeId);
+    List<OrderDetailGetRes> findCanceled(long storeId);
+
+    List<OrderDetailGetRes> findOrderSearchByDate(OrderStatusDto dto);
 
     List<DrOrderGetRes> findDrOrderList(long userId);
 

@@ -4,6 +4,7 @@ import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.order.model.*;
 import kr.co.hanipaction.application.order.newmodel.*;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
+import kr.co.hanipaction.configuration.enumcode.model.EnumUserRole;
 import kr.co.hanipaction.configuration.model.SignedUser;
 import kr.co.hanipaction.configuration.model.UserPrincipal;
 import kr.co.hanipaction.entity.Orders;
@@ -128,11 +129,55 @@ public class OrderController {
         List<OrderDetailGetRes> result = orderService.findDelivered(userId,storeId);
 
         return new ResultResponse<>(200,"배달확인 리스트 조회 완료",result);
-
     }
 
+    // 가게 Completed 관련 조회
+    @GetMapping("/order/status/completed/{storeId}")
+    public ResultResponse<List<OrderDetailGetRes>> getCompleted(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long storeId) {
+        long userId = userPrincipal.getSignedUserId();
 
+        List<OrderDetailGetRes> result = orderService.findCompleted(storeId);
 
+        return new ResultResponse<>(200,"배달완료 리스트 조회 완료",result);
+    }
+
+    // 가게 Canceled 관련 조회
+    @GetMapping("/order/status/canceled/{storeId}")
+    public ResultResponse<List<OrderDetailGetRes>> getCanceled(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long storeId) {
+        long userId = userPrincipal.getSignedUserId();
+
+        List<OrderDetailGetRes> result = orderService.findCanceled(storeId);
+
+        return new ResultResponse<>(200,"주문취소 리스트 조회 완료",result);
+    }
+
+    // 가게 Completed, Canceled 페이징 조회 (사장 전용)
+    @GetMapping("/order/owner")
+    public ResultResponse<List<OrderDetailGetRes>> getCompletedAndCanceled(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @ModelAttribute OrderStatusReq req) {
+
+        log.info("req: {}", req);
+
+        OrderStatusDto orderStatusDto = OrderStatusDto.builder()
+                .userId(userPrincipal.getSignedUserId())
+                .storeId(req.getStoreId())
+                .startIdx((req.getPage() - 1) * req.getRowPerPage())
+                .size(req.getRowPerPage())
+                .startDate(req.getStartDate())
+                .endDate(req.getEndDate())
+                .keyword(req.getKeyword())
+                .searchType(req.getSearchType())
+                .build();
+
+        List<OrderDetailGetRes> result = orderService.findSearchOrderByDate(orderStatusDto);
+
+        log.info("page={}, rowPerPage={}, startIdx={}",
+                req.getPage(), req.getRowPerPage(),
+                (req.getPage() - 1) * req.getRowPerPage());
+
+        return new ResultResponse<>(200, "주문취소 리스트 조회 완료", result);
+    }
 //
 //
 //
@@ -229,8 +274,12 @@ public class OrderController {
     @GetMapping("/order/{orderId}")
     public ResponseEntity<ResultResponse<OrderDetailGetRes>>  getOrderDetail(@AuthenticationPrincipal UserPrincipal userPrincipal,@PathVariable long orderId) {
         long userId = userPrincipal.getSignedUserId();
-
-        OrderDetailGetRes result = orderService.getOrderOne(userId,orderId);
+        OrderDetailGetRes result = new OrderDetailGetRes();
+        if (userPrincipal.getJwtUser().getRole() == EnumUserRole.CUSTOMER) {
+            result = orderService.getOrderOne(userId,orderId);
+        } else if (userPrincipal.getJwtUser().getRole() == EnumUserRole.OWNER) {
+            result = orderService.getOrderOneOwner(userId,orderId);
+        }
 
         return ResponseEntity.ok(new ResultResponse<>(200, "주문 상세 조회 성공",result));
     }
