@@ -31,7 +31,11 @@ public class WebSecurityConfiguration {
                         // 관리자 계정만 가능한 API
                         .requestMatchers("/api/hanip-manager/action/**").hasRole(EnumUserRole.MANAGER.name())
 
+                        // 사장 통계 API
+                        .requestMatchers("/api/order/statistics").hasRole(EnumUserRole.OWNER.name())
                         .requestMatchers("/api/order/rider").permitAll()
+
+
 
                         .anyRequest().permitAll()
                 )
