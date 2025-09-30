@@ -15,12 +15,14 @@ import java.util.List;
 public  class OrderDetailGetRes {
     private long orderId;
     private long storeId;
+    private long userId;
     private String storeName;
     private String storeImg;
     private String menuName;
     private String status;
     private String userPhone;
     private String userName;
+    private String postcode;
     private String address;
     private String addressDetail;
     private String storeRequest;

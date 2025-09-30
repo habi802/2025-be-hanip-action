@@ -30,4 +30,7 @@ public interface UserClient {
     @GetMapping("/api/hanip-manager/actor/user/{userId}")
     ResponseEntity<ResultResponse<String>> getUserNameInManager(@RequestHeader("Authorization") String token,
                                                                 @PathVariable Long userId);
+
+    @GetMapping("/api/user/{userId}")
+    ResultResponse<UserGetRes> findUserById(@PathVariable Long userId);
 }
