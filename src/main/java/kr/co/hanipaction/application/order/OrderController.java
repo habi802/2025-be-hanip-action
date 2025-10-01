@@ -4,6 +4,7 @@ import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.order.model.*;
 import kr.co.hanipaction.application.order.newmodel.*;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
+import kr.co.hanipaction.application.pay.PayService;
 import kr.co.hanipaction.configuration.enumcode.model.EnumUserRole;
 import kr.co.hanipaction.configuration.model.SignedUser;
 import kr.co.hanipaction.configuration.model.UserPrincipal;
@@ -23,6 +24,7 @@ import java.util.List;
 @RequestMapping("/api")
 public class OrderController {
     private final OrderService orderService;
+    private final PayService payService;
 
 
 //
@@ -321,5 +323,25 @@ public class OrderController {
 
         return ResponseEntity.ok(new ResultResponse<>(200, "통계조회 완료",result));
     }
+//    
+//    
+//    
+    @PostMapping("/order/cancel/{orderId}")
+    public ResponseEntity<ResultResponse<?>> orderCancel (@AuthenticationPrincipal UserPrincipal userPrincipal,@PathVariable long orderId) {
+        long userId = userPrincipal.getSignedUserId();
+
+        boolean cancelled =  orderService.orderCancle(userId,orderId);
+
+        if(cancelled){
+
+        payService.statusCancelled(userId,orderId);
+        orderService.statusCanceled(userId,orderId);
+
+        }
+
+
+        return ResponseEntity.ok(new ResultResponse<>(200, "취소 완료", "Success"));
+    }
+    
 
 }

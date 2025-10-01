@@ -35,7 +35,8 @@ public class WebSecurityConfiguration {
                         .requestMatchers("/api/order/statistics").hasRole(EnumUserRole.OWNER.name())
                         .requestMatchers("/api/order/rider").permitAll()
 
-
+                        //관리자랑 사장용
+                        .requestMatchers("/api/order/cancel/{orderId}").hasAnyRole(EnumUserRole.MANAGER.name(), EnumUserRole.OWNER.name())
 
                         .anyRequest().permitAll()
                 )
