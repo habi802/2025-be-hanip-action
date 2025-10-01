@@ -132,4 +132,12 @@
         LIMIT #{startIdx}, #{size}
     </select>
 
+    <select id="reviewLength">
+        SELECT r.is_hide, o.store_id
+        FROM review r
+        LEFT JOIN orders o
+        ON r.order_id = o.id
+        WHERE r.is_hide != '01'
+        AND store_id = #{storeId}
+    </select>
 </mapper>

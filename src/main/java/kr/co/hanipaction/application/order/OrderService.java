@@ -7,6 +7,9 @@ import kr.co.hanipaction.application.order.newmodel.*;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
 import kr.co.hanipaction.application.pay.kakopay.KakaoPayService;
 import kr.co.hanipaction.application.pay.naverpay.NaverPayService;
+import kr.co.hanipaction.application.review.ReviewMapper;
+import kr.co.hanipaction.application.review.ReviewRepository;
+import kr.co.hanipaction.application.review.model.newModal.ReviewGetLengthRes;
 import kr.co.hanipaction.application.sse.SseService;
 import kr.co.hanipaction.application.sse.model.OrderMenuOptionDto;
 import kr.co.hanipaction.application.sse.model.OrderNotification;
@@ -51,6 +54,8 @@ public class OrderService {
     private final PaymentRepository paymentRepository;
     private final KakaoPayService kakaoPayService;
     private final NaverPayService naverPayService;
+    private final ReviewRepository reviewRepository;
+    private final ReviewMapper reviewMapper;
 
 
 
@@ -305,10 +310,28 @@ public class OrderService {
             StoreGetRes storeRes = storeId.getResultData();
             Orders orderRes = orderRepository.findById(order.getOrderId()).orElse(null);
 
+            Orders orderId = new Orders();
+            orderId.setId(order.getOrderId());
+
+            Optional<Review> review = reviewRepository.findByOrderId(orderId);
+
+            List<ReviewGetLengthRes> reviewlength =  reviewMapper.reviewLength(storeRes.getId());
+
+            int length = reviewlength.size();
+
+            Review reviewRes = new Review();
+
+            if(review.isPresent()){
+                order.setGetReview(1);
+            }else {
+                order.setGetReview(0);
+            }
+
             order.setOrderId(orderRes.getId());
             order.setStoreId(storeRes.getId());
             order.setStorePic(storeRes.getImagePath());
             order.setRating(storeRes.getRating());
+            order.setReviewLength(length);
             order.setFavorites(storeRes.getFavorites());
             order.setMinAmount(storeRes.getMinAmount());
             order.setCreatedAt(orderRes.getCreatedAt());

@@ -18,9 +18,11 @@ public class OrderGetRes {
     private String menuName;
     private String storePic;
     private Double rating;
+    private int reviewLength;
     private int favorites;
     private int minAmount;
     private int totalPrice;
+    private int getReview;
     private String status;
     private LocalDateTime createdAt;
     private List<OrdersMenu> menuItems = new ArrayList<>();
