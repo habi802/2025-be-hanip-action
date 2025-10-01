@@ -5,9 +5,13 @@ import kr.co.hanipaction.application.order.model.*;
 import kr.co.hanipaction.application.order.model.OrderGetDetailRes;
 import kr.co.hanipaction.application.order.newmodel.*;
 import kr.co.hanipaction.application.order.newmodel.OrderPostDto;
+import kr.co.hanipaction.application.pay.kakopay.KakaoPayService;
+import kr.co.hanipaction.application.pay.naverpay.NaverPayService;
 import kr.co.hanipaction.application.sse.SseService;
 import kr.co.hanipaction.application.sse.model.OrderMenuOptionDto;
 import kr.co.hanipaction.application.sse.model.OrderNotification;
+import kr.co.hanipaction.configuration.enumcode.model.OrdersType;
+import kr.co.hanipaction.configuration.enumcode.model.PaymentType;
 import kr.co.hanipaction.configuration.enumcode.model.StatusType;
 import kr.co.hanipaction.configuration.model.UserPrincipal;
 import kr.co.hanipaction.entity.*;
@@ -45,6 +49,8 @@ public class OrderService {
     private final MenuClient menuClient;
     private final SseService sseService;
     private final PaymentRepository paymentRepository;
+    private final KakaoPayService kakaoPayService;
+    private final NaverPayService naverPayService;
 
 
 
@@ -992,5 +998,24 @@ public class OrderService {
         }
 
         return res;
+    }
+
+    @Transactional
+    public  boolean  orderCancle(long userId,long orderId){
+
+    Optional<Orders> order = orderRepository.findById(orderId);
+
+    Orders ord = order.get();
+
+    OrdersType type = order.get().getPayment();
+
+    if(type.getCode().equals(OrdersType.KAKAO_PAY.getCode())){
+        kakaoPayService.cancel(userId,orderId);
+    }
+    if(type.getCode().equals(OrdersType.NONE.getCode())){
+        naverPayService.cancel(userId,orderId);
+    }
+
+        return true;
     }
 }
