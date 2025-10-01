@@ -53,7 +53,8 @@ constants:
   file:
     directory: home/download/images
   open-feign:
-    actor: hanip-actor
+    actor:
+      name: hanip-actor
 
   jwt:
     issuer: green502@green.com
