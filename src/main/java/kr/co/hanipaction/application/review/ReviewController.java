@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -33,7 +34,7 @@ public class ReviewController {
                                   @Valid @RequestPart ReviewPostReq req,
                                   @AuthenticationPrincipal UserPrincipal userPrincipal) {
         long userId = userPrincipal.getSignedUserId();
-
+        if (pics == null) pics = Collections.emptyList();
         ReviewPostRes result = reviewService.save(pics,req,userId);
 
         if(result ==null){
