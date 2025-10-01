@@ -25,22 +25,17 @@ public class OrderGetReq {
     @NotNull(message = "row_per_page값은 필수입니다.")
     private Integer rowPerPage;
 
-    private String menuName;
-    private String storeName;
+    private String searchText;
     private LocalDate startDate;
     private LocalDate endDate;
     private OrderGetDto.PeriodType periodType;
 
-    public OrderGetReq(Integer page, Integer rowPerPage, String menuName, String storeName,  LocalDate startDate, LocalDate endDate, OrderGetDto.PeriodType periodType) {
-
+    public OrderGetReq(Integer page, Integer rowPerPage, String searchText,  LocalDate startDate, LocalDate endDate, OrderGetDto.PeriodType periodType) {
         this.page = page;
         this.rowPerPage = rowPerPage;
-        this.menuName = menuName;
-        this.storeName = storeName;
+        this.searchText = searchText;
         this.startDate = startDate;
         this.endDate = endDate;
         this.periodType = periodType;
     }
-
-
 }
