@@ -12,7 +12,7 @@ public class OrderListReq {
     private String userName;
     private String address;
     private String payment;
-    private int isDeleted;
+    private String isDeleted;
     private String status;
     private int pageNumber;
     private int pageSize;

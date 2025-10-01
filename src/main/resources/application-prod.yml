@@ -3,7 +3,7 @@ eureka:
     enabled: false
 
 server:
-  port: 8082
+  port: 8080
   servlet:
     encoding:
       charset: UTF-8
@@ -17,7 +17,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: "*"
 
 spring:
   application:
@@ -46,6 +46,8 @@ spring:
           batch_size: 50
         format_sql: true
         order_updates: true
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
 
 constants:
   file:
@@ -62,8 +64,8 @@ constants:
 
     access-token-cookie-name: access-token
     access-token-cookie-path: /
-    access-token-cookie-validity-seconds: 900
-    access-token-validity-milliseconds: 900_000
+    access-token-cookie-validity-seconds: 86_400
+    access-token-validity-milliseconds: 86_400_000
 
     refresh-token-cookie-name: refresh-token
     refresh-token-cookie-path: hanip-actor/api/user/reissue
