@@ -93,7 +93,7 @@ public class ReviewController {
         return new ResultResponse<>("리뷰 조회 성공", res);
     }
 
-    // 가게 리뷰 하나 조회
+    // 가게 리뷰 점수만 조회
     @GetMapping("/store-review/{storeId}")
     public ResponseEntity<ResultResponse<List<ReviewGetRatingRes>>> findByStoreIdAllReview(@PathVariable long storeId) {
         List<ReviewGetRatingRes> result = reviewService.findByStoreIdAllReview(storeId);
