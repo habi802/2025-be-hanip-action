@@ -11,8 +11,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class OrderGetDto {
     private long userId;
-    private String menuName;
-    private String storeName;
+    private String searchText;
     private int startIdx;
     private int size;
     private LocalDate startDate;

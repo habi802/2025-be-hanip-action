@@ -107,15 +107,13 @@
         JOIN orders_menu om
         ON o.id = om.order_id
         <where>
-        o.is_deleted = 0
-        AND o.`status` !=  '01'
+            o.is_deleted = 0
+            AND o.`status` !=  '01'
             AND o.user_id = #{userId}
-        <if test="storeName != null">
-        AND o.store_name LIKE CONCAT('%', #{storeName}, '%')
-        </if>
-        <if test="menuName != null">
-        AND om.menu_name LIKE  CONCAT('%', #{menuName}, '%')
-        </if>
+            <if test="searchText != null">
+                AND o.store_name LIKE CONCAT('%', #{searchText}, '%')
+                OR om.menu_name LIKE CONCAT('%', #{searchText}, '%')
+            </if>
             <if test="startDate != null and endDate != null">
                 AND o.created_at BETWEEN CONCAT(#{startDate}, ' 00:00:00')
                 AND CONCAT(#{endDate}, ' 23:59:59')

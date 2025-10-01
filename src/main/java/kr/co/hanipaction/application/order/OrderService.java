@@ -300,14 +300,10 @@ public class OrderService {
     public List<OrderGetRes> orderInfoListFix(OrderGetDto dto){
         List<OrderGetRes> orders = orderMapper.findOrders(dto);
 
-        List<OrderGetRes> orderList = new ArrayList<>(orders.size());
-
         for (OrderGetRes order : orders) {
-
             ResultResponse<StoreGetRes> storeId = storeClient.findStore(order.getStoreId());
             StoreGetRes storeRes = storeId.getResultData();
             Orders orderRes = orderRepository.findById(order.getOrderId()).orElse(null);
-
 
             order.setOrderId(orderRes.getId());
             order.setStoreId(storeRes.getId());
@@ -316,7 +312,6 @@ public class OrderService {
             order.setFavorites(storeRes.getFavorites());
             order.setMinAmount(storeRes.getMinAmount());
             order.setCreatedAt(orderRes.getCreatedAt());
-
 
             List<OrdersMenu> orderMenus = orderMenuRepository.findByOrders_Id(order.getOrderId());
 
@@ -330,7 +325,6 @@ public class OrderService {
                 menuRes.setAmount(orderMenu.getAmount());
                 menuRes.setQuantity(orderMenu.getQuantity());
 
-
                 List<OrdersMenuOption> menuOptions = orderMenuOptionRepository.findByOrdersItemId(orderMenu.getId());
 
                 List<OrdersMenuOption> rootOptions = convertToOptionTreeList(menuOptions);
@@ -339,11 +333,7 @@ public class OrderService {
 
                 order.getMenuItems().add(menuRes);
             }
-
-
         }
-
-
 
         return orders;
     }
