@@ -53,8 +53,8 @@ public class ReviewController {
                                     @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
         long userId = userPrincipal.getSignedUserId();
+        if (pics == null) pics = Collections.emptyList();
         int result = reviewService.modify(pics,req,userId);
-
         if(result == 0){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     String.format("리뷰 수정에 실패하였습니다."));
