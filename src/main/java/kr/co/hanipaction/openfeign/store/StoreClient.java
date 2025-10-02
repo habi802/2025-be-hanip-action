@@ -9,9 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @FeignClient(
-        name = "${constants.open-feign.actor.name:hanip-actor}",
+        name = "hanip-actor",
         contextId = "storeClient",
-        url = "${constants.open-feign.actor.url:}",
+        url = "${constants.open-feign.actor.url}",
         configuration = FeignConfiguration.class
 )
 public interface StoreClient {
