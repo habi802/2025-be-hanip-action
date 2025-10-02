@@ -129,6 +129,7 @@
             </if>
         </where>
         GROUP BY r.id
+        ORDER BY r.id DESC
         LIMIT #{startIdx}, #{size}
     </select>
 
