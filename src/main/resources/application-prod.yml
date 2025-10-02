@@ -11,7 +11,7 @@ constants:
     directory: D:/hanip/images
   open-feign:
     actor:
-      name: hanip-actor
+      url: http://hanip-actor
   jwt:
     issuer: green502@green.com
     bearer-format: JWT
