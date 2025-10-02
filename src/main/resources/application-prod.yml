@@ -1,7 +1,3 @@
-eureka:
-  client:
-    enabled: false
-
 server:
   port: 8080
   servlet:
@@ -9,6 +5,52 @@ server:
       charset: UTF-8
       enabled: true
       force: true
+
+constants:
+  file:
+    directory: D:/hanip/images
+  open-feign:
+    actor:
+      name: hanip-actor
+  jwt:
+    issuer: green502@green.com
+    bearer-format: JWT
+
+    claim-key: signedUser
+    secret-key: EvenTheDarkestNightWillEndAndTheSunWillRiseAgain2025!
+
+    access-token-cookie-name: access-token
+    access-token-cookie-path: /
+    access-token-cookie-validity-seconds: 86_400
+    access-token-validity-milliseconds: 86_400_000
+
+    refresh-token-cookie-name: refresh-token
+    refresh-token-cookie-path: /api/user/reissue
+    refresh-token-cookie-validity-seconds: 1_296_000
+    refresh-token-validity-milliseconds: 1_296_000_000
+  pay:
+    kakao:
+      base-url: https://open-api.kakaopay.com/online/v1/payment
+      data:
+        approval-url: https://greenart.n-e.kr/hanip/pay/approval
+        authorization-name: Authorization
+        cancel-url: https://greenart.n-e.kr/hanip/pay/cancel
+        cid: TC0ONETIME #테스트용 가맹점 코드
+        fail-url: https://greenart.n-e.kr/hanip/pay/fail
+        kakao-pay-info-session-name: kakao-pay-info
+        secret-key: DEV466852A4CD3DA43DBD5B51699A80D4874DD67
+    naver:
+      base-url: https://dev-pay.paygate.naver.com/np_rwdcz259458/naverpay/payments
+      data:
+        cid: np_rwdcz259458
+        client-id: HN3GGCMDdTgGUfl0kFCo
+        client-secret: ftZjkkRNMR
+        chain-id: NFlxNnUza3lTNzV
+        return-url: https://greenart.n-e.kr/hanip/order-test # 나중에 바꿔야함.
+
+eureka:
+  client:
+    enabled: false
 
 management:
   endpoint:
@@ -50,41 +92,6 @@ spring:
         order_updates: true
   lifecycle:
     timeout-per-shutdown-phase: 30s
-
-constants:
-  file:
-    directory: home/download/images
-  open-feign:
-    actor:
-      name: hanip-actor
-
-  jwt:
-    issuer: green502@green.com
-    bearer-format: JWT
-
-    claim-key: signedUser
-    secret-key: EvenTheDarkestNightWillEndAndTheSunWillRiseAgain2025!
-
-    access-token-cookie-name: access-token
-    access-token-cookie-path: /
-    access-token-cookie-validity-seconds: 86_400
-    access-token-validity-milliseconds: 86_400_000
-
-    refresh-token-cookie-name: refresh-token
-    refresh-token-cookie-path: hanip-actor/api/user/reissue
-    refresh-token-cookie-validity-seconds: 1_296_000
-    refresh-token-validity-milliseconds: 1_296_000_000
-  pay:
-    kakao:
-      base-url: https://open-api.kakaopay.com/online/v1/payment
-      data:
-        approval-url: http://localhost:5173/pay/approval
-        authorization-name: Authorization
-        cancel-url: http://localhost:5173/pay/cancel
-        cid: TC0ONETIME #테스트용 가맹점 코드
-        fail-url: http://localhost:5173/pay/fail
-        kakao-pay-info-session-name: kakao-pay-info
-        secret-key: DEV466852A4CD3DA43DBD5B51699A80D4874DD67
 
 mybatis:
   configuration:
