@@ -110,7 +110,7 @@
             o.is_deleted = 0
             AND o.`status` !=  '01'
             AND o.user_id = #{userId}
-            <if test="searchText != null">
+            <if test="searchText != null and searchText != ''">
                 AND o.store_name LIKE CONCAT('%', #{searchText}, '%')
                 OR om.menu_name LIKE CONCAT('%', #{searchText}, '%')
             </if>
