@@ -8,10 +8,10 @@ server:
 
 constants:
   file:
-    directory: D:/hanip/images
+    directory: home/download/images
   open-feign:
     actor:
-      url: http://hanip-actor
+      url: http://hanip-actor:8080
   jwt:
     issuer: green502@green.com
     bearer-format: JWT
