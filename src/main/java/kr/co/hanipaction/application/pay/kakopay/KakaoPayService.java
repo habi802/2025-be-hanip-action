@@ -40,7 +40,7 @@ public class KakaoPayService {
         Optional<Payment> payment = paymentRepository.findByOrderId(orders);
         Payment payDb = payment.get();
 
-        String dynamicReturnUrl = "http://localhost:5173/hanip/stores/" + orders.getStoreId() + "/order" + "?orderId=" +  orderId;
+        String dynamicReturnUrl = "https://greenart.n-e.kr/hanip/stores/" + orders.getStoreId() + "/order" + "?orderId=" +  orderId;
 
         String newOrderId = String.valueOf(orderId);
         String newUserId = String.valueOf(userId);
