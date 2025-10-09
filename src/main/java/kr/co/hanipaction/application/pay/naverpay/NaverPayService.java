@@ -89,7 +89,7 @@ public class NaverPayService {
 
         ObjectMapper mapper = new ObjectMapper();
 
-        String dynamicReturnUrl = "http://localhost:5173/hanip/stores/" + orders.getStoreId() + "/order";
+        String dynamicReturnUrl = "https://greenart.n-e.kr/hanip/stores/" + orders.getStoreId() + "/order";
 
         NaverPayReserveReq reserveReq = new NaverPayReserveReq();
         reserveReq.setMerchantPayKey(newOrderId);
