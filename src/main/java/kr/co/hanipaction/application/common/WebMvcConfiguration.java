@@ -24,7 +24,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
-        registry.addResourceHandler("/hanip-api/images/**", "/images/**")
+        registry.addResourceHandler("/hanip/images/**", "/images/**")
                 .addResourceLocations("file:" + constFile.getUploadDirectory());
 
         registry.addResourceHandler("/**")
