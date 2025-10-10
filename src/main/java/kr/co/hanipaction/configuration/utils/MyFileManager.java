@@ -46,6 +46,8 @@ public class MyFileManager {
         String directory = String.format("%s/Review/%d", constFile.uploadDirectory,contactId);
         myFileUtils.makeFolders(directory);
 
+        log.info("Creating directory for contact {}: {}", contactId, directory);
+
         List<String> randomFileNames = new ArrayList<>(pics.size());
         for(MultipartFile pic : pics) {
             String randomFileName = myFileUtils.makeRandomFileName(pic); //랜덤파일 이름 생성
