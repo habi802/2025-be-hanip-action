@@ -1,5 +1,7 @@
 package kr.co.hanipaction.application.common;
 
+import kr.co.hanipaction.configuration.constants.ConstFile;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -14,18 +16,16 @@ import java.io.IOException;
 
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 public class WebMvcConfiguration implements WebMvcConfigurer {
-    private final String uploadPath;
 
-    public WebMvcConfiguration(@Value("${constants.file.directory}") String uploadPath) {
-        this.uploadPath = uploadPath;
-        //log.info("upload path: {}", uploadPath);
-    }
+    private final ConstFile constFile;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/pic/**")
-                .addResourceLocations("file:" + uploadPath);
+
+        registry.addResourceHandler("/hanip-api/images/**", "/images/**")
+                .addResourceLocations("file:" + constFile.getUploadDirectory());
 
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/")
@@ -44,10 +44,4 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                 });
     }
 
-//    @Override
-//    public void addCorsMappings(CorsRegistry registry) {
-//        registry.addMapping("/**")
-//                .allowedOrigins("*")
-//                .allowedMethods("*");
-//    }
 }
