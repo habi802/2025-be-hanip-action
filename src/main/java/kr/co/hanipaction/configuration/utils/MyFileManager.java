@@ -67,13 +67,13 @@ public class MyFileManager {
     }
 
     private String makeReviewDirectoryPath(long reviewId) {
-        return String.format("Review/%d", reviewId);
+        return String.format("%s/Review/%d", constFile.getUploadDirectory(),reviewId);
     }
 
     //리뷰 폴더 삭제
     public void removeReviewDirectory(long reviewId) {
         String directory =  makeReviewDirectoryPath(reviewId);
-        String fullPath = "D:/hanip/images/" + directory;
-        myFileUtils.deleteFolder(fullPath, true);
+//        String fullPath = "D:/hanip/images/" + directory;
+        myFileUtils.deleteFolder(directory, true);
     }
 }
