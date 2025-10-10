@@ -8,7 +8,7 @@ server:
 
 constants:
   file:
-    directory: D:/hanip/images
+    upload-directory: D:/hanip/images
   open-feign:
     actor:
       url: http://localhost:8081

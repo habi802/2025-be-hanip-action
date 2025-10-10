@@ -43,7 +43,7 @@ public class MyFileManager {
 
     public List<String> saveReviewPics(long contactId, List<MultipartFile> pics) {
         //폴더 생성
-        String directory = String.format("Review/%d", contactId);
+        String directory = String.format("%s/Review/%d", constFile.uploadDirectory,contactId);
         myFileUtils.makeFolders(directory);
 
         List<String> randomFileNames = new ArrayList<>(pics.size());
