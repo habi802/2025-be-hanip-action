@@ -672,7 +672,7 @@ public class OrderService {
 //
 //    사장 조회용
 
-    public List<OrderDetailGetRes> findOrders(long storeId, long userId) {
+    public List<OrderDetailGetRes> findOrders(long userId, long storeId) {
         List<OrderDetailGetRes> orders= orderMapper.findOrdered(storeId);
 
         for(OrderDetailGetRes order: orders){
@@ -723,7 +723,7 @@ public class OrderService {
 
     }
 
-    public List<OrderDetailGetRes> findPreparing(long storeId, long userId) {
+    public List<OrderDetailGetRes> findPreparing(long userId, long storeId) {
         List<OrderDetailGetRes> orders= orderMapper.findPreParing(storeId);
 
         for(OrderDetailGetRes order: orders){

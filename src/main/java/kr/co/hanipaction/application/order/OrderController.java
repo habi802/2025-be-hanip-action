@@ -100,7 +100,7 @@ public class OrderController {
         long userId = userPrincipal.getSignedUserId();
 
         List<OrderDetailGetRes> result = orderService.findOrders(userId,storeId);
-        log.info("안녕하다 result: {}", result);
+        log.info("result: {}", result);
 
         return new ResultResponse<>(200,"주문 대기중 조회 완료",result);
 
@@ -161,7 +161,6 @@ public class OrderController {
         log.info("req: {}", req);
 
         OrderStatusDto orderStatusDto = OrderStatusDto.builder()
-                .userId(userPrincipal.getSignedUserId())
                 .storeId(req.getStoreId())
                 .startIdx((req.getPage() - 1) * req.getRowPerPage())
                 .size(req.getRowPerPage())
@@ -177,7 +176,7 @@ public class OrderController {
                 req.getPage(), req.getRowPerPage(),
                 (req.getPage() - 1) * req.getRowPerPage());
 
-        return new ResultResponse<>(200, "주문취소 리스트 조회 완료", result);
+        return new ResultResponse<>(200, "주문내역(완료,취소)리스트 조회 완료", result);
     }
 //
 //
