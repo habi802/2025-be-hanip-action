@@ -774,7 +774,7 @@ public class OrderService {
 
     }
 
-    public List<OrderDetailGetRes> findDelivered(long storeId, long userId) {
+    public List<OrderDetailGetRes> findDelivered(long userId, long storeId) {
         List<OrderDetailGetRes> orders= orderMapper.findDelivered(storeId);
 
         for(OrderDetailGetRes order: orders){
