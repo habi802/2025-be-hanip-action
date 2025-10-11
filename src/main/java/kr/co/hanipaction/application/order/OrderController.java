@@ -100,7 +100,7 @@ public class OrderController {
         long userId = userPrincipal.getSignedUserId();
 
         List<OrderDetailGetRes> result = orderService.findOrders(userId,storeId);
-        log.info("안녕하다 result: {}", result);
+        log.info("result: {}", result);
 
         return new ResultResponse<>(200,"주문 대기중 조회 완료",result);
 
