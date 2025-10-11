@@ -173,6 +173,7 @@
         SELECT *, o.id AS order_id
         FROM orders o
         WHERE (o.`status` = '05' OR o.`status` = '06')
+        AND o.store_id = #{storeId}
         <if test="startDate != null and endDate != null">
             AND o.created_at BETWEEN #{startDate} AND #{endDate}
         </if>

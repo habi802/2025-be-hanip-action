@@ -161,7 +161,6 @@ public class OrderController {
         log.info("req: {}", req);
 
         OrderStatusDto orderStatusDto = OrderStatusDto.builder()
-                .userId(userPrincipal.getSignedUserId())
                 .storeId(req.getStoreId())
                 .startIdx((req.getPage() - 1) * req.getRowPerPage())
                 .size(req.getRowPerPage())
@@ -177,7 +176,7 @@ public class OrderController {
                 req.getPage(), req.getRowPerPage(),
                 (req.getPage() - 1) * req.getRowPerPage());
 
-        return new ResultResponse<>(200, "주문취소 리스트 조회 완료", result);
+        return new ResultResponse<>(200, "주문내역(완료,취소)리스트 조회 완료", result);
     }
 //
 //
