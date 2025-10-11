@@ -1,7 +1,10 @@
 package kr.co.hanipaction.application.common.util;
 
+import kr.co.hanipaction.configuration.constants.ConstFile;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,22 +15,13 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 @Slf4j
-@Component //빈등록
+@Component
+
 public class MyFileUtils {
-    private final String uploadPath;
-
-    public String getUploadPath() {
-        return uploadPath;
-    }
-
-    public MyFileUtils(@Value("${constants.file.directory}") String uploadPath) {
-        log.info("MyFileUtils - 생성자: {}", uploadPath);
-        this.uploadPath = uploadPath;
-    }
 
     // path = "/ddd/nnn"
     public void makeFolders(String path) {
-        File file = new File(uploadPath, path);
+        File file = new File(path);
         if(!file.exists()) {
             file.mkdirs();
         }
@@ -56,7 +50,7 @@ public class MyFileUtils {
 
     //파일을 원하는 경로에 저장
     public void transferTo(MultipartFile mf, String path) throws IOException {
-        Path transPath = Paths.get(String.format("%s/%s", uploadPath, path)).toAbsolutePath();
+        Path transPath = Paths.get(path).toAbsolutePath();
         log.info("transPath: {}", transPath.toString());
         mf.transferTo(transPath.toFile());
     }

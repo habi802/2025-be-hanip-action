@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @FeignClient(
         name = "hanip-actor",
         contextId = "storeClient",
-        url = "${constants.open-feign.actor.url}",
+        url = "${constants.open-feign.actor.url:}",
         configuration = FeignConfiguration.class
 )
 public interface StoreClient {

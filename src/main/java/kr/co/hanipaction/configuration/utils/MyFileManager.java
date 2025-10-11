@@ -43,8 +43,10 @@ public class MyFileManager {
 
     public List<String> saveReviewPics(long contactId, List<MultipartFile> pics) {
         //폴더 생성
-        String directory = String.format("Review/%d", contactId);
+        String directory = String.format("%s/Review/%d", constFile.uploadDirectory,contactId);
         myFileUtils.makeFolders(directory);
+
+        log.info("Creating directory for contact {}: {}", contactId, directory);
 
         List<String> randomFileNames = new ArrayList<>(pics.size());
         for(MultipartFile pic : pics) {
@@ -67,13 +69,13 @@ public class MyFileManager {
     }
 
     private String makeReviewDirectoryPath(long reviewId) {
-        return String.format("Review/%d", reviewId);
+        return String.format("%s/Review/%d", constFile.getUploadDirectory(),reviewId);
     }
 
     //리뷰 폴더 삭제
     public void removeReviewDirectory(long reviewId) {
         String directory =  makeReviewDirectoryPath(reviewId);
-        String fullPath = "D:/hanip/images/" + directory;
-        myFileUtils.deleteFolder(fullPath, true);
+//        String fullPath = "D:/hanip/images/" + directory;
+        myFileUtils.deleteFolder(directory, true);
     }
 }
