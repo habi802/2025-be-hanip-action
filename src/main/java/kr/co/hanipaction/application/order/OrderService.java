@@ -990,7 +990,7 @@ public class OrderService {
                                .storeName(order.getStoreName())
                                .menu(orderMenu.get(0).getMenuName() + (orderMenu.size() > 2 ? " 외 " + (orderMenu.size() - 1) + " 건" : ""))
                                .storeAddress(storeAddress)
-                               .address(String.format("%s, %s, %s", order.getPostcode(), order.getAddress(), order.getAddressDetail()))
+                               .address(order.getPostcode() + ", " + order.getAddress() + (order.getAddressDetail() != null ? ", " + order.getAddressDetail() : ""))
                                .amount(order.getAmount())
                                .riderRequest(order.getRiderRequest())
                                .status(order.getStatus())
