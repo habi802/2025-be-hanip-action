@@ -42,6 +42,8 @@ public interface OrderMapper {
 
     List<DrOrderGetRes> findDrOrderList(long userId);
 
+    Integer findCountToday(); // 금일 주문 건 수 통계
+    Integer findSumToday(); // 금일 매출액 통계
     List<OrderStatsRes> findStatsByDate(OrderStatsDto dto); // 주문 건 수(총 주문 건 수, 취소된 건 수) 통계
     List<OrderAmountStatsRes> findAmountStatsByDate(OrderAmountStatsDto dto); // 매출액 통계
 

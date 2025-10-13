@@ -267,6 +267,18 @@ public class ManagerService {
         return periods;
     }
 
+    // 금일 주문 건 수, 매출액 통계
+    public List<Integer> getTodayStats() {
+        Integer orders = orderMapper.findCountToday();
+        Integer amount = orderMapper.findSumToday();
+
+        List<Integer> result = new ArrayList<>(2);
+        result.add(orders);
+        result.add(amount);
+
+        return result;
+    }
+
     // 주문 건 수(총 주문 건 수, 취소된 건 수) 통계
     public List<OrderStatsRes> getOrderStats(OrderStatsReq req) {
         String type = req.getType().toUpperCase();
