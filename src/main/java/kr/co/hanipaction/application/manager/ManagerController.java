@@ -60,6 +60,13 @@ public class ManagerController {
         return ResponseEntity.ok(ResultResponse.success("리뷰 수정 완료"));
     }
 
+    // 금일 주문 건 수, 매출액 통계
+    @GetMapping("/stats")
+    public ResponseEntity<ResultResponse<?>> getTodayStats() {
+        List<Integer> result = managerService.getTodayStats();
+        return ResponseEntity.ok(ResultResponse.success(result));
+    }
+
     // 주문 건 수(총 주문 건 수, 취소된 건 수) 통계
     @GetMapping("/order/stats")
     public ResponseEntity<ResultResponse<?>> getOrderStats(@ModelAttribute OrderStatsReq req) {
