@@ -56,6 +56,10 @@ eureka:
       defaultZone: http://localhost:8888/eureka
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 15MB
+
   application:
     name: hanip-action
   datasource:
