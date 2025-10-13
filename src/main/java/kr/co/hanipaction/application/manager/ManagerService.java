@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -85,7 +86,7 @@ public class ManagerService {
                                                        .and(OrderSpecification.hasStatus(req.getStatus()));
 
         // 페이징 및 페이지 사이즈 적용
-        Pageable pageable = req.getPageSize() == -1 ? Pageable.unpaged() : PageRequest.of(req.getPageNumber() - 1, req.getPageSize());
+        Pageable pageable = req.getPageSize() == -1 ? Pageable.unpaged() : PageRequest.of(req.getPageNumber() - 1, req.getPageSize(), Sort.by(Sort.Direction.DESC, "id"));
 
         Page<Orders> page = orderRepository.findAll(spec, pageable);
         List<OrderListRes> result = page.stream().map(order -> {
@@ -169,7 +170,7 @@ public class ManagerService {
                                                         .and(ReviewSpecification.hasIsHide(req.getIsHide()));
 
         // 페이징 및 페이지 사이즈 적용
-        Pageable pageable = req.getPageSize() == -1 ? Pageable.unpaged() : PageRequest.of(req.getPageNumber() - 1, req.getPageSize());
+        Pageable pageable = req.getPageSize() == -1 ? Pageable.unpaged() : PageRequest.of(req.getPageNumber() - 1, req.getPageSize(), Sort.by(Sort.Direction.DESC, "id"));
 
         Page<Review> page = reviewRepository.findAll(spec, pageable);
         List<ReviewListRes> result = page.stream().map(review -> {
