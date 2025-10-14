@@ -13,5 +13,6 @@ public class ConstKakaoPay {
     public final String failUrl;
     public final String kakaoPayInfoSessionName;
     public final String secretKey;
+    public final String returnUrl;
 
 }

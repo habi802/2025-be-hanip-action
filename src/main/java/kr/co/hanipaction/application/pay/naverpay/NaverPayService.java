@@ -2,6 +2,7 @@ package kr.co.hanipaction.application.pay.naverpay;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import kr.co.hanipaction.application.cart.CartRepository;
 import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.order.OrderMapper;
 import kr.co.hanipaction.application.order.OrderMenuRepository;
@@ -10,6 +11,7 @@ import kr.co.hanipaction.application.order.PaymentRepository;
 import kr.co.hanipaction.application.pay.naverpay.model.*;
 import kr.co.hanipaction.configuration.constants.ConstNaverPay;
 import kr.co.hanipaction.configuration.enumcode.model.OrdersType;
+import kr.co.hanipaction.entity.Cart;
 import kr.co.hanipaction.entity.Orders;
 import kr.co.hanipaction.entity.OrdersMenu;
 import kr.co.hanipaction.entity.Payment;
@@ -34,6 +36,7 @@ public class NaverPayService {
     private final MenuClient menuClient;
     private final NaverPayClient naverPayClient;
     private final OrderMenuRepository orderMenuRepository;
+    private final CartRepository cartRepository;
 
     @Transactional
     public NaverPayFrontDto reserve(long userId, long orderId){
@@ -127,7 +130,6 @@ public class NaverPayService {
 
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("paymentId", req.getPaymentId());
-
         NaverPayApplyRes res = naverPayClient.apply(form);
         return res;
     }
