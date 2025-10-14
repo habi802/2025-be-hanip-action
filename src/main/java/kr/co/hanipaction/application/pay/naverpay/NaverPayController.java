@@ -43,6 +43,9 @@ public class NaverPayController {
 
             orderService.statusPaid(userId,orderId);
             payService.statusPaid(userId,orderId);
+             List<Cart> cartuserId = cartRepository.findByUserId(userId);
+             cartRepository.deleteAll(cartuserId);
+
 
         return ResponseEntity.ok(new ResultResponse<>(200,"네이버페이 결제승인 완료 ",result));
     }
@@ -52,8 +55,7 @@ public class NaverPayController {
         long  userId = userPrincipal.getSignedUserId();
         
         int result = naverPayService.saveCid(userId,orderId,req);
-        List<Cart> cartuserId = cartRepository.findByUserId(userId);
-        cartRepository.deleteAll(cartuserId);
+
 
         return ResponseEntity.ok(new ResultResponse<>(200,"네이버페이 cid 확인 완료 ",result));
     }
