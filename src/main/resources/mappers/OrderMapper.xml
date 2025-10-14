@@ -142,7 +142,7 @@
         AND o.store_id = #{storeId}
         ORDER BY o.updated_at DESC;
     </select>
-<!--    배달중과 배달 완료 조회 / 프론트에서 보여지는 화면은 createAt이용해서 하루마다 초기화 해야할듯-->
+<!--    배달중과 배달 완료 조회 / 프론트에서 보여지는 화면은 createAt 이용해서 하루마다 초기화 해야할듯-->
     <select id="findDelivered">
         SELECT *, o.id AS order_id
         FROM orders o
@@ -175,7 +175,8 @@
         WHERE (o.`status` = '05' OR o.`status` = '06')
         AND o.store_id = #{storeId}
         <if test="startDate != null and endDate != null">
-            AND o.created_at BETWEEN #{startDate} AND #{endDate}
+            AND created_at BETWEEN CONCAT(#{startDate}, ' 00:00:00')
+            AND CONCAT(#{endDate}, ' 23:59:59')
         </if>
         <if test="keyword != null and keyword != ''">
             <choose>
@@ -187,7 +188,7 @@
                 </when>
             </choose>
         </if>
-        ORDER BY o.created_at DESC
+        ORDER BY o.updated_at DESC
     </select>
 
 <!-- 배달원이 조회할 것 메뉴랭스는 특정 메뉴 외 더 시킨 것 ' 치킨 메뉴 외 2건 ' -->
