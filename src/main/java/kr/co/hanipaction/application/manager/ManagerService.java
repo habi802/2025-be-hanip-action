@@ -99,7 +99,7 @@ public class ManagerService {
                                .orderId(order.getId())
                                .userName(userRes.getBody().getResultData())
                                .storeName(storeRes.getBody().getResultData().getName())
-                               .address(order.getPostcode() + order.getAddress() + (order.getAddressDetail() != null && !order.getAddressDetail().isEmpty() ? ", " + order.getAddressDetail() : ""))
+                               .address(order.getPostcode() + ", " + order.getAddress() + (order.getAddressDetail() != null && !order.getAddressDetail().isEmpty() ? ", " + order.getAddressDetail() : ""))
                                .payment(order.getPayment().getCode())
                                .status(order.getStatus().getCode())
                                .isDeleted(order.getIsDeleted())
