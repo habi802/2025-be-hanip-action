@@ -1,17 +1,20 @@
 package kr.co.hanipaction.application.pay.naverpay;
 
 
+import kr.co.hanipaction.application.cart.CartRepository;
 import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.order.OrderService;
 import kr.co.hanipaction.application.pay.PayService;
 import kr.co.hanipaction.application.pay.naverpay.model.*;
 import kr.co.hanipaction.configuration.model.UserPrincipal;
+import kr.co.hanipaction.entity.Cart;
 import kr.co.hanipaction.entity.Payment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -21,6 +24,7 @@ public class NaverPayController {
     public final NaverPayService naverPayService;
     private final OrderService orderService;
     private final PayService payService;
+    private final CartRepository cartRepository;
 
     @GetMapping("/naverPay/reserve/{orderId}")
     public ResponseEntity<ResultResponse<NaverPayFrontDto>> reserve(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long orderId){
@@ -40,7 +44,6 @@ public class NaverPayController {
             orderService.statusPaid(userId,orderId);
             payService.statusPaid(userId,orderId);
 
-
         return ResponseEntity.ok(new ResultResponse<>(200,"네이버페이 결제승인 완료 ",result));
     }
     
@@ -49,6 +52,8 @@ public class NaverPayController {
         long  userId = userPrincipal.getSignedUserId();
         
         int result = naverPayService.saveCid(userId,orderId,req);
+        List<Cart> cartuserId = cartRepository.findByUserId(userId);
+        cartRepository.deleteAll(cartuserId);
 
         return ResponseEntity.ok(new ResultResponse<>(200,"네이버페이 cid 확인 완료 ",result));
     }

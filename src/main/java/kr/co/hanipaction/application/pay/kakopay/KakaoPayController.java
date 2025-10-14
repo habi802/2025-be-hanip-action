@@ -1,15 +1,19 @@
 package kr.co.hanipaction.application.pay.kakopay;
 
 
+import kr.co.hanipaction.application.cart.CartRepository;
 import kr.co.hanipaction.application.common.model.ResultResponse;
 import kr.co.hanipaction.application.order.OrderService;
 import kr.co.hanipaction.application.pay.PayService;
 import kr.co.hanipaction.application.pay.kakopay.model.*;
 import kr.co.hanipaction.configuration.model.UserPrincipal;
+import kr.co.hanipaction.entity.Cart;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,6 +22,7 @@ public class KakaoPayController {
     private final KakaoPayService kakaoPayService;
     private final OrderService orderService;
     private final PayService payService;
+    private final CartRepository cartRepository;
 
     @PostMapping("/kakaoPay/ready/{orderId}")
     public ResponseEntity<ResultResponse<?>> postReady(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long orderId) {
@@ -37,6 +42,9 @@ public class KakaoPayController {
      if(res !=null){
         orderService.statusPaid(userId,orderId);
         payService.statusPaid(userId,orderId);
+         List<Cart> cartuserId = cartRepository.findByUserId(userId);
+         cartRepository.deleteAll(cartuserId);
+
      }
         return ResponseEntity.ok(new ResultResponse<>(200,"카카오페이 승인 완료", res ));
     }
