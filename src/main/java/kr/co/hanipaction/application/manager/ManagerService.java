@@ -5,13 +5,15 @@ import kr.co.hanipaction.application.manager.model.*;
 import kr.co.hanipaction.application.manager.specification.OrderSpecification;
 import kr.co.hanipaction.application.manager.specification.ReviewSpecification;
 import kr.co.hanipaction.application.order.OrderMapper;
+import kr.co.hanipaction.application.order.OrderMenuRepository;
 import kr.co.hanipaction.application.order.OrderRepository;
 import kr.co.hanipaction.application.review.ReviewRepository;
 import kr.co.hanipaction.application.review.ReviewService;
 import kr.co.hanipaction.configuration.enumcode.model.StatusType;
-import kr.co.hanipaction.entity.Orders;
-import kr.co.hanipaction.entity.Review;
-import kr.co.hanipaction.entity.ReviewImage;
+import kr.co.hanipaction.entity.*;
+import kr.co.hanipaction.openfeign.menu.MenuClient;
+import kr.co.hanipaction.openfeign.menu.model.MenuGetReq;
+import kr.co.hanipaction.openfeign.menu.model.MenuGetRes;
 import kr.co.hanipaction.openfeign.store.StoreClient;
 import kr.co.hanipaction.openfeign.store.model.StoreInManagerRes;
 import kr.co.hanipaction.openfeign.store.model.StoreListReq;
@@ -34,8 +36,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -43,7 +45,9 @@ import java.util.List;
 public class ManagerService {
     private final UserClient userClient;
     private final StoreClient storeClient;
+    private final MenuClient menuClient;
     private final OrderRepository orderRepository;
+    private final OrderMenuRepository orderMenuRepository;
     private final OrderMapper orderMapper;
     private final ReviewRepository reviewRepository;
     private final ReviewService reviewService;
@@ -118,7 +122,36 @@ public class ManagerService {
         ResponseEntity<ResultResponse<String>> userRes = userClient.getUserNameInManager(token, order.getUserId());
         ResponseEntity<ResultResponse<StoreInManagerRes>> storeRes = storeClient.getStoreNameInManager(token, order.getStoreId());
 
+        // 주문 메뉴 조회
+        List<OrderInManagerRes.OrderMenuItemRes> menus = new ArrayList<>(order.getItems().size());
+        for (OrdersMenu menu : order.getItems()) {
+            Optional<OrdersMenu> orderMenus =orderMenuRepository.findById(menu.getId());
+
+            OrdersMenu menuInfo = orderMenus.get();
+
+            MenuGetReq menuGetReq = new MenuGetReq();
+            menuGetReq.setMenuIds(Collections.singletonList(menu.getMenuId()));
+            menuGetReq.setOptionIds(menu.getOptions().stream().map(OrdersMenuOption::getOptionId).collect(Collectors.toList()));
+
+            ResultResponse<List<MenuGetRes>> menuRes = menuClient.getOrderMenu(menuGetReq);
+
+            MenuGetRes menuOne = menuRes.getResultData().get(0);
+
+            OrderInManagerRes.OrderMenuItemRes menuItemRes = new OrderInManagerRes.OrderMenuItemRes();
+            menuItemRes.setMenuId(menu.getMenuId());
+            menuItemRes.setName(menu.getMenuName());
+            menuItemRes.setPrice(menuOne.getPrice());
+            menuItemRes.setQuantity(menuInfo.getQuantity());
+            menuItemRes.setImagePath(menu.getMenuImg());
+
+            List<OrderInManagerRes.OrderMenuOptionRes> options = convertToOptionTree(menu.getOptions());
+            menuItemRes.setOptions(options);
+
+            menus.add(menuItemRes);
+        }
+
         return OrderInManagerRes.builder()
+                                .storeId(order.getStoreId())
                                 .createdAt(order.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                                 .orderId(orderId)
                                 .userName(userRes.getBody().getResultData())
@@ -128,7 +161,35 @@ public class ManagerService {
                                 .payment(order.getPayment().getCode())
                                 .status(order.getStatus().getCode())
                                 .isDeleted(order.getIsDeleted())
+                                .menus(menus)
                                 .build();
+    }
+
+    // 메뉴 옵션 전환
+    public List<OrderInManagerRes.OrderMenuOptionRes> convertToOptionTree(List<OrdersMenuOption> allOptions) {
+        Map<Long, OrderInManagerRes.OrderMenuOptionRes> optionMap = new HashMap<>();
+
+        for (OrdersMenuOption option : allOptions) {
+            OrderInManagerRes.OrderMenuOptionRes optionRes = new OrderInManagerRes.OrderMenuOptionRes();
+            optionRes.setOptionId(option.getOptionId());
+            optionRes.setComment(option.getOptionName());
+            optionRes.setPrice(option.getOptionPrice());
+
+            optionMap.put(option.getOptionId(), optionRes);
+        }
+
+        List<OrderInManagerRes.OrderMenuOptionRes> rootOptions = new ArrayList<>();
+
+        for (OrdersMenuOption option : allOptions) {
+            if (option.getParentId() == null) {
+                rootOptions.add(optionMap.get(option.getOptionId()));
+            } else {
+                OrderInManagerRes.OrderMenuOptionRes parentOption = optionMap.get(option.getParentId());
+                parentOption.getChildren().add(optionMap.get(option.getOptionId()));
+            }
+        }
+
+        return rootOptions;
     }
 
     // 주문 취소
