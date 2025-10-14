@@ -29,7 +29,6 @@ public class NaverPayController {
     @GetMapping("/naverPay/reserve/{orderId}")
     public ResponseEntity<ResultResponse<NaverPayFrontDto>> reserve(@AuthenticationPrincipal UserPrincipal userPrincipal, @PathVariable long orderId){
         long  userId = userPrincipal.getSignedUserId();
-
         NaverPayFrontDto result = naverPayService.reserve(userId,orderId);
         return ResponseEntity.ok(new ResultResponse<>(200,"네이버페이 결제확인 완료 ",result));
     }
@@ -38,11 +37,13 @@ public class NaverPayController {
     public ResponseEntity<ResultResponse<NaverPayApplyRes>> apply(@AuthenticationPrincipal UserPrincipal userPrincipal, @ModelAttribute NaverPayApplyReq req, @PathVariable long orderId){
         long  userId = userPrincipal.getSignedUserId();
 
-
         NaverPayApplyRes result = naverPayService.apply(userId,req);
-
+        List<Cart> cartuserId = cartRepository.findByUserId(userId);
+        cartRepository.deleteAll(cartuserId);
             orderService.statusPaid(userId,orderId);
             payService.statusPaid(userId,orderId);
+
+
 
         return ResponseEntity.ok(new ResultResponse<>(200,"네이버페이 결제승인 완료 ",result));
     }
@@ -52,8 +53,7 @@ public class NaverPayController {
         long  userId = userPrincipal.getSignedUserId();
         
         int result = naverPayService.saveCid(userId,orderId,req);
-        List<Cart> cartuserId = cartRepository.findByUserId(userId);
-        cartRepository.deleteAll(cartuserId);
+
 
         return ResponseEntity.ok(new ResultResponse<>(200,"네이버페이 cid 확인 완료 ",result));
     }
