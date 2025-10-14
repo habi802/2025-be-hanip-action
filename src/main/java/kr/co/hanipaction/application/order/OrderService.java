@@ -168,9 +168,6 @@ public class OrderService {
 //                        .build()
 //        );
 
-        // 카트 비우기
-        cartRepository.deleteAll(userId);
-
         //메뉴 갯수 n건....
         String itemName;
 
