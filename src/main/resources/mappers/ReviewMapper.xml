@@ -123,6 +123,7 @@
         ON o.id = om.order_id
         <where>
         o.store_id = #{storeId}
+            AND r.is_hide = 0
             <if test="startDate != null and endDate != null">
                 AND r.created_at BETWEEN CONCAT(#{startDate}, ' 00:00:00')
                 AND CONCAT(#{endDate}, ' 23:59:59')
