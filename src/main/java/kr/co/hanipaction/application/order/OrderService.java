@@ -81,6 +81,7 @@ public class OrderService {
                 .storeId(dto.getStoreId())
                 .postcode(dto.getPostcode())
                 .address(dto.getAddress())
+                .addressDetail(dto.getAddressDetail())
                 .status(dto.getStatus())
                 .userPhone(userInfo.getUserTel())
                 .storeRequest(dto.getStoreRequest())
